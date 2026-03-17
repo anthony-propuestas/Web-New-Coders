@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 const LESSONS = [
   // ============================================
@@ -438,7 +438,7 @@ const LESSONS = [
   }
 ];
 
-const START_DATE = new Date('2026-03-17');
+const START_DATE = new Date('2026-04-01T00:00:00'); // Fecha de inicio del curso
 
 export default function App() {
   const [currentView, setCurrentView] = useState('calendar');
@@ -461,7 +461,41 @@ export default function App() {
   });
 
   const today = new Date();
-  
+
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, started: false });
+
+  useEffect(() => {
+    const calc = () => {
+      const diff = START_DATE - new Date();
+      if (diff <= 0) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0, started: true });
+        return;
+      }
+      setCountdown({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+        started: false,
+      });
+    };
+    calc();
+    const interval = setInterval(calc, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const stars = useMemo(() =>
+    Array.from({ length: 160 }, (_, i) => ({
+      id: i,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      size: Math.random() * 1.8 + 0.4,
+      opacity: Math.random() * 0.6 + 0.2,
+      delay: Math.random() * 4,
+      duration: Math.random() * 3 + 2,
+    }))
+  , []);
+
   const getDayStatus = (dayNumber) => {
     const lessonDate = new Date(START_DATE);
     lessonDate.setDate(lessonDate.getDate() + (dayNumber - 1));
@@ -687,6 +721,24 @@ export default function App() {
   // Calendar View
   return (
     <div className="min-h-screen bg-dark-bg text-text-light font-mono flex flex-col">
+      {/* Fondo de estrellas */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+        {stars.map(s => (
+          <div
+            key={s.id}
+            className="absolute rounded-full bg-white star-twinkle"
+            style={{
+              top: `${s.top}%`,
+              left: `${s.left}%`,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+              opacity: s.opacity,
+              animationDelay: `${s.delay}s`,
+              animationDuration: `${s.duration}s`,
+            }}
+          />
+        ))}
+      </div>
       {/* Header */}
       <header className="border-b border-border-dark p-8 text-center" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.13) 0%, rgba(191,0,255,0.06) 50%, transparent 80%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
         <h1 className="text-5xl font-bold text-neon-green mb-2">
@@ -712,6 +764,38 @@ export default function App() {
       {/* Calendar Grid */}
       <main className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
+          {/* Countdown */}
+          <div className="mb-4 rounded-lg border border-neon-cyan p-5 text-center" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.06) 0%, rgba(191,0,255,0.06) 100%)' }}>
+            {countdown.started ? (
+              <p className="text-neon-green text-lg font-bold tracking-widest" style={{ fontFamily: 'Orbitron, monospace' }}>
+                ✦ ¡EL CURSO HA COMENZADO! ✦
+              </p>
+            ) : (
+              <>
+                <p className="text-neon-cyan text-xs uppercase tracking-widest mb-3" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Inicio del programa — 1 Abril 2026
+                </p>
+                <div className="flex justify-center gap-6">
+                  {[
+                    { value: countdown.days,    label: 'DÍAS' },
+                    { value: countdown.hours,   label: 'HORAS' },
+                    { value: countdown.minutes, label: 'MIN' },
+                    { value: countdown.seconds, label: 'SEG' },
+                  ].map(({ value, label }) => (
+                    <div key={label} className="flex flex-col items-center">
+                      <span className="text-3xl font-bold text-neon-green" style={{ fontFamily: 'Orbitron, monospace', minWidth: '2.5rem' }}>
+                        {String(value).padStart(2, '0')}
+                      </span>
+                      <span className="text-xs text-neon-yellow mt-1 tracking-widest" style={{ fontFamily: 'Orbitron, monospace' }}>
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {/* Casilla especial: New Coders Temporada 1 */}
             <button

@@ -110,6 +110,15 @@ button:hover .text-neon-green {
   text-shadow: 0 0 16px rgba(0, 212, 255, 1), 0 0 32px rgba(0, 212, 255, 0.6);
 }
 
+/* ── Estrellas: animación twinkle ── */
+@keyframes star-twinkle {
+  0%, 100% { opacity: 1;    transform: scale(1); }
+  50%      { opacity: 0.08; transform: scale(0.5); }
+}
+.star-twinkle {
+  animation: star-twinkle 3s ease-in-out infinite;
+}
+
 /* ── Clase utilitaria de fondo de tarjeta ── */
 @layer components {
   .neon-text {
