@@ -1,424 +1,439 @@
 import React, { useState, useEffect } from 'react';
 
 const LESSONS = [
+  // ============================================
+  // SEMANA 1: FUNDAMENTOS + HTML
+  // ============================================
   {
     day: 1,
     title: "¿Qué es programar?",
     category: "Fundamentos",
-    theory: "Programar es dar instrucciones precisas a una computadora para que realice tareas específicas. Es como escribir recetas: necesitas pasos claros en orden correcto. Los programas están en todas partes: apps en tu teléfono, sitios web, videojuegos, y hasta los sistemas que controlan coches autónomos.",
+    theory: "Programar es dar instrucciones precisas a una computadora para que realice tareas. Estas instrucciones se escriben en lenguajes de programación que la máquina puede entender. Es como escribir una receta de cocina: paso a paso, sin ambigüedades. En este curso aprenderás tres lenguajes: HTML/CSS para la parte visual, JavaScript para la lógica, y Python para el servidor.",
     codeExample: {
       language: "javascript",
       code: "console.log('¡Hola, mundo!');"
     },
-    challenge: "Abre la consola de tu navegador (presiona F12, ve a 'Console') y escribe tu primer console.log con tu nombre. Por ejemplo: console.log('Mi nombre es Juan');",
+    challenge: "Abre la consola de tu navegador (presiona F12, ve a la pestaña 'Console') y escribe: console.log('¡Hola, soy un programador!'); Luego presiona Enter y observa el resultado.",
     resources: [
-      { label: "MDN: ¿Qué es JavaScript?", url: "https://developer.mozilla.org/es/docs/Learn/JavaScript/First_steps/What_is_JavaScript" }
+      { label: "GitHub: Recursos para principiantes", url: "https://github.com/" }
     ]
   },
   {
     day: 2,
-    title: "Variables: contenedores de datos",
+    title: "Conociendo las herramientas",
     category: "Fundamentos",
-    theory: "Las variables son contenedores donde almacenamos información. Piensa en ellas como cajas con etiquetas. Cada caja (variable) tiene un nombre único y puede guardar un valor. En JavaScript usamos 'let' o 'const' para crear variables. 'const' es para valores que no cambiarán, y 'let' para valores que sí cambiarán.",
+    theory: "Todo programador necesita herramientas básicas: un editor de código (VS Code es el más popular y gratuito), un navegador web moderno (Chrome o Firefox) y una terminal o consola. El editor es donde escribes tu código, el navegador donde ves el resultado, y la terminal donde ejecutas comandos. Instalar VS Code es el primer paso real para comenzar.",
     codeExample: {
-      language: "javascript",
-      code: "const nombre = 'Ana';\nlet edad = 25;\nlet altura = 1.65;\n\nconsole.log(nombre);\nconsole.log(edad);"
+      language: "html",
+      code: "<!-- Esto es un comentario en HTML -->\n<!-- Tu primer archivo se llamará index.html -->\n<p>¡Hola desde VS Code!</p>"
     },
-    challenge: "Crea tres variables: tu nombre, tu edad y tu color favorito. Usa console.log para mostrar cada una en la consola.",
+    challenge: "Descarga e instala VS Code desde code.visualstudio.com. Crea una carpeta llamada 'mi-primer-proyecto', ábrela en VS Code y crea un archivo llamado index.html.",
     resources: [
-      { label: "MDN: Variables", url: "https://developer.mozilla.org/es/docs/Learn/JavaScript/First_steps/Variables" }
+      { label: "GitHub: VS Code", url: "https://github.com/" }
     ]
   },
   {
     day: 3,
-    title: "Tipos de datos: números, textos y booleanos",
-    category: "Fundamentos",
-    theory: "JavaScript tiene diferentes tipos de datos: Números (5, 3.14), Textos o Strings ('Hola', 'Juan'), Booleanos (verdadero/falso). El tipo de dato determina qué operaciones puedes hacer. Los números se pueden sumar, los textos se pueden combinar, y los booleanos representan condiciones de verdadero o falso.",
+    title: "Tu primera página web",
+    category: "HTML",
+    theory: "HTML (HyperText Markup Language) es el lenguaje que estructura el contenido de las páginas web. No es un lenguaje de programación, sino de marcado: usas etiquetas para decirle al navegador qué tipo de contenido estás mostrando. Todo documento HTML tiene una estructura base con las etiquetas <!DOCTYPE html>, <html>, <head> y <body>. El contenido visible va dentro de <body>.",
     codeExample: {
-      language: "javascript",
-      code: "const numero = 42;\nconst texto = 'JavaScript';\nconst esVerdadero = true;\nconst esFalso = false;\n\nconsole.log(typeof numero);    // 'number'\nconsole.log(typeof texto);     // 'string'\nconsole.log(typeof esVerdadero); // 'boolean'"
+      language: "html",
+      code: "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Mi primera página</title>\n</head>\n<body>\n  <h1>¡Hola, mundo!</h1>\n  <p>Esta es mi primera página web.</p>\n</body>\n</html>"
     },
-    challenge: "Crea variables con al menos un número, un texto y un booleano. Usa console.log con 'typeof' para verificar que son del tipo correcto.",
+    challenge: "Copia la estructura HTML del ejemplo en tu archivo index.html y ábrelo en el navegador haciendo doble clic sobre el archivo. Cambia el texto del <h1> y del <p> por tu nombre y una frase sobre ti.",
     resources: [
-      { label: "MDN: Tipos de datos", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Data_structures" }
+      { label: "GitHub: HTML básico", url: "https://github.com/" }
     ]
   },
   {
     day: 4,
-    title: "Operadores: suma, resta y más",
-    category: "Fundamentos",
-    theory: "Los operadores permiten hacer cálculos y comparaciones. Tenemos operadores aritméticos (+, -, *, /), operadores de comparación (>, <, ===), y operadores lógicos (&&, ||). Por ejemplo, puedes sumar dos números, comparar si uno es mayor que otro, o combinar múltiples condiciones.",
+    title: "Encabezados y párrafos",
+    category: "HTML",
+    theory: "Los encabezados van de <h1> (el más importante) a <h6> (el menos importante). Sirven para organizar el contenido jerárquicamente, como los títulos y subtítulos de un libro. Los párrafos se crean con <p> y representan bloques de texto. Cada etiqueta tiene una apertura (<p>) y un cierre (</p>). También puedes usar <br> para saltos de línea y <hr> para líneas horizontales divisorias.",
     codeExample: {
-      language: "javascript",
-      code: "const a = 10;\nconst b = 3;\n\nconsole.log(a + b);    // 13\nconsole.log(a - b);    // 7\nconsole.log(a * b);    // 30\nconsole.log(a / b);    // 3.33...\nconsole.log(a > b);    // true\nconsole.log(a === b);  // false"
+      language: "html",
+      code: "<h1>Título principal</h1>\n<h2>Subtítulo</h2>\n<p>Este es un párrafo con texto.</p>\n<p>Este es otro párrafo separado.</p>\n<hr>\n<h3>Otra sección</h3>\n<p>Más contenido aquí.</p>"
     },
-    challenge: "Crea dos variables numéricas y usa al menos 4 operadores diferentes con ellas. Muestra los resultados en la consola.",
+    challenge: "Crea una página tipo 'blog personal' con un <h1> con tu nombre, un <h2> que diga 'Sobre mí', un párrafo de presentación, otro <h2> que diga 'Mis hobbies' y un párrafo listando tus pasatiempos.",
     resources: [
-      { label: "MDN: Operadores", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Guide/Expressions_and_Operators" }
+      { label: "GitHub: Etiquetas de texto HTML", url: "https://github.com/" }
     ]
   },
   {
     day: 5,
-    title: "Strings: trabajar con texto",
-    category: "Fundamentos",
-    theory: "Los strings (cadenas de texto) son secuencias de caracteres. Puedes combinarlos con el operador +, obtener su longitud con .length, o extraer partes usando métodos. Los strings son muy útiles para mostrar mensajes, nombres, direcciones y cualquier texto en tu aplicación.",
+    title: "Enlaces e imágenes",
+    category: "HTML",
+    theory: "Los enlaces (<a>) conectan páginas entre sí y son la base de la web. Usan el atributo href para indicar hacia dónde llevan. Las imágenes (<img>) muestran archivos visuales usando el atributo src para la ruta de la imagen y alt para un texto alternativo que describe la imagen. La etiqueta <img> es especial porque no tiene cierre (es 'auto-cerrada'). Los enlaces pueden apuntar a otras páginas, archivos, o secciones dentro de la misma página.",
     codeExample: {
-      language: "javascript",
-      code: "const saludo = 'Hola';\nconst nombre = 'María';\n\nconst mensaje = saludo + ' ' + nombre;\nconsole.log(mensaje);        // 'Hola María'\nconsole.log(nombre.length);  // 5\nconsole.log(nombre.toUpperCase()); // 'MARÍA'\nconsole.log(nombre.toLowerCase()); // 'maría'"
+      language: "html",
+      code: "<a href=\"https://google.com\" target=\"_blank\">Ir a Google</a>\n\n<img src=\"foto.jpg\" alt=\"Descripción de la foto\" width=\"300\">\n\n<a href=\"pagina2.html\">Ir a otra página</a>"
     },
-    challenge: "Crea al menos 2 strings y combínalos de diferentes maneras. Prueba métodos como .length, .toUpperCase(), .toLowerCase().",
+    challenge: "Agrega a tu página personal un enlace a tu red social favorita (con target='_blank' para que abra en nueva pestaña) y una imagen. Puedes usar cualquier imagen de internet copiando su URL en el atributo src.",
     resources: [
-      { label: "MDN: Strings", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/String" }
+      { label: "GitHub: Enlaces e imágenes", url: "https://github.com/" }
     ]
   },
   {
     day: 6,
-    title: "Condicionales: if y else",
-    category: "Control de Flujo",
-    theory: "Los condicionales (if/else) permiten que tu código tome decisiones. Si una condición es verdadera, ejecuta un bloque de código; si es falsa, ejecuta otro. Es como escrito cómo decir 'Si llueve, lleva paraguas, si no, lleva sombrilla'.",
+    title: "Listas en HTML",
+    category: "HTML",
+    theory: "Existen dos tipos principales de listas: ordenadas (<ol>) que muestran números automáticamente, y no ordenadas (<ul>) que muestran viñetas. Cada elemento dentro de la lista se envuelve con <li>. Las listas son muy comunes en la web: menús de navegación, pasos de instrucciones, listas de productos, etc. También puedes anidar listas dentro de otras listas para crear subniveles.",
     codeExample: {
-      language: "javascript",
-      code: "const edad = 18;\n\nif (edad >= 18) {\n  console.log('Eres mayor de edad');\n} else {\n  console.log('Eres menor de edad');\n}\n\n// También puedes usar else if\nif (edad < 13) {\n  console.log('Eres un niño');\n} else if (edad < 18) {\n  console.log('Eres un adolescente');\n} else {\n  console.log('Eres un adulto');\n}"
+      language: "html",
+      code: "<h3>Mis lenguajes favoritos:</h3>\n<ul>\n  <li>JavaScript</li>\n  <li>Python</li>\n  <li>HTML/CSS</li>\n</ul>\n\n<h3>Pasos para aprender a programar:</h3>\n<ol>\n  <li>Elige un lenguaje</li>\n  <li>Practica todos los días</li>\n  <li>Construye proyectos</li>\n</ol>"
     },
-    challenge: "Crea una variable con tu edad y usa if/else para mostrar un mensaje diferente si eres menor, igual o mayor a 18 años.",
+    challenge: "Crea una lista no ordenada con 5 cosas que te gustaría programar y una lista ordenada con los 3 pasos que seguirás para lograrlo. Añádelas a tu página personal.",
     resources: [
-      { label: "MDN: Condicionales", url: "https://developer.mozilla.org/es/docs/Learn/JavaScript/Building_blocks/conditionals" }
+      { label: "GitHub: Listas HTML", url: "https://github.com/" }
     ]
   },
   {
     day: 7,
-    title: "Operadores lógicos: AND, OR, NOT",
-    category: "Control de Flujo",
-    theory: "Los operadores lógicos (&& AND, || OR, ! NOT) permiten combinar múltiples condiciones. && significa 'Y' (ambas deben ser verdaderas), || significa 'O' (al menos una debe ser verdadera), y ! significa 'NO' (invierte el resultado).",
+    title: "Formularios básicos",
+    category: "HTML",
+    theory: "Los formularios (<form>) permiten que los usuarios envíen información. Son la base de registros, logins, buscadores y más. Los campos más comunes son: <input> para texto, email, contraseñas y números; <textarea> para textos largos; <select> para menús desplegables; y <button> para enviar. Cada campo debería tener un <label> asociado que describa qué información se pide. El atributo type del input define qué tipo de dato acepta.",
     codeExample: {
-      language: "javascript",
-      code: "const edad = 25;\nconst tieneCarnet = true;\n\n// AND: ambas condiciones deben ser verdaderas\nif (edad >= 18 && tieneCarnet) {\n  console.log('Puedes conducir');\n}\n\n// OR: al menos una debe ser verdadera\nif (edad < 13 || !tieneCarnet) {\n  console.log('No puedes conducir');\n}\n\n// NOT: invierte el resultado\nif (!tieneCarnet) {\n  console.log('No tienes carnet');\n}"
+      language: "html",
+      code: "<form>\n  <label for=\"nombre\">Nombre:</label>\n  <input type=\"text\" id=\"nombre\" placeholder=\"Tu nombre\">\n\n  <label for=\"email\">Email:</label>\n  <input type=\"email\" id=\"email\" placeholder=\"tu@email.com\">\n\n  <label for=\"mensaje\">Mensaje:</label>\n  <textarea id=\"mensaje\" rows=\"4\"></textarea>\n\n  <button type=\"submit\">Enviar</button>\n</form>"
     },
-    challenge: "Crea variables para simular si puedes entrar a un cine (edad >= 13 y tener dinero). Usa && y || para probar diferentes combinaciones.",
+    challenge: "Crea un formulario de contacto con campos para: nombre, email, asunto (un select con 3 opciones) y mensaje. Añade un botón de enviar. No te preocupes si no funciona aún, eso lo veremos con JavaScript.",
     resources: [
-      { label: "MDN: Operadores Lógicos", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Guide/Expressions_and_Operators#operadores_lógicos" }
+      { label: "GitHub: Formularios HTML", url: "https://github.com/" }
     ]
   },
+ 
+  // ============================================
+  // SEMANA 2: CSS
+  // ============================================
   {
     day: 8,
-    title: "Bucle for: repetir código",
-    category: "Control de Flujo",
-    theory: "A veces necesitas repetir un código varias veces. El bucle 'for' es perfecto para esto. Especificas cuántas veces repetir y qué código ejecutar en cada iteración. Por ejemplo, para imprimir números del 1 al 10 o para procesar elementos de una lista.",
+    title: "Introducción a CSS",
+    category: "CSS",
+    theory: "CSS (Cascading Style Sheets) es el lenguaje que le da estilo visual a tu HTML: colores, tamaños, espaciados, fuentes y posiciones. Se puede escribir de tres formas: en línea (dentro de la etiqueta con style='...'), interno (en un bloque <style> en el <head>) o externo (en un archivo .css separado, que es la forma recomendada). Un archivo CSS se conecta al HTML con la etiqueta <link>. Las reglas CSS se componen de un selector (qué elemento), una propiedad (qué cambiar) y un valor (cómo cambiarlo).",
     codeExample: {
-      language: "javascript",
-      code: "// Imprime números del 1 al 5\nfor (let i = 1; i <= 5; i++) {\n  console.log(i);\n}\n\n// Imprime 'Hola' 3 veces\nfor (let i = 0; i < 3; i++) {\n  console.log('Hola ' + i);\n}\n\n// Puedes decrementar también\nfor (let i = 5; i >= 1; i--) {\n  console.log(i);\n}"
+      language: "css",
+      code: "/* archivo: styles.css */\nbody {\n  font-family: Arial, sans-serif;\n  background-color: #f0f0f0;\n  margin: 0;\n  padding: 20px;\n}\n\nh1 {\n  color: #333;\n  text-align: center;\n}\n\np {\n  color: #666;\n  line-height: 1.6;\n}"
     },
-    challenge: "Usa un bucle for para imprimir los números del 10 al 1 (hacia atrás). Luego crea otro que imprima solo los números pares entre 2 y 20.",
+    challenge: "Crea un archivo styles.css, conéctalo a tu index.html con <link rel='stylesheet' href='styles.css'> y cambia el color de fondo de la página, el color del texto y la fuente. Experimenta con al menos 5 propiedades diferentes.",
     resources: [
-      { label: "MDN: Bucle for", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Statements/for" }
+      { label: "GitHub: CSS básico", url: "https://github.com/" }
     ]
   },
   {
     day: 9,
-    title: "Bucle while: repetir hasta una condición",
-    category: "Control de Flujo",
-    theory: "El bucle 'while' repite código mientras una condición sea verdadera. A diferencia de 'for', no necesitas saber de antemano cuántas veces se repetirá. Es útil cuando la repetición depende de una condición dinámica.",
+    title: "Selectores y colores",
+    category: "CSS",
+    theory: "Los selectores CSS definen a qué elementos aplicas estilos. Los más comunes son: por etiqueta (h1, p, div), por clase (.mi-clase) y por ID (#mi-id). Las clases se asignan con el atributo class y se pueden reutilizar; los IDs con el atributo id y son únicos. Los colores se pueden definir por nombre (red, blue), hexadecimal (#FF5733), RGB (rgb(255, 87, 51)) o HSL. La buena práctica es usar clases para estilos reutilizables e IDs solo para elementos únicos.",
     codeExample: {
-      language: "javascript",
-      code: "// Imprime mientras la variable sea menor a 5\nlet contador = 0;\nwhile (contador < 5) {\n  console.log(contador);\n  contador++; // Importante: incrementar, si no es bucle infinito\n}\n\n// Simular adivinanza\nlet numero = 7;\nlet adivinanza = 0;\nwhile (adivinanza !== numero) {\n  adivinanza = parseInt(prompt('Adivina el número (1-10):'));\n  if (adivinanza < numero) console.log('Más alto');\n  if (adivinanza > numero) console.log('Más bajo');\n}\nconsole.log('¡Adivinaste!');"
+      language: "css",
+      code: "/* Selector por etiqueta */\np { color: #333; }\n\n/* Selector por clase */\n.destacado {\n  background-color: #fff3cd;\n  padding: 10px;\n  border-left: 4px solid #ffc107;\n}\n\n/* Selector por ID */\n#titulo-principal {\n  color: #2c3e50;\n  font-size: 2rem;\n}\n\n/* En HTML: <p class=\"destacado\">Texto</p> */"
     },
-    challenge: "Crea un bucle while que cuente desde 100 hasta 90. Luego crea otro que siga multiplicando 2 hasta que el resultado sea mayor a 1000.",
+    challenge: "En tu página personal, agrega clases a diferentes elementos y dales estilos únicos. Crea al menos 3 clases distintas: una para texto destacado, una para secciones con fondo de color, y una para bordes decorativos.",
     resources: [
-      { label: "MDN: Bucle while", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Statements/while" }
+      { label: "GitHub: Selectores CSS", url: "https://github.com/" }
     ]
   },
   {
     day: 10,
-    title: "Switch: múltiples opciones",
-    category: "Control de Flujo",
-    theory: "El switch es como un if/else, pero cuando tienes muchas opciones. Es más limpio que escribir varios if/else encadenados. Evalúas una expresión y ejecutas diferentes códigos según su valor.",
+    title: "El modelo de caja (Box Model)",
+    category: "CSS",
+    theory: "Cada elemento HTML es una caja rectangular compuesta por 4 capas: content (el contenido), padding (espacio interno entre el contenido y el borde), border (el borde visible) y margin (espacio externo entre la caja y otros elementos). Entender el box model es fundamental para controlar el diseño. Por defecto, width y height solo afectan al content, pero con box-sizing: border-box puedes hacer que incluyan padding y border, lo cual simplifica los cálculos.",
     codeExample: {
-      language: "javascript",
-      code: "const dia = 3;\n\nswitch (dia) {\n  case 1:\n    console.log('Lunes');\n    break;\n  case 2:\n    console.log('Martes');\n    break;\n  case 3:\n    console.log('Miércoles');\n    break;\n  default:\n    console.log('Día inválido');\n}\n\n// Con strings\nconst color = 'rojo';\nswitch (color) {\n  case 'rojo':\n    console.log('Color cálido');\n    break;\n  case 'azul':\n    console.log('Color frío');\n    break;\n  default:\n    console.log('Color desconocido');\n}"
+      language: "css",
+      code: "/* Aplicar border-box a todo (buena práctica) */\n* {\n  box-sizing: border-box;\n}\n\n.tarjeta {\n  width: 300px;\n  padding: 20px;\n  border: 2px solid #ddd;\n  margin: 15px;\n  border-radius: 8px;\n  background-color: white;\n}\n\n.tarjeta:hover {\n  border-color: #007bff;\n  box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n}"
     },
-    challenge: "Crea un switch que evalúe un número del 1 al 7 y muestre el día de la semana correspondiente.",
+    challenge: "Crea 3 tarjetas (divs con clase 'tarjeta') cada una con un título y un párrafo. Usa padding, margin, border y border-radius para que se vean como tarjetas de presentación. Añade un efecto :hover que cambie el borde o la sombra.",
     resources: [
-      { label: "MDN: Switch", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Statements/switch" }
+      { label: "GitHub: Box Model CSS", url: "https://github.com/" }
     ]
   },
   {
     day: 11,
-    title: "Funciones: código reutilizable",
-    category: "Funciones y Estructuras",
-    theory: "Las funciones son bloques de código reutilizable. Las defines una vez y las llamas cuando las necesitas. Pueden recibir entradas (parámetros) y devolver resultados (return). Son fundamentales para organizar código.",
+    title: "Flexbox: diseños flexibles",
+    category: "CSS",
+    theory: "Flexbox es un sistema de diseño que facilita alinear y distribuir elementos en una dirección (fila o columna). Se activa con display: flex en el contenedor padre. Las propiedades principales del padre son: flex-direction (fila o columna), justify-content (alineación horizontal), align-items (alineación vertical) y gap (espacio entre hijos). Es la herramienta más usada hoy para crear layouts modernos sin complicaciones.",
     codeExample: {
-      language: "javascript",
-      code: "// Función simple\nfunction saludar() {\n  console.log('¡Hola!');\n}\nsaludar(); // Llamar la función\n\n// Función con parámetros\nfunction sumar(a, b) {\n  return a + b;\n}\nconst resultado = sumar(5, 3);\nconsole.log(resultado); // 8\n\n// Función con parámetro y retorno\nfunction esPar(numero) {\n  return numero % 2 === 0;\n}\nconsole.log(esPar(4)); // true\nconsole.log(esPar(5)); // false"
+      language: "css",
+      code: ".contenedor {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 20px;\n  flex-wrap: wrap;\n}\n\n/* Centrar algo en toda la pantalla */\n.centrado-total {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n}\n\n/* Navbar horizontal */\n.navbar {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 10px 20px;\n}"
     },
-    challenge: "Crea una función que reciba dos números y devuelva su suma. Crea otra que reciba un nombre y devuelva un saludo personalizado.",
+    challenge: "Usa Flexbox para crear un navbar con un logo a la izquierda y 3 enlaces a la derecha. Luego, debajo del navbar, muestra tus 3 tarjetas del día anterior en fila, centradas y con espacio uniforme entre ellas.",
     resources: [
-      { label: "MDN: Funciones", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Guide/Functions" }
+      { label: "GitHub: Flexbox", url: "https://github.com/" }
     ]
   },
   {
     day: 12,
-    title: "Arrays: listas de datos",
-    category: "Funciones y Estructuras",
-    theory: "Los arrays (o arreglos) son listas de elementos. Puedes guardar múltiples valores en una sola variable. Cada elemento tiene un índice (posición) empezando en 0. Los arrays son muy útiles para almacenar colecciones de datos.",
+    title: "CSS Grid: cuadrículas poderosas",
+    category: "CSS",
+    theory: "CSS Grid permite crear diseños en dos dimensiones (filas y columnas simultáneamente). Se activa con display: grid en el contenedor. Con grid-template-columns defines cuántas columnas y su ancho, y con grid-template-rows las filas. La unidad 'fr' (fracción) distribuye el espacio disponible proporcionalmente. Es ideal para layouts de página completos, galerías de imágenes y dashboards.",
     codeExample: {
-      language: "javascript",
-      code: "// Crear un array\nconst numeros = [1, 2, 3, 4, 5];\nconst frutas = ['manzana', 'plátano', 'naranja'];\nconst mixto = [1, 'texto', true, 3.14];\n\n// Acceder a elementos (índice empieza en 0)\nconsole.log(frutas[0]);    // 'manzana'\nconsole.log(frutas[1]);    // 'plátano'\nconsole.log(frutas.length); // 3\n\n// Modificar elementos\nfrutas[0] = 'piña';\n\n// Agregar elementos\nfrutas.push('melón');\nconsole.log(frutas); // ['piña', 'plátano', 'naranja', 'melón']"
+      language: "css",
+      code: ".galeria {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 15px;\n  padding: 20px;\n}\n\n/* Layout de página completo */\n.pagina {\n  display: grid;\n  grid-template-columns: 250px 1fr;\n  grid-template-rows: 60px 1fr 50px;\n  min-height: 100vh;\n}\n\n/* Responsive: 1 columna en móvil */\n@media (max-width: 768px) {\n  .galeria {\n    grid-template-columns: 1fr;\n  }\n}"
     },
-    challenge: "Crea un array con 5 nombres. Accede al segundo elemento, agrega un nombre nuevo, y muestra la longitud del array.",
+    challenge: "Crea una galería de 6 elementos (pueden ser divs con colores de fondo diferentes) usando CSS Grid con 3 columnas en escritorio y 1 columna en móvil. Usa la media query del ejemplo para hacerlo responsive.",
     resources: [
-      { label: "MDN: Arrays", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array" }
+      { label: "GitHub: CSS Grid", url: "https://github.com/" }
     ]
   },
   {
     day: 13,
-    title: "Métodos de Array: map, filter, forEach",
-    category: "Funciones y Estructuras",
-    theory: "Los arrays tienen métodos útiles para realmente trabajar con datos. forEach repite alguna cosa para cada elemento, map transforma cada elemento, y filter obtiene solo los elementos que cumplen una condición. Son herramientas poderosas.",
+    title: "Diseño responsive",
+    category: "CSS",
+    theory: "Un diseño responsive se adapta a diferentes tamaños de pantalla: móvil, tablet y escritorio. Las herramientas principales son: unidades relativas (%, rem, vw, vh en lugar de px fijos), media queries (@media) para aplicar estilos según el ancho de pantalla, y la meta etiqueta viewport en el HTML. La estrategia 'mobile first' consiste en diseñar primero para móvil y luego agregar estilos para pantallas más grandes.",
     codeExample: {
-      language: "javascript",
-      code: "const numeros = [1, 2, 3, 4, 5];\n\n// forEach: hacer algo con cada elemento\nnumeros.forEach(function(num) {\n  console.log(num * 2);\n});\n\n// map: transformar cada elemento\nconst dobrados = numeros.map(function(num) {\n  return num * 2;\n});\nconsole.log(dobrados); // [2, 4, 6, 8, 10]\n\n// filter: obtener solo elementos que cumplen condición\nconst pares = numeros.filter(function(num) {\n  return num % 2 === 0;\n});\nconsole.log(pares); // [2, 4]"
+      language: "css",
+      code: "/* Mobile first: estilos base para móvil */\n.container {\n  width: 100%;\n  padding: 15px;\n}\n\n.titulo {\n  font-size: 1.5rem;\n}\n\n/* Tablet */\n@media (min-width: 768px) {\n  .container {\n    width: 750px;\n    margin: 0 auto;\n  }\n  .titulo {\n    font-size: 2rem;\n  }\n}\n\n/* Desktop */\n@media (min-width: 1024px) {\n  .container {\n    width: 960px;\n  }\n}"
     },
-    challenge: "Crea un array de números. Usa forEach para sumarlos todos. Usa map para obtener el cuadrado de cada número. Usa filter para obtener solo los mayores a 3.",
+    challenge: "Toma tu página personal y hazla completamente responsive: el navbar debe colapsar en móvil, las tarjetas deben mostrarse en 1 columna en móvil y 3 en desktop, y los textos deben ajustar su tamaño. Pruébalo redimensionando la ventana del navegador.",
     resources: [
-      { label: "MDN: Array methods", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array#métodos" }
+      { label: "GitHub: Responsive Design", url: "https://github.com/" }
     ]
   },
   {
     day: 14,
-    title: "Objetos: datos estructurados",
-    category: "Funciones y Estructuras",
-    theory: "Los objetos agrupan datos relacionados con nombres. Mientras que un array es una lista (índice numérico), un objeto usa propiedades nombradas. Por ejemplo, puedes tener un objeto 'persona' con propiedades 'nombre', 'edad', 'ciudad'.",
+    title: "Mini proyecto: landing page",
+    category: "CSS",
+    theory: "Es hora de combinar todo lo aprendido de HTML y CSS en un proyecto real. Una landing page es una página de presentación con secciones típicas: hero (sección principal con título grande y botón), features (características o servicios), testimonios y footer. Usarás estructura HTML semántica (header, main, section, footer), Flexbox/Grid para el layout, y media queries para responsive.",
     codeExample: {
-      language: "javascript",
-      code: "// Crear un objeto\nconst persona = {\n  nombre: 'Juan',\n  edad: 25,\n  ciudad: 'Madrid',\n  activo: true\n};\n\n// Acceder a propiedades\nconsole.log(persona.nombre);  // 'Juan'\nconsole.log(persona['edad']); // 25\n\n// Modificar propiedades\npersona.edad = 26;\n\n// Agregar nuevas propiedades\npersona.trabajo = 'Programador';\n\n// Eliminar propiedades\ndelete persona.activo;"
+      language: "html",
+      code: "<header class=\"hero\">\n  <h1>Bienvenido a Mi Proyecto</h1>\n  <p>La mejor solución para aprender a programar</p>\n  <a href=\"#features\" class=\"btn\">Conoce más</a>\n</header>\n\n<section id=\"features\" class=\"features\">\n  <div class=\"feature-card\">\n    <h3>Fácil</h3>\n    <p>Aprende paso a paso</p>\n  </div>\n  <!-- más cards... -->\n</section>\n\n<footer>\n  <p>&copy; 2025 Mi Proyecto</p>\n</footer>"
     },
-    challenge: "Crea un objeto con información de un libro (título, autor, páginas, año). Modifica la edad, agrega una nueva propiedad, y muestra toda la información.",
+    challenge: "Construye una landing page completa con: un hero section con fondo de color y texto centrado, una sección de 3 features en Grid/Flex, y un footer. Debe ser responsive. Este es tu primer proyecto de portafolio.",
     resources: [
-      { label: "MDN: Objetos", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Guide/Working_with_Objects" }
+      { label: "GitHub: Ejemplos de landing pages", url: "https://github.com/" }
     ]
   },
+ 
+  // ============================================
+  // SEMANA 3: JAVASCRIPT
+  // ============================================
   {
     day: 15,
-    title: "Métodos: funciones dentro de objetos",
-    category: "Funciones y Estructuras",
-    theory: "Los objetos pueden tener no solo propiedades, sino también métodos (funciones). Un método es una función que pertenece a un objeto. Por ejemplo, un objeto 'calculadora' podría tener métodos sumar, restar, multiplicar.",
+    title: "JavaScript: tu primer script",
+    category: "JavaScript",
+    theory: "JavaScript (JS) es el lenguaje de programación de la web. A diferencia de HTML y CSS que son declarativos, JS permite crear lógica: tomar decisiones, repetir acciones, responder a clics, manipular la página en tiempo real y comunicarse con servidores. Se puede ejecutar en el navegador (frontend) y en servidores (backend con Node.js). Para incluirlo en HTML usas la etiqueta <script> al final del <body> o un archivo .js externo.",
     codeExample: {
       language: "javascript",
-      code: "const calculadora = {\n  valor: 0,\n  sumar: function(n) {\n    this.valor += n;\n    return this.valor;\n  },\n  restar: function(n) {\n    this.valor -= n;\n    return this.valor;\n  },\n  obtenerValor: function() {\n    return this.valor;\n  }\n};\n\ncalculadora.sumar(5);\nconsole.log(calculadora.obtenerValor()); // 5\ncalculadora.sumar(3);\nconsole.log(calculadora.obtenerValor()); // 8\ncalculadora.restar(2);\nconsole.log(calculadora.obtenerValor()); // 6"
+      code: "// En un archivo script.js\nconsole.log('¡JavaScript está funcionando!');\n\nalert('¡Bienvenido a mi página!');\n\n// En HTML:\n// <script src=\"script.js\"></script>\n// (justo antes de </body>)"
     },
-    challenge: "Crea un objeto 'estudiante' con propiedades nombre, notas (array) y un método que calcule el promedio de notas.",
+    challenge: "Crea un archivo script.js, conéctalo a tu HTML con <script src='script.js'></script> antes del cierre de </body>. Escribe un console.log con tu nombre y un alert de bienvenida. Verifica que funcione en el navegador.",
     resources: [
-      { label: "MDN: Métodos de objeto", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Guide/Working_with_Objects#definir_métodos" }
+      { label: "GitHub: JavaScript para principiantes", url: "https://github.com/" }
     ]
   },
   {
     day: 16,
-    title: "DOM: conectar JavaScript con HTML",
-    category: "DOM y Web",
-    theory: "El DOM (Document Object Model) es una representación de tu página HTML en JavaScript. Te permite seleccionar elementos HTML y modificarlos con JavaScript. Por ejemplo, cambiar el texto, el color, o la visibilidad sin recargar la página.",
+    title: "Variables y tipos de datos",
+    category: "JavaScript",
+    theory: "Las variables son contenedores donde almacenas información. En JS moderno se declaran con let (puede cambiar) y const (no puede cambiar). Los tipos de datos principales son: string (texto entre comillas), number (números), boolean (true o false), null (vacío intencional), undefined (sin valor asignado), array (lista de valores) y object (colección de pares clave-valor). Usa const por defecto y let solo cuando necesites reasignar.",
     codeExample: {
       language: "javascript",
-      code: "// Seleccionar elementos\nconst titulo = document.getElementById('miTitulo');\nconst parrafos = document.querySelectorAll('.texto');\nconst boton = document.querySelector('button');\n\n// Modificar contenido\ntitulo.textContent = 'Nuevo título';\ntitulo.innerHTML = '<strong>Título en negrita</strong>';\n\n// Modificar estilos\ntitulo.style.color = 'red';\ntitulo.style.fontSize = '24px';\n\n// Agregar/remover clases\ntitulo.classList.add('destacado');\ntitulo.classList.remove('viejo');\ntitulo.classList.toggle('activo');"
+      code: "const nombre = 'Ana';        // string\nlet edad = 25;               // number\nconst activo = true;         // boolean\nlet altura = 1.65;           // number\n\n// Template literals (plantillas de texto)\nconsole.log(`Hola, soy ${nombre} y tengo ${edad} años`);\n\n// Verificar tipo\nconsole.log(typeof nombre);  // 'string'\nconsole.log(typeof edad);    // 'number'"
     },
-    challenge: "En la consola, selecciona elementos de esta página usando getElementById, querySelector y querySelectorAll. Modifica su contenido y estilos.",
+    challenge: "Crea variables con tu información personal (nombre, edad, ciudad, lenguaje favorito, si te gusta el café). Usa template literals para imprimir un párrafo completo en consola que diga algo como: 'Hola, soy [nombre], tengo [edad] años, vivo en [ciudad]...'.",
     resources: [
-      { label: "MDN: DOM", url: "https://developer.mozilla.org/es/docs/Web/API/Document_Object_Model" }
+      { label: "GitHub: Variables JavaScript", url: "https://github.com/" }
     ]
   },
   {
     day: 17,
-    title: "Eventos: responder a clics y acciones",
-    category: "DOM y Web",
-    theory: "Los eventos son acciones que suceden en la página: hacer clic, escribir, mover el ratón, enviar un formulario. Puedes escuchar estos eventos y ejecutar código en respuesta. Esto es lo que hace las páginas interactivas.",
+    title: "Condicionales: tomando decisiones",
+    category: "JavaScript",
+    theory: "Los condicionales permiten que tu código tome decisiones basándose en condiciones. La estructura if/else evalúa una condición: si es verdadera ejecuta un bloque, si no, ejecuta otro. Puedes encadenar múltiples condiciones con else if. Los operadores de comparación son: === (igual estricto), !== (diferente), >, <, >=, <=. Los operadores lógicos && (y), || (o), ! (no) permiten combinar condiciones.",
     codeExample: {
       language: "javascript",
-      code: "// Escuchar un clic\nconst boton = document.getElementById('miBoton');\nboton.addEventListener('click', function() {\n  console.log('¡Botón clickeado!');\n});\n\n// Otros eventos comunes\nconst input = document.getElementById('miInput');\ninput.addEventListener('input', function(evento) {\n  console.log('Escribiste:', evento.target.value);\n});\n\ndocument.addEventListener('keydown', function(evento) {\n  console.log('Presionaste:', evento.key);\n});\n\nconst formulario = document.getElementById('miFormulario');\nformulario.addEventListener('submit', function(evento) {\n  evento.preventDefault(); // Prevenir recarga\n  console.log('Formulario enviado');\n});"
+      code: "const edad = 18;\n\nif (edad >= 18) {\n  console.log('Eres mayor de edad');\n} else {\n  console.log('Eres menor de edad');\n}\n\n// Múltiples condiciones\nconst nota = 85;\n\nif (nota >= 90) {\n  console.log('Excelente');\n} else if (nota >= 70) {\n  console.log('Aprobado');\n} else {\n  console.log('Reprobado');\n}\n\n// Operador ternario (versión corta)\nconst mensaje = edad >= 18 ? 'Adulto' : 'Menor';"
     },
-    challenge: "Crea un botón en HTML y un event listener que cambie el color del fondo cuando hagas clic. Prueba con diferentes eventos (mouseover, mouseout, etc).",
+    challenge: "Crea un sistema de calificaciones: declara una variable 'nota' y usando if/else if/else imprime 'A' (90-100), 'B' (80-89), 'C' (70-79), 'D' (60-69) o 'F' (menos de 60). Prueba cambiando el valor de la nota.",
     resources: [
-      { label: "MDN: Eventos", url: "https://developer.mozilla.org/es/docs/Web/API/Event" }
+      { label: "GitHub: Condicionales JS", url: "https://github.com/" }
     ]
   },
   {
     day: 18,
-    title: "Crear y modificar elementos HTML",
-    category: "DOM y Web",
-    theory: "No solo puedes modificar elementos existentes, sino que puedes crear elementos completamente nuevos dinámicamente con JavaScript. Esto es poderoso: puedes agregar listas, tarjetas, imágenes, sin tener que escribirlos en HTML.",
+    title: "Bucles: repitiendo acciones",
+    category: "JavaScript",
+    theory: "Los bucles repiten un bloque de código mientras se cumpla una condición. El bucle for es ideal cuando sabes cuántas veces repetir (tiene inicializador, condición y actualización). El bucle while repite mientras una condición sea verdadera. El for...of recorre los elementos de un array directamente. Cuidado con los bucles infinitos: siempre asegúrate de que la condición eventualmente sea falsa.",
     codeExample: {
       language: "javascript",
-      code: "// Crear elementos\nconst nuevoDiv = document.createElement('div');\nnuevoDiv.textContent = 'Soy nuevo';\nnuevoDiv.className = 'contenedor';\nnuevoDiv.id = 'nuevoElemento';\n\n// Insertar en la página\ndocument.body.appendChild(nuevoDiv);\n\n// Crear lista dinámicamente\nconst lista = document.createElement('ul');\nconst items = ['Item 1', 'Item 2', 'Item 3'];\n\nitems.forEach(function(item) {\n  const li = document.createElement('li');\n  li.textContent = item;\n  lista.appendChild(li);\n});\n\ndocument.body.appendChild(lista);\n\n// Remover elementos\nconst elemento = document.getElementById('viejo');\nelemento.remove();"
+      code: "// for clásico\nfor (let i = 1; i <= 5; i++) {\n  console.log(`Iteración número ${i}`);\n}\n\n// for...of con arrays\nconst frutas = ['manzana', 'banana', 'naranja'];\nfor (const fruta of frutas) {\n  console.log(`Me gusta la ${fruta}`);\n}\n\n// while\nlet contador = 0;\nwhile (contador < 3) {\n  console.log(`Contador: ${contador}`);\n  contador++;\n}"
     },
-    challenge: "Crea una lista de 5 tareas dinámicamente usando JavaScript. Agrégalas a un elemento <ul> en la página.",
+    challenge: "Usa un bucle for para imprimir la tabla de multiplicar del número que quieras (del 1 al 10). Luego crea un array con 5 nombres de amigos y usa for...of para saludar a cada uno con: '¡Hola, [nombre]!'.",
     resources: [
-      { label: "MDN: Manipular DOM", url: "https://developer.mozilla.org/es/docs/Learn/JavaScript/Client-side_web_APIs/Manipulating_documents" }
+      { label: "GitHub: Bucles en JS", url: "https://github.com/" }
     ]
   },
   {
     day: 19,
-    title: "Formularios y validación",
-    category: "DOM y Web",
-    theory: "Los formularios permiten que los usuarios envíen datos. Puedes capturar esos datos con JavaScript y validarlos (verificar que no estén vacíos, que tengan el formato correcto, etc). Esto es importante para tener datos limpios y correctos.",
+    title: "Funciones: bloques reutilizables",
+    category: "JavaScript",
+    theory: "Las funciones son bloques de código reutilizables que realizan una tarea específica. Se definen una vez y se pueden llamar (ejecutar) muchas veces. Pueden recibir parámetros (datos de entrada) y devolver un resultado con return. Hay dos formas principales: funciones declaradas (function nombre()) y funciones flecha (const nombre = () => {}). Las funciones flecha son más modernas y concisas.",
     codeExample: {
       language: "javascript",
-      code: "const formulario = document.getElementById('form');\n\nformulario.addEventListener('submit', function(evento) {\n  evento.preventDefault();\n  \n  const nombre = document.getElementById('nombre').value;\n  const email = document.getElementById('email').value;\n  \n  // Validación\n  if (nombre === '') {\n    alert('Por favor ingresa tu nombre');\n    return;\n  }\n  \n  if (email === '') {\n    alert('Por favor ingresa tu email');\n    return;\n  }\n  \n  if (!email.includes('@')) {\n    alert('Email inválido');\n    return;\n  }\n  \n  console.log('Datos válidos:', {nombre, email});\n  // Aquí enviarías los datos al servidor\n});"
+      code: "// Función declarada\nfunction saludar(nombre) {\n  return `¡Hola, ${nombre}!`;\n}\nconsole.log(saludar('Carlos'));\n\n// Función flecha\nconst sumar = (a, b) => a + b;\nconsole.log(sumar(5, 3)); // 8\n\n// Función con lógica\nconst esMayorDeEdad = (edad) => {\n  if (edad >= 18) {\n    return 'Sí, es mayor de edad';\n  }\n  return 'No, es menor de edad';\n};"
     },
-    challenge: "Crea un formulario sencillo (nombre, email, edad) y valida que:  - No estén vacíos - Email contenga @  - Edad sea un número entre 1 y 120",
+    challenge: "Crea 3 funciones: una que reciba tu nombre y edad y retorne una presentación, otra que calcule el área de un rectángulo (base × altura), y otra que reciba una temperatura en Celsius y la convierta a Fahrenheit (°F = °C × 9/5 + 32).",
     resources: [
-      { label: "MDN: Formularios", url: "https://developer.mozilla.org/es/docs/Learn/Forms" }
+      { label: "GitHub: Funciones JavaScript", url: "https://github.com/" }
     ]
   },
   {
     day: 20,
-    title: "Proyecto: Tu primer mini sitio interactivo",
-    category: "DOM y Web",
-    theory: "Es momento de aplicar todo lo aprendido. Harás un mini proyecto que combine HTML, CSS, JavaScript, eventos, manipulación del DOM y validación. Puede ser una calculadora, un marcador, un juego simple, una lista de tareas.",
+    title: "Arrays y objetos",
+    category: "JavaScript",
+    theory: "Los arrays son listas ordenadas de valores que se acceden por índice (empezando en 0). Los objetos son colecciones de pares clave-valor que representan entidades con propiedades. Los métodos más útiles de arrays son: push (agregar), pop (quitar último), map (transformar cada elemento), filter (filtrar), find (buscar uno) y length (contar). Los objetos se acceden con punto (objeto.propiedad) o corchetes (objeto['propiedad']).",
     codeExample: {
       language: "javascript",
-      code: "// Ejemplo: Contador simple\nconst botonSumar = document.getElementById('sumar');\nconst botonRestar = document.getElementById('restar');\nconst contador = document.getElementById('contador');\n\nlet valor = 0;\n\nbotonSumar.addEventListener('click', function() {\n  valor++;\n  contador.textContent = valor;\n});\n\nbotonRestar.addEventListener('click', function() {\n  valor--;\n  contador.textContent = valor;\n});"
+      code: "// Arrays\nconst numeros = [10, 20, 30, 40, 50];\nconsole.log(numeros[0]); // 10\nconsole.log(numeros.length); // 5\n\nconst dobles = numeros.map(n => n * 2);\nconst mayores = numeros.filter(n => n > 25);\n\n// Objetos\nconst usuario = {\n  nombre: 'María',\n  edad: 28,\n  ciudad: 'Caracas',\n  hobbies: ['leer', 'programar']\n};\n\nconsole.log(usuario.nombre); // 'María'\nconsole.log(usuario.hobbies[1]); // 'programar'"
     },
-    challenge: "Elige un proyecto: Calculadora (+, -, *, /), Juego de Adivinanza (user adivina número random), o Lista de Tareas (agregar, marcar, eliminar).",
+    challenge: "Crea un array de 5 objetos 'estudiante' con nombre, edad y nota. Luego usa .filter() para obtener solo los aprobados (nota >= 70), .map() para crear un array solo con los nombres, y .find() para buscar un estudiante específico por nombre.",
     resources: [
-      { label: "Proyectos para empezar", url: "https://github.com/topics/beginner-projects" }
+      { label: "GitHub: Arrays y objetos", url: "https://github.com/" }
     ]
   },
   {
     day: 21,
-    title: "Debugging: encontrar y arreglar errores",
-    category: "Pensamiento Programador",
-    theory: "El debugging es el proceso de encontrar y arreglar errores (bugs) en tu código. Los programadores pasan más tiempo debuggiendo que escribiendo código nuevo. Lo importante es ser metódico: lee el error, usa console.log para verificar valores, y prueba en pasos pequeños.",
+    title: "El DOM: manipulando la página",
+    category: "JavaScript",
+    theory: "El DOM (Document Object Model) es la representación de tu HTML como un árbol de objetos que JavaScript puede leer y modificar. Con el DOM puedes seleccionar elementos (querySelector, getElementById), cambiar su contenido (textContent, innerHTML), modificar estilos (style), agregar/quitar clases (classList) y crear nuevos elementos (createElement). Es el puente entre tu código JS y lo que el usuario ve en pantalla.",
     codeExample: {
       language: "javascript",
-      code: "// Técnicas de debugging\n\n// 1. console.log para verificar valores\nconst numero = 10;\nconsole.log('El valor es:', numero);\n\n// 2. console.table para arrays/objetos\nconst personas = [\n  {nombre: 'Juan', edad: 25},\n  {nombre: 'María', edad: 30}\n];\nconsole.table(personas);\n\n// 3. console.error para errores deliberados\nconsole.error('Esto es un error');\n\n// 4. console.time para medir tiempo\nconsole.time('mi-timer');\nfor (let i = 0; i < 100; i++) {}\nconsole.timeEnd('mi-timer');\n\n// 5. Usar el debugger del navegador (F12 → Sources)\n// Puedes poner breakpoints y pausar la ejecución"
+      code: "// Seleccionar elementos\nconst titulo = document.querySelector('h1');\nconst parrafos = document.querySelectorAll('p');\n\n// Modificar contenido\ntitulo.textContent = '¡Nuevo título!';\n\n// Modificar estilos\ntitulo.style.color = 'blue';\ntitulo.style.fontSize = '3rem';\n\n// Agregar/quitar clases\ntitulo.classList.add('destacado');\ntitulo.classList.toggle('activo');\n\n// Crear un elemento nuevo\nconst nuevoP = document.createElement('p');\nnuevoP.textContent = 'Párrafo creado con JS';\ndocument.body.appendChild(nuevoP);"
     },
-    challenge: "Crea un código con un error propositalmente. Usa console.log y la consola del navegador (F12) para encontrarlo y corregirlo.",
+    challenge: "En tu HTML crea un <div id='resultado'> vacío. Desde JavaScript, selecciónalo y agrega dinámicamente: un título, un párrafo con la fecha actual (new Date().toLocaleDateString()) y 3 items de una lista creados con createElement. Todo sin tocar el HTML.",
     resources: [
-      { label: "MDN: Debugging", url: "https://developer.mozilla.org/es/docs/Learn/Common_questions/Tools_and_setup/What_are_browser_developer_tools" }
+      { label: "GitHub: DOM JavaScript", url: "https://github.com/" }
     ]
   },
+ 
+  // ============================================
+  // SEMANA 4: EVENTOS + PYTHON + PROYECTO FINAL
+  // ============================================
   {
     day: 22,
-    title: "Leer y entender mensajes de error",
-    category: "Pensamiento Programador",
-    theory: "Los errores parecen aterradores al principio, pero son muy útiles. Dicen exactamente qué salió mal y dónde. Un 'Uncaught SyntaxError' significa error de sintaxis. Un 'TypeError' significa tipo de dato inválido. Aprender a leer errores es una habilidad esencial.",
+    title: "Eventos: interactividad real",
+    category: "JavaScript",
+    theory: "Los eventos son acciones del usuario (clics, teclas, scroll, envío de formularios) que JavaScript puede detectar y responder. Se asignan con addEventListener, que recibe el tipo de evento y una función callback que se ejecuta cuando ocurre. Los eventos más comunes son: click, input, submit, keydown, mouseover, scroll y load. El objeto event (e) contiene información sobre lo que pasó, como e.target (el elemento que disparó el evento) y e.preventDefault() para evitar el comportamiento por defecto.",
     codeExample: {
       language: "javascript",
-      code: "// SyntaxError: Falta punto y coma o paréntesis\nconst x = 5 // Error: falta ;\n\n// ReferenceError: Variable no definida\nconsole.log(variableQueNExiste);\n\n// TypeError: Intentar hacer algo inválido con un tipo\nconst numero = 5;\nnumero.toUpperCase(); // Error: números no tienen toUpperCase()\n\n// RangeError: Valor fuera de rango\nconst arr = new Array(-1); // Error: tamaño negativo\n\n// Buena práctica: usar try/catch\ntry {\n  // código que puede fallar\n  riskyFunction();\n} catch (error) {\n  console.log('Error capturado:', error.message);\n}"
+      code: "const boton = document.querySelector('#miBoton');\nconst input = document.querySelector('#miInput');\nconst display = document.querySelector('#display');\n\n// Evento click\nboton.addEventListener('click', () => {\n  display.textContent = '¡Botón presionado!';\n});\n\n// Evento input (en tiempo real)\ninput.addEventListener('input', (e) => {\n  display.textContent = `Escribiste: ${e.target.value}`;\n});\n\n// Prevenir envío de formulario\nconst form = document.querySelector('form');\nform.addEventListener('submit', (e) => {\n  e.preventDefault();\n  console.log('Formulario capturado con JS');\n});"
     },
-    challenge: "Crea (propositalmente) diferentes tipos de errores y aprende qué significa cada uno. Luego corrígelos.",
+    challenge: "Crea una mini-app con: un input de texto, un botón y un div para resultados. Al escribir en el input, muestra el texto en tiempo real en el div. Al hacer clic en el botón, convierte el texto a mayúsculas. Agrega un segundo botón que limpie todo.",
     resources: [
-      { label: "MDN: Errores", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Errors" }
+      { label: "GitHub: Eventos JavaScript", url: "https://github.com/" }
     ]
   },
   {
     day: 23,
-    title: "Algoritmos: pensar antes de código",
-    category: "Pensamiento Programador",
-    theory: "Un algoritmo es un conjunto de pasos para resolver un problema. Antes de escribir código, piensa en los pasos que necesitas. Escribe pseudocódigo (código en lenguaje casi natural) primero. Esto evita errores y hace tu código más claro.",
+    title: "Proyecto JS: lista de tareas",
+    category: "JavaScript",
+    theory: "Es momento de combinar todo lo aprendido de JavaScript en un proyecto funcional. Una lista de tareas (To-Do List) usa: manipulación del DOM para agregar y eliminar elementos, eventos para responder al usuario, arrays para almacenar los datos, y funciones para organizar la lógica. localStorage del navegador permite guardar datos que persisten incluso al cerrar la pestaña. Este es un proyecto clásico que todo principiante debe construir.",
     codeExample: {
       language: "javascript",
-      code: "// Problema: Buscar el número mayor en un array\n// PSEUDOCÓDIGO:\n// 1. Suponer que el primer elemento es el mayor\n// 2. Recorrer el resto\n// 3. Si encuentras uno mayor, actualizar\n// 4. Retornar el mayor\n\n// CÓDIGO JAVASCRIPT:\nfunction encontrarMayor(numeros) {\n  let mayor = numeros[0];\n  \n  for (let i = 1; i < numeros.length; i++) {\n    if (numeros[i] > mayor) {\n      mayor = numeros[i];\n    }\n  }\n  \n  return mayor;\n}\n\nconsole.log(encontrarMayor([3, 7, 2, 9, 1])); // 9"
+      code: "const tareas = [];\n\nconst agregarTarea = (texto) => {\n  const tarea = {\n    id: Date.now(),\n    texto: texto,\n    completada: false\n  };\n  tareas.push(tarea);\n  renderTareas();\n};\n\nconst renderTareas = () => {\n  const lista = document.querySelector('#lista');\n  lista.innerHTML = '';\n  tareas.forEach(tarea => {\n    const li = document.createElement('li');\n    li.textContent = tarea.texto;\n    li.addEventListener('click', () => {\n      tarea.completada = !tarea.completada;\n      renderTareas();\n    });\n    if (tarea.completada) li.classList.add('done');\n    lista.appendChild(li);\n  });\n};"
     },
-    challenge: "Escribe pseudocódigo para: 'Invertir un string' (Ejemplo: 'Hola' → 'aloH'). Luego código JavaScript que lo haga.",
+    challenge: "Construye una To-Do List completa con: input para escribir tareas, botón para agregar, las tareas se muestran en una lista, clic en una tarea la marca como completada (texto tachado), y un botón para eliminar tareas completadas. Bonus: guárdalas en localStorage.",
     resources: [
-      { label: "Algoritmos básicos", url: "https://www.freecodecamp.org/news/algorithms-explained/" }
+      { label: "GitHub: Proyecto To-Do List", url: "https://github.com/" }
     ]
   },
   {
     day: 24,
-    title: "Buenas prácticas de código",
-    category: "Pensamiento Programador",
-    theory: "Código limpio es código que otros (y tú en el futuro) pueden entender fácilmente. Usa nombres descriptivos, comenta complicheidád, sigue convenciones, y evita repetición. Es como escribir un libro: necesita ser legible y bien organizado.",
+    title: "Introducción a Python",
+    category: "Python",
+    theory: "Python es uno de los lenguajes más populares del mundo por su sintaxis limpia y legible. Se usa en backend web, ciencia de datos, inteligencia artificial y automatización. A diferencia de JavaScript, Python usa indentación (espacios) para definir bloques de código en lugar de llaves {}. Para ejecutarlo necesitas instalar Python desde python.org. Se escribe en archivos .py y se ejecuta desde la terminal con 'python archivo.py'. print() es el equivalente a console.log().",
     codeExample: {
-      language: "javascript",
-      code: "// ❌ MAL: nombres poco claros\nconst x = [1, 2, 3, 4, 5];\nconst f = (arr) => {\n  let s = 0;\n  for (let i = 0; i < arr.length; i++) {\n    s += arr[i];\n  }\n  return s;\n};\n\n// ✅ BIEN: nombres descriptivos\nconst numeros = [1, 2, 3, 4, 5];\nconst sumarNumeros = (array) => {\n  let suma = 0;\n  for (let numero of array) {\n    suma += numero;\n  }\n  return suma;\n};\n\n// ✅ Incluso mejor: usar método existente\nconst sumaTotal = numeros.reduce((acc, num) => acc + num, 0);\n\n// Comentarios útiles:\nconst MAX_INTENTOS = 3; // Usuario tiene 3 intentos\nif (intentos >= MAX_INTENTOS) {\n  blockearUsuario();\n}"
+      language: "python",
+      code: "# Mi primer script en Python\nprint('¡Hola, mundo desde Python!')\n\n# Variables (no necesitan let/const)\nnombre = 'Carlos'\nedad = 25\naltura = 1.75\nes_programador = True\n\n# f-strings (como template literals en JS)\nprint(f'Hola, soy {nombre} y tengo {edad} años')\n\n# Tipos de datos\nprint(type(nombre))  # <class 'str'>\nprint(type(edad))    # <class 'int'>"
     },
-    challenge: "Toma un código que escribiste anteriormente que sea \"feo\" y refactorízalo: mejora nombres, agrega comentarios, simplifica lógica.",
+    challenge: "Instala Python, crea un archivo hola.py y escribe un programa que declare variables con tu información personal y las imprima usando f-strings. Ejecútalo desde la terminal con 'python hola.py'. Experimenta con los tipos: str, int, float y bool.",
     resources: [
-      { label: "Clean Code", url: "https://www.freecodecamp.org/news/how-to-write-clean-code/" }
+      { label: "GitHub: Python para principiantes", url: "https://github.com/" }
     ]
   },
   {
     day: 25,
-    title: "Scope y variables locales/globales",
-    category: "Pensamiento Programador",
-    theory: "El scope define dónde una variable es accesible. Variables globales funcionan en todo el código. Variables locales solo funcionan dentro de su función/bloque. Es buena práctica usar variables locales para evitar conflictos.",
+    title: "Condicionales y bucles en Python",
+    category: "Python",
+    theory: "Python usa if, elif (equivalente a else if) y else para condicionales. Los bucles más comunes son for (para recorrer secuencias) y while (mientras se cumpla una condición). La función range(inicio, fin) genera una secuencia de números. La sintaxis es más limpia que en JS: no usa paréntesis en las condiciones ni llaves para los bloques, solo dos puntos (:) e indentación. Las listas en Python son equivalentes a los arrays de JavaScript.",
     codeExample: {
-      language: "javascript",
-      code: "// Global: accesible desde cualquier lugar\nconst global = 'soy global';\n\nfunction miFuncion() {\n  // Local: solo existe dentro de miFuncion\n  const local = 'soy local';\n  console.log(global); // Works ✓\n  console.log(local);  // Works ✓\n}\n\nconsole.log(global); // Works ✓\nconsole.log(local);  // Error: local is not defined\n\n// Bloque local (if, for, etc)\nif (true) {\n  const bloqueLocal = 'solo en este bloque';\n  console.log(bloqueLocal); // Works ✓\n}\nconsole.log(bloqueLocal); // Error\n\n// Evitar variables globales innecesarias\n// ❌ MAL\nvar contador = 0; // global\nfunction incrementar() {\n  contador++; // modifica global\n}\n\n// ✅ BIEN\nconst calcular = () => {\n  let contador = 0; // local\n  return contador++;\n};"
+      language: "python",
+      code: "# Condicionales\nnota = 85\n\nif nota >= 90:\n    print('Excelente')\nelif nota >= 70:\n    print('Aprobado')\nelse:\n    print('Reprobado')\n\n# Bucle for con range\nfor i in range(1, 6):\n    print(f'Número: {i}')\n\n# Bucle for con lista\nfrutas = ['manzana', 'banana', 'naranja']\nfor fruta in frutas:\n    print(f'Me gusta la {fruta}')\n\n# While\ncontador = 0\nwhile contador < 3:\n    print(f'Contador: {contador}')\n    contador += 1"
     },
-    challenge: "Crea una función con variables locales y una global. Modifica la global dentro de la función. Observa qué sucede en cada scope.",
+    challenge: "Escribe un programa en Python que: 1) Pida al usuario un número con input(), 2) Determine si es par o impar, 3) Imprima la tabla de multiplicar de ese número del 1 al 10 usando un bucle for. Recuerda convertir el input a número con int().",
     resources: [
-      { label: "MDN: Scope", url: "https://developer.mozilla.org/es/docs/Glossary/Scope" }
+      { label: "GitHub: Control de flujo Python", url: "https://github.com/" }
     ]
   },
   {
     day: 26,
-    title: "Introducción a Git: control de versiones",
-    category: "Nivel Avanzado",
-    theory: "Git es una herramienta que guarda el historial de cambios en tu código. Puedes volver a versiones anteriores, trabajar en equipo, y colaborar sin conflictos. Es como un 'deshacer' ilimitado y profesional.",
+    title: "Funciones y estructuras de datos en Python",
+    category: "Python",
+    theory: "Las funciones en Python se definen con def nombre(parametros): y retornan valores con return. Python tiene dos estructuras de datos clave: listas (como arrays en JS, se definen con []) y diccionarios (como objetos en JS, se definen con {}). Las listas tienen métodos como append, remove, sort, y se pueden recorrer con for. Los diccionarios almacenan pares clave-valor y se acceden con corchetes o .get(). Las list comprehensions permiten crear listas de forma concisa.",
     codeExample: {
-      language: "bash",
-      code: "# Inicializar Git en tu proyecto\ngit init\n\n# Ver cambios\ngit status\n\n# Guardar (preparar) cambios\ngit add archivo.js\ngit add .  # Todos los cambios\n\n# Guardar con mensaje\ngit commit -m 'Agregar función de login'\n\n# Ver historial\ngit log\n\n# Ver cambios en un archivo\ngit diff archivo.js\n\n# Deshacer cambios (antes de commit)\ngit checkout archivo.js\n\n# Crear rama para nueva feature\ngit branch nueva-feature\ngit checkout nueva-feature\n\n# Unir cambios de rama\ngit checkout main\ngit merge nueva-feature"
+      language: "python",
+      code: "# Funciones\ndef calcular_promedio(notas):\n    return sum(notas) / len(notas)\n\nnotas = [85, 92, 78, 95, 88]\nprint(f'Promedio: {calcular_promedio(notas)}')\n\n# Diccionarios\nusuario = {\n    'nombre': 'María',\n    'edad': 28,\n    'ciudad': 'Caracas'\n}\nprint(usuario['nombre'])\n\n# List comprehension\nnumeros = [1, 2, 3, 4, 5]\ndobles = [n * 2 for n in numeros]\npares = [n for n in numeros if n % 2 == 0]"
     },
-    challenge: "Inicializa un repositorio Git en tu proyecto. Haz at least 3 commits con diferentes cambios. Usa git log para ver el historial.",
+    challenge: "Crea un programa que maneje una lista de estudiantes (diccionarios con nombre, edad y nota). Escribe funciones para: agregar estudiante, buscar por nombre, calcular el promedio general, y filtrar los aprobados (nota >= 70). Imprime los resultados.",
     resources: [
-      { label: "Git Documentation", url: "https://git-scm.com/book/es/v2" }
+      { label: "GitHub: Funciones Python", url: "https://github.com/" }
     ]
   },
   {
     day: 27,
-    title: "Terminal: línea de comandos",
-    category: "Nivel Avanzado",
-    theory: "La terminal es una interfaz de texto para controlar tu computadora. Los programadores la usan constantemente para navegar directorios, ejecutar programas, instalar dependencias. No es difícil: son solo comandos de texto.",
+    title: "Tu primer servidor con Python",
+    category: "Python",
+    theory: "Un servidor web es un programa que escucha peticiones HTTP y responde con datos (HTML, JSON, etc.). Flask es un micro-framework de Python que permite crear servidores web con muy poco código. Se instala con 'pip install flask'. Con Flask defines rutas (URLs) y qué función se ejecuta cuando alguien visita esa ruta. Puedes devolver HTML, texto o datos JSON. El servidor se ejecuta localmente en http://localhost:5000.",
     codeExample: {
-      language: "bash",
-      code: "# Navegación\npwd                 # Ver dónde estás\nls                  # Ver archivos (Linux/Mac)\ndir                 # Ver archivos (Windows)\ncd Desktop          # Entrar a carpeta\ncd ..               # Subir una carpeta\ncd ~                # Ir a home\n\n# Crear/eliminar\nmkdir mi-proyecto   # Crear carpeta\ntouch archivo.txt   # Crear archivo\nrm archivo.txt      # Eliminar archivo\nrm -r carpeta       # Eliminar carpeta\n\n# Leer/editar\ncat archivo.txt     # Ver contenido\necho 'Hola' > archivo.txt  # Escribir\n\n# Ejecutar programas\nnode mi-script.js   # Ejecutar JavaScript\npython mi-script.py # Ejecutar Python\nnpm install         # Instalar dependencias\n\n# Información útil\nman comando         # Manual del comando\ncommando --help     # Ayuda del comando"
+      language: "python",
+      code: "# archivo: app.py\n# Instalar: pip install flask\nfrom flask import Flask, jsonify\n\napp = Flask(__name__)\n\n@app.route('/')\ndef inicio():\n    return '<h1>¡Mi primer servidor!</h1>'\n\n@app.route('/api/saludo/<nombre>')\ndef saludo(nombre):\n    return jsonify({\n        'mensaje': f'¡Hola, {nombre}!',\n        'status': 'ok'\n    })\n\nif __name__ == '__main__':\n    app.run(debug=True)"
     },
-    challenge: "Abre la terminal en tu proyecto. Usa cd, ls/dir, mkdir para navegar y crear carpetas. Prueba git status y npm install.",
+    challenge: "Instala Flask y crea un servidor con 3 rutas: '/' que muestre un HTML de bienvenida, '/api/fecha' que devuelva la fecha actual en JSON, y '/api/saludo/<nombre>' que salude al nombre que reciba en la URL. Ejecútalo y prueba cada ruta en tu navegador.",
     resources: [
-      { label: "Terminal for beginners", url: "https://www.freecodecamp.org/news/command-line-for-beginners/" }
+      { label: "GitHub: Flask", url: "https://github.com/" }
     ]
   },
   {
     day: 28,
-    title: "APIs y Fetch: obtener datos de internet",
-    category: "Nivel Avanzado",
-    theory: "Las APIs son como 'menús' de otros servidores. Haces una solicitud (request) y el servidor responde con datos. Con 'fetch' en JavaScript, puedes obtener datos de un servidor y usarlos en tu página. Esto abre posibilidades infinitas.",
+    title: "Conectando frontend y backend",
+    category: "Fullstack",
+    theory: "La comunicación entre frontend (navegador) y backend (servidor) se hace mediante peticiones HTTP usando fetch() en JavaScript. El frontend envía una petición a una URL del servidor (API), el servidor procesa la petición y devuelve datos (generalmente en formato JSON), y el frontend usa esos datos para actualizar la interfaz. Las peticiones más comunes son GET (obtener datos) y POST (enviar datos). Esto es la base de toda aplicación web moderna.",
     codeExample: {
       language: "javascript",
-      code: "// Obtener datos de una API\nfetch('https://api.github.com/users/octocat')\n  .then(respuesta => respuesta.json())\n  .then(datos => {\n    console.log('Usuario:', datos.name);\n    console.log('Seguidores:', datos.followers);\n  })\n  .catch(error => {\n    console.log('Error:', error);\n  });\n\n// Versión moderna con async/await\nasync function obtenerUsuario() {\n  try {\n    const respuesta = await fetch('https://api.github.com/users/octocat');\n    const datos = await respuesta.json();\n    console.log('Usuario:', datos.name);\n  } catch (error) {\n    console.log('Error:', error);\n  }\n}\n\nobtenerUsuario();\n\n// Enviar datos\nfetch('https://tu-servidor.com/api/usuarios', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({\n    nombre: 'Juan',\n    email: 'juan@email.com'\n  })\n})\n.then(resp => resp.json())\n.then(datos => console.log('Creado:', datos));"
+      code: "// Frontend: pidiendo datos al backend\nconst cargarDatos = async () => {\n  try {\n    const respuesta = await fetch('http://localhost:5000/api/tareas');\n    const datos = await respuesta.json();\n    console.log(datos);\n    \n    // Mostrar en el DOM\n    const lista = document.querySelector('#lista');\n    datos.forEach(tarea => {\n      const li = document.createElement('li');\n      li.textContent = tarea.texto;\n      lista.appendChild(li);\n    });\n  } catch (error) {\n    console.error('Error:', error);\n  }\n};\n\ncargarDatos();"
     },
-    challenge: "Usa fetch para obtener datos de una API pública (ej: api.github.com, jsonplaceholder.typicode.com). Muestra los datos en la consola y luego en tu página HTML.",
+    challenge: "Crea un backend Flask con una ruta '/api/tareas' que devuelva una lista de tareas en JSON. Luego crea un frontend HTML con JavaScript que use fetch() para obtener esas tareas y mostrarlas en la página. Habrás creado tu primera app fullstack.",
     resources: [
-      { label: "MDN: Fetch API", url: "https://developer.mozilla.org/es/docs/Web/API/Fetch_API" }
+      { label: "GitHub: Fetch API", url: "https://github.com/" }
     ]
   },
   {
     day: 29,
-    title: "JSON: formato de datos",
-    category: "Nivel Avanzado",
-    theory: "JSON (JavaScript Object Notation) es un formato para guardar y transferir datos. Parece casi como un objeto JavaScript, pero es texto. Es el estándar de internet. Necesitas entender JSON para trabajar con APIs y bases de datos.",
+    title: "Git y GitHub: guardando tu código",
+    category: "Herramientas",
+    theory: "Git es un sistema de control de versiones que registra cada cambio en tu código, permitiéndote volver atrás si algo falla. GitHub es una plataforma en la nube donde almacenas tus repositorios Git y compartes tu código con el mundo. Los comandos esenciales son: git init (iniciar repositorio), git add . (preparar cambios), git commit -m 'mensaje' (guardar cambios), git push (subir a GitHub) y git pull (descargar cambios). Todo desarrollador profesional usa Git a diario.",
     codeExample: {
-      language: "javascript",
-      code: "// JSON es texto que parece un objeto\nconst jsonText = '{\"nombre\": \"Juan\", \"edad\": 25, \"activo\": true}';\n\n// Convertir JSON a objeto JavaScript\nconst objeto = JSON.parse(jsonText);\nconsole.log(objeto.nombre); // 'Juan'\n\n// Convertir objeto JavaScript a JSON\nconst miObjeto = {\n  nombre: 'María',\n  edad: 30,\n  skills: ['JavaScript', 'React', 'CSS']\n};\n\nconst json = JSON.stringify(miObjeto);\nconsole.log(json); // '{\"nombre\":\"María\",\"edad\":30,...}'\n\n// JSON con arrays\nconst usuariosJSON = `[\n  {\"id\": 1, \"nombre\": \"Juan\"},\n  {\"id\": 2, \"nombre\": \"María\"},\n  {\"id\": 3, \"nombre\": \"Pedro\"}\n]`;\n\nconst usuarios = JSON.parse(usuariosJSON);\nconsole.log(usuarios[0].nombre); // 'Juan'"
+      language: "bash",
+      code: "# Configuración inicial (solo una vez)\ngit config --global user.name \"Tu Nombre\"\ngit config --global user.email \"tu@email.com\"\n\n# Flujo básico de trabajo\ngit init                          # Iniciar repositorio\ngit add .                         # Agregar todos los archivos\ngit commit -m \"primer commit\"     # Guardar cambios\n\n# Conectar con GitHub\ngit remote add origin https://github.com/tu-usuario/tu-repo.git\ngit push -u origin main           # Subir a GitHub"
     },
-    challenge: "Crea un objeto JavaScript, Conviértelo a JSON con JSON.stringify, luego vuelve a convertirlo a objeto con JSON.parse. Verifica que sean iguales.",
+    challenge: "Instala Git, crea una cuenta en GitHub, y sube tu proyecto de landing page (día 14) o tu To-Do List (día 23) a un repositorio público. Haz al menos 3 commits con mensajes descriptivos. Comparte el enlace de tu repo con la comunidad.",
     resources: [
-      { label: "MDN: JSON", url: "https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/JSON" }
+      { label: "GitHub: Guía de inicio", url: "https://github.com/" }
     ]
   },
   {
     day: 30,
-    title: "Proyecto Final: aplicación integrada",
-    category: "Nivel Avanzado",
-    theory: "Has aprendido mucho. Ahora es momento de un proyecto final que integre todo: HTML, CSS, JavaScript, eventos, DOM, arrays/objetos, funciones, APIs (opcional), localStorage, y buenas prácticas. Elige un proyecto ambicioso pero realista.",
+    title: "Tu primera app en producción",
+    category: "Deployment",
+    theory: "Poner tu proyecto 'en producción' significa que cualquier persona en el mundo pueda acceder a él desde internet. Para proyectos frontend (HTML/CSS/JS) existen opciones gratuitas como GitHub Pages, Netlify y Vercel. Para proyectos con backend (Python/Flask) puedes usar Render, Railway o Fly.io. El proceso general es: subir tu código a GitHub, conectar el repositorio con la plataforma de hosting, y ella se encarga de publicarlo con una URL pública. ¡Hoy tu código sale al mundo!",
     codeExample: {
-      language: "javascript",
-      code: "// Ejemplo de proyecto: Gestor de tareas con API\n\nclass TaskManager {\n  constructor() {\n    this.tasks = JSON.parse(localStorage.getItem('tasks')) || [];\n    this.render();\n  }\n  \n  addTask(text) {\n    const task = {\n      id: Date.now(),\n      text,\n      done: false,\n      createdAt: new Date()\n    };\n    this.tasks.push(task);\n    this.save();\n    this.render();\n  }\n  \n  deleteTask(id) {\n    this.tasks = this.tasks.filter(t => t.id !== id);\n    this.save();\n    this.render();\n  }\n  \n  toggleTask(id) {\n    const task = this.tasks.find(t => t.id === id);\n    if (task) task.done = !task.done;\n    this.save();\n    this.render();\n  }\n  \n  save() {\n    localStorage.setItem('tasks', JSON.stringify(this.tasks));\n  }\n  \n  render() {\n    // Generar HTML y actualizar DOM\n    const list = document.getElementById('taskList');\n    list.innerHTML = this.tasks.map(task => `\n      <li class=\"${task.done ? 'done' : ''}\">\n        <span>${task.text}</span>\n        <button onclick=\"taskManager.toggleTask(${task.id})\">✓</button>\n        <button onclick=\"taskManager.deleteTask(${task.id})\">✕</button>\n      </li>\n    `).join('');\n  }\n}\n\nconst taskManager = new TaskManager();"
+      language: "bash",
+      code: "# Opción 1: GitHub Pages (solo frontend)\n# 1. Sube tu proyecto a GitHub\n# 2. Ve a Settings > Pages\n# 3. Selecciona la rama 'main'\n# 4. Tu sitio estará en: tu-usuario.github.io/tu-repo\n\n# Opción 2: Netlify (frontend, más fácil)\n# 1. Ve a netlify.com\n# 2. Arrastra tu carpeta del proyecto\n# 3. ¡Listo! Te da una URL pública\n\n# Opción 3: Render (frontend + backend)\n# 1. Conecta tu repo de GitHub en render.com\n# 2. Selecciona 'Web Service' para Python\n# 3. Deploy automático en cada push"
     },
-    challenge: "¡Felicidades! Crea un proyecto final de tu elección: Ganadería de películas favoritas, Calculadora avanzada, Chatbot simple, Juego interactivo, Portafolio personal, o lo que se te ocurra. Usa al menos: variables, funciones, arrays/objetos, eventos, DOM, localStorage.",
+    challenge: "Despliega al menos uno de tus proyectos en internet. Si es solo frontend usa GitHub Pages o Netlify. Si tiene backend usa Render. Comparte la URL con la comunidad de New Coders. ¡Felicidades, completaste el curso de 30 días!",
     resources: [
-      { label: "Ideas de proyectos", url: "https://github.com/topics/javascript-learning" }
+      { label: "GitHub: Hosting gratuito", url: "https://github.com/" }
     ]
   }
 ];
