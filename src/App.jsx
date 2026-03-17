@@ -502,6 +502,69 @@ export default function App() {
 
   const progressPercent = (completedLessons.length / 30) * 100;
 
+  if (currentView === 'intro') {
+    return (
+      <div className="min-h-screen bg-dark-bg text-text-light font-mono">
+        {/* Header */}
+        <header className="border-b border-border-dark p-6" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(191,0,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+          <button
+            onClick={() => setCurrentView('calendar')}
+            className="text-neon-cyan hover:text-neon-green transition mb-4"
+          >
+            ← Volver al Calendario
+          </button>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="text-xs font-bold px-3 py-1 rounded-full border border-neon-cyan text-neon-cyan uppercase tracking-widest" style={{ fontFamily: 'Orbitron, monospace' }}>
+              Temporada 1
+            </span>
+          </div>
+          <h1 className="text-4xl font-bold text-neon-green">
+            New Coders
+          </h1>
+          <p className="text-neon-yellow mt-1 text-lg">First Commit</p>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-4xl mx-auto p-6 space-y-8">
+          {/* Bienvenida */}
+          <section className="card-base p-6 border-2 border-neon-cyan">
+            <h2 className="text-2xl font-bold text-neon-cyan mb-4">🚀 Bienvenida al curso</h2>
+            <p className="text-text-light leading-relaxed">
+              <strong className="text-neon-green">New Coders</strong> es un programa de 30 días diseñado para llevarte de cero a programador. Cada día aprenderás un concepto nuevo: desde cómo funciona la web, hasta escribir código real en HTML, CSS, JavaScript y Python. No necesitas experiencia previa — solo ganas de aprender y constancia.
+            </p>
+          </section>
+
+          {/* Cómo funciona */}
+          <section className="card-base p-6 border-2 border-neon-green">
+            <h2 className="text-2xl font-bold text-neon-green mb-4">⚙️ ¿Cómo funciona?</h2>
+            <ul className="text-text-light space-y-3 leading-relaxed">
+              <li>📅 <strong className="text-neon-yellow">Una lección por día</strong> — cada lección se desbloquea automáticamente en su fecha correspondiente.</li>
+              <li>📚 <strong className="text-neon-yellow">Teoría + Ejemplo + Reto</strong> — cada lección tiene explicación, código de ejemplo y un desafío práctico para que lo hagas tú mismo.</li>
+              <li>✅ <strong className="text-neon-yellow">Marca tu progreso</strong> — cuando termines una lección, haz clic en "Marcar como Completada" y verás avanzar tu barra de progreso.</li>
+              <li>🔒 <strong className="text-neon-yellow">Lecciones bloqueadas</strong> — las lecciones futuras aparecen con candado hasta que llegue su día. ¡La espera forma parte del aprendizaje!</li>
+            </ul>
+          </section>
+
+          {/* Por dónde empezar */}
+          <section className="card-base p-6 border-2 border-neon-yellow">
+            <h2 className="text-2xl font-bold text-neon-yellow mb-4">🎯 ¿Por dónde empezar?</h2>
+            <p className="text-text-light leading-relaxed mb-3">
+              Simple: vuelve al calendario y abre el <strong className="text-neon-green">Día 1</strong>. Lee la teoría, estudia el ejemplo de código, completa el reto y marca la lección como completada.
+            </p>
+            <p className="text-text-light leading-relaxed">
+              Repite eso cada día durante 30 días y al final de esta temporada habrás dado tu <strong className="text-neon-cyan">First Commit</strong> al mundo de la programación.
+            </p>
+          </section>
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
+          <p className="text-neon-cyan">✦ Tu viaje empieza con un solo paso — el Día 1 ✦</p>
+        </footer>
+      </div>
+    );
+  }
+
   if (currentView === 'lesson' && selectedDay) {
     const lesson = LESSONS[selectedDay - 1];
     const currentDayNum = getCurrentDayNumber();
@@ -650,6 +713,28 @@ export default function App() {
       <main className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Casilla especial: New Coders Temporada 1 */}
+            <button
+              onClick={() => setCurrentView('intro')}
+              className="col-span-2 md:col-span-5 relative p-6 rounded-lg border-2 border-neon-cyan transition-all duration-300 text-left hover:shadow-lg hover:shadow-neon-cyan/50"
+              style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(191,0,255,0.08) 100%)' }}
+            >
+              <div className="absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold text-dark-bg" style={{ background: 'linear-gradient(135deg, #00d4ff, #00ff99)', fontFamily: 'Orbitron, monospace', fontSize: '0.5rem', letterSpacing: '0.08em', boxShadow: '0 0 10px rgba(0,212,255,0.7)' }}>
+                ● SIEMPRE ACTIVO
+              </div>
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs font-bold text-neon-cyan uppercase tracking-widest mb-1" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    Temporada 1
+                  </p>
+                  <h2 className="text-2xl font-bold text-neon-green" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    ✦ New Coders ✦
+                  </h2>
+                  <p className="text-neon-yellow text-sm mt-1">First Commit — Introducción al curso</p>
+                </div>
+              </div>
+            </button>
+
             {LESSONS.map((lesson) => {
               const status = getDayStatus(lesson.day);
               const isCurrentDay = lesson.day === getCurrentDayNumber();
