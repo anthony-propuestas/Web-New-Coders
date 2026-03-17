@@ -719,10 +719,7 @@ export default function App() {
               className="col-span-2 md:col-span-5 relative p-6 rounded-lg border-2 border-neon-cyan transition-all duration-300 text-left hover:shadow-lg hover:shadow-neon-cyan/50"
               style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(191,0,255,0.08) 100%)' }}
             >
-              <div className="absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold text-dark-bg" style={{ background: 'linear-gradient(135deg, #00d4ff, #00ff99)', fontFamily: 'Orbitron, monospace', fontSize: '0.5rem', letterSpacing: '0.08em', boxShadow: '0 0 10px rgba(0,212,255,0.7)' }}>
-                ● SIEMPRE ACTIVO
-              </div>
-              <div className="flex items-center gap-4">
+<div className="flex items-center gap-4">
                 <div>
                   <p className="text-xs font-bold text-neon-cyan uppercase tracking-widest mb-1" style={{ fontFamily: 'Orbitron, monospace' }}>
                     Temporada 1
