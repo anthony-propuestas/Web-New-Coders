@@ -16,7 +16,7 @@ const LESSONS = [
     },
     challenge: "Abre la consola de tu navegador (presiona F12, ve a la pestaña 'Console') y escribe: console.log('¡Hola, soy un programador!'); Luego presiona Enter y observa el resultado.",
     resources: [
-      { label: "GitHub: Recursos para principiantes", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -32,7 +32,7 @@ const LESSONS = [
     },
     challenge: "Descarga e instala VS Code desde code.visualstudio.com. Crea una carpeta llamada 'mi-primer-proyecto', ábrela en VS Code y crea un archivo llamado index.html.",
     resources: [
-      { label: "GitHub: VS Code", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -48,7 +48,7 @@ const LESSONS = [
     },
     challenge: "Copia la estructura HTML del ejemplo en tu archivo index.html y ábrelo en el navegador haciendo doble clic sobre el archivo. Cambia el texto del <h1> y del <p> por tu nombre y una frase sobre ti.",
     resources: [
-      { label: "GitHub: HTML básico", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -64,7 +64,7 @@ const LESSONS = [
     },
     challenge: "Crea una página tipo 'blog personal' con un <h1> con tu nombre, un <h2> que diga 'Sobre mí', un párrafo de presentación, otro <h2> que diga 'Mis hobbies' y un párrafo listando tus pasatiempos.",
     resources: [
-      { label: "GitHub: Etiquetas de texto HTML", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -80,7 +80,7 @@ const LESSONS = [
     },
     challenge: "Agrega a tu página personal un enlace a tu red social favorita (con target='_blank' para que abra en nueva pestaña) y una imagen. Puedes usar cualquier imagen de internet copiando su URL en el atributo src.",
     resources: [
-      { label: "GitHub: Enlaces e imágenes", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -96,7 +96,7 @@ const LESSONS = [
     },
     challenge: "Crea una lista no ordenada con 5 cosas que te gustaría programar y una lista ordenada con los 3 pasos que seguirás para lograrlo. Añádelas a tu página personal.",
     resources: [
-      { label: "GitHub: Listas HTML", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -112,7 +112,7 @@ const LESSONS = [
     },
     challenge: "Crea un formulario de contacto con campos para: nombre, email, asunto (un select con 3 opciones) y mensaje. Añade un botón de enviar. No te preocupes si no funciona aún, eso lo veremos con JavaScript.",
     resources: [
-      { label: "GitHub: Formularios HTML", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -132,7 +132,7 @@ const LESSONS = [
     },
     challenge: "Crea un archivo styles.css, conéctalo a tu index.html con <link rel='stylesheet' href='styles.css'> y cambia el color de fondo de la página, el color del texto y la fuente. Experimenta con al menos 5 propiedades diferentes.",
     resources: [
-      { label: "GitHub: CSS básico", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -148,7 +148,7 @@ const LESSONS = [
     },
     challenge: "En tu página personal, agrega clases a diferentes elementos y dales estilos únicos. Crea al menos 3 clases distintas: una para texto destacado, una para secciones con fondo de color, y una para bordes decorativos.",
     resources: [
-      { label: "GitHub: Selectores CSS", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -164,7 +164,7 @@ const LESSONS = [
     },
     challenge: "Crea 3 tarjetas (divs con clase 'tarjeta') cada una con un título y un párrafo. Usa padding, margin, border y border-radius para que se vean como tarjetas de presentación. Añade un efecto :hover que cambie el borde o la sombra.",
     resources: [
-      { label: "GitHub: Box Model CSS", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -180,7 +180,7 @@ const LESSONS = [
     },
     challenge: "Usa Flexbox para crear un navbar con un logo a la izquierda y 3 enlaces a la derecha. Luego, debajo del navbar, muestra tus 3 tarjetas del día anterior en fila, centradas y con espacio uniforme entre ellas.",
     resources: [
-      { label: "GitHub: Flexbox", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -196,7 +196,7 @@ const LESSONS = [
     },
     challenge: "Crea una galería de 6 elementos (pueden ser divs con colores de fondo diferentes) usando CSS Grid con 3 columnas en escritorio y 1 columna en móvil. Usa la media query del ejemplo para hacerlo responsive.",
     resources: [
-      { label: "GitHub: CSS Grid", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -212,7 +212,7 @@ const LESSONS = [
     },
     challenge: "Toma tu página personal y hazla completamente responsive: el navbar debe colapsar en móvil, las tarjetas deben mostrarse en 1 columna en móvil y 3 en desktop, y los textos deben ajustar su tamaño. Pruébalo redimensionando la ventana del navegador.",
     resources: [
-      { label: "GitHub: Responsive Design", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -228,7 +228,7 @@ const LESSONS = [
     },
     challenge: "Construye una landing page completa con: un hero section con fondo de color y texto centrado, una sección de 3 features en Grid/Flex, y un footer. Debe ser responsive. Este es tu primer proyecto de portafolio.",
     resources: [
-      { label: "GitHub: Ejemplos de landing pages", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -248,7 +248,7 @@ const LESSONS = [
     },
     challenge: "Crea un archivo script.js, conéctalo a tu HTML con <script src='script.js'></script> antes del cierre de </body>. Escribe un console.log con tu nombre y un alert de bienvenida. Verifica que funcione en el navegador.",
     resources: [
-      { label: "GitHub: JavaScript para principiantes", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -264,7 +264,7 @@ const LESSONS = [
     },
     challenge: "Crea variables con tu información personal (nombre, edad, ciudad, lenguaje favorito, si te gusta el café). Usa template literals para imprimir un párrafo completo en consola que diga algo como: 'Hola, soy [nombre], tengo [edad] años, vivo en [ciudad]...'.",
     resources: [
-      { label: "GitHub: Variables JavaScript", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -280,7 +280,7 @@ const LESSONS = [
     },
     challenge: "Crea un sistema de calificaciones: declara una variable 'nota' y usando if/else if/else imprime 'A' (90-100), 'B' (80-89), 'C' (70-79), 'D' (60-69) o 'F' (menos de 60). Prueba cambiando el valor de la nota.",
     resources: [
-      { label: "GitHub: Condicionales JS", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -296,7 +296,7 @@ const LESSONS = [
     },
     challenge: "Usa un bucle for para imprimir la tabla de multiplicar del número que quieras (del 1 al 10). Luego crea un array con 5 nombres de amigos y usa for...of para saludar a cada uno con: '¡Hola, [nombre]!'.",
     resources: [
-      { label: "GitHub: Bucles en JS", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -312,7 +312,7 @@ const LESSONS = [
     },
     challenge: "Crea 3 funciones: una que reciba tu nombre y edad y retorne una presentación, otra que calcule el área de un rectángulo (base × altura), y otra que reciba una temperatura en Celsius y la convierta a Fahrenheit (°F = °C × 9/5 + 32).",
     resources: [
-      { label: "GitHub: Funciones JavaScript", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -328,7 +328,7 @@ const LESSONS = [
     },
     challenge: "Crea un array de 5 objetos 'estudiante' con nombre, edad y nota. Luego usa .filter() para obtener solo los aprobados (nota >= 70), .map() para crear un array solo con los nombres, y .find() para buscar un estudiante específico por nombre.",
     resources: [
-      { label: "GitHub: Arrays y objetos", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -344,7 +344,7 @@ const LESSONS = [
     },
     challenge: "En tu HTML crea un <div id='resultado'> vacío. Desde JavaScript, selecciónalo y agrega dinámicamente: un título, un párrafo con la fecha actual (new Date().toLocaleDateString()) y 3 items de una lista creados con createElement. Todo sin tocar el HTML.",
     resources: [
-      { label: "GitHub: DOM JavaScript", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -364,7 +364,7 @@ const LESSONS = [
     },
     challenge: "Crea una mini-app con: un input de texto, un botón y un div para resultados. Al escribir en el input, muestra el texto en tiempo real en el div. Al hacer clic en el botón, convierte el texto a mayúsculas. Agrega un segundo botón que limpie todo.",
     resources: [
-      { label: "GitHub: Eventos JavaScript", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -380,7 +380,7 @@ const LESSONS = [
     },
     challenge: "Construye una To-Do List completa con: input para escribir tareas, botón para agregar, las tareas se muestran en una lista, clic en una tarea la marca como completada (texto tachado), y un botón para eliminar tareas completadas. Bonus: guárdalas en localStorage.",
     resources: [
-      { label: "GitHub: Proyecto To-Do List", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -396,7 +396,7 @@ const LESSONS = [
     },
     challenge: "Instala Python, crea un archivo hola.py y escribe un programa que declare variables con tu información personal y las imprima usando f-strings. Ejecútalo desde la terminal con 'python hola.py'. Experimenta con los tipos: str, int, float y bool.",
     resources: [
-      { label: "GitHub: Python para principiantes", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -412,7 +412,7 @@ const LESSONS = [
     },
     challenge: "Escribe un programa en Python que: 1) Pida al usuario un número con input(), 2) Determine si es par o impar, 3) Imprima la tabla de multiplicar de ese número del 1 al 10 usando un bucle for. Recuerda convertir el input a número con int().",
     resources: [
-      { label: "GitHub: Control de flujo Python", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -428,7 +428,7 @@ const LESSONS = [
     },
     challenge: "Crea un programa que maneje una lista de estudiantes (diccionarios con nombre, edad y nota). Escribe funciones para: agregar estudiante, buscar por nombre, calcular el promedio general, y filtrar los aprobados (nota >= 70). Imprime los resultados.",
     resources: [
-      { label: "GitHub: Funciones Python", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -444,7 +444,7 @@ const LESSONS = [
     },
     challenge: "Instala Flask y crea un servidor con 3 rutas: '/' que muestre un HTML de bienvenida, '/api/fecha' que devuelva la fecha actual en JSON, y '/api/saludo/<nombre>' que salude al nombre que reciba en la URL. Ejecútalo y prueba cada ruta en tu navegador.",
     resources: [
-      { label: "GitHub: Flask", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -460,7 +460,7 @@ const LESSONS = [
     },
     challenge: "Crea un backend Flask con una ruta '/api/tareas' que devuelva una lista de tareas en JSON. Luego crea un frontend HTML con JavaScript que use fetch() para obtener esas tareas y mostrarlas en la página. Habrás creado tu primera app fullstack.",
     resources: [
-      { label: "GitHub: Fetch API", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -476,7 +476,7 @@ const LESSONS = [
     },
     challenge: "Instala Git, crea una cuenta en GitHub, y sube tu proyecto de landing page (día 14) o tu To-Do List (día 23) a un repositorio público. Haz al menos 3 commits con mensajes descriptivos. Comparte el enlace de tu repo con la comunidad.",
     resources: [
-      { label: "GitHub: Guía de inicio", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   },
@@ -492,7 +492,7 @@ const LESSONS = [
     },
     challenge: "Despliega al menos uno de tus proyectos en internet. Si es solo frontend usa GitHub Pages o Netlify. Si tiene backend usa Render. Comparte la URL con la comunidad de New Coders. ¡Felicidades, completaste el curso de 30 días!",
     resources: [
-      { label: "GitHub: Hosting gratuito", url: "https://github.com/" }
+      { label: "Aprende con IA", url: "https://github.com/" }
     ],
     aiLink: '#'
   }
