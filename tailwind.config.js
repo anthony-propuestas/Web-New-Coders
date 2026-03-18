@@ -10,6 +10,7 @@ module.exports = {
         'neon-cyan': '#bf00ff',    // Violeta brillante (ex-cyan)
         'neon-yellow': '#ff0099',  // Rosa/magenta (ex-amarillo)
         'text-light': '#c8c8ff',   // Blanco con tinte azul
+        'neon-purple': '#a855f7',  // Púrpura brillante
         'border-dark': '#1a1a4e',  // Borde azul oscuro
       },
       fontFamily: {
