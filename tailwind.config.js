@@ -11,6 +11,7 @@ module.exports = {
         'neon-yellow': '#ff0099',  // Rosa/magenta (ex-amarillo)
         'text-light': '#c8c8ff',   // Blanco con tinte azul
         'neon-purple': '#a855f7',  // Púrpura brillante
+        'neon-orange': '#ff6600',  // Naranja brillante (instrucciones)
         'border-dark': '#1a1a4e',  // Borde azul oscuro
       },
       fontFamily: {

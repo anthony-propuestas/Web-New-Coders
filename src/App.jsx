@@ -9,6 +9,7 @@ const LESSONS = [
     title: "¿Qué es programar?",
     category: "Fundamentos",
     theory: "Programar es dar instrucciones precisas a una computadora para que realice tareas. Estas instrucciones se escriben en lenguajes de programación que la máquina puede entender. Es como escribir una receta de cocina: paso a paso, sin ambigüedades. En este curso aprenderás tres lenguajes: HTML/CSS para la parte visual, JavaScript para la lógica, y Python para el servidor.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "crea un archivo HTML y escribe en texto simple (Hola mundo) solo eso.",
     codeExample: {
       language: "html",
@@ -25,6 +26,7 @@ const LESSONS = [
     title: "Conociendo las herramientas",
     category: "Fundamentos",
     theory: "Todo programador necesita herramientas básicas: un editor de código (VS Code es el más popular y gratuito), un navegador web moderno (Chrome o Firefox) y una terminal o consola. El editor es donde escribes tu código, el navegador donde ves el resultado, y la terminal donde ejecutas comandos. Instalar VS Code es el primer paso real para comenzar.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "html",
@@ -41,6 +43,7 @@ const LESSONS = [
     title: "Tu primera página web",
     category: "HTML",
     theory: "HTML (HyperText Markup Language) es el lenguaje que estructura el contenido de las páginas web. No es un lenguaje de programación, sino de marcado: usas etiquetas para decirle al navegador qué tipo de contenido estás mostrando. Todo documento HTML tiene una estructura base con las etiquetas <!DOCTYPE html>, <html>, <head> y <body>. El contenido visible va dentro de <body>.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "html",
@@ -57,6 +60,7 @@ const LESSONS = [
     title: "Encabezados y párrafos",
     category: "HTML",
     theory: "Los encabezados van de <h1> (el más importante) a <h6> (el menos importante). Sirven para organizar el contenido jerárquicamente, como los títulos y subtítulos de un libro. Los párrafos se crean con <p> y representan bloques de texto. Cada etiqueta tiene una apertura (<p>) y un cierre (</p>). También puedes usar <br> para saltos de línea y <hr> para líneas horizontales divisorias.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "html",
@@ -73,6 +77,7 @@ const LESSONS = [
     title: "Enlaces e imágenes",
     category: "HTML",
     theory: "Los enlaces (<a>) conectan páginas entre sí y son la base de la web. Usan el atributo href para indicar hacia dónde llevan. Las imágenes (<img>) muestran archivos visuales usando el atributo src para la ruta de la imagen y alt para un texto alternativo que describe la imagen. La etiqueta <img> es especial porque no tiene cierre (es 'auto-cerrada'). Los enlaces pueden apuntar a otras páginas, archivos, o secciones dentro de la misma página.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "html",
@@ -89,6 +94,7 @@ const LESSONS = [
     title: "Listas en HTML",
     category: "HTML",
     theory: "Existen dos tipos principales de listas: ordenadas (<ol>) que muestran números automáticamente, y no ordenadas (<ul>) que muestran viñetas. Cada elemento dentro de la lista se envuelve con <li>. Las listas son muy comunes en la web: menús de navegación, pasos de instrucciones, listas de productos, etc. También puedes anidar listas dentro de otras listas para crear subniveles.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "html",
@@ -105,6 +111,7 @@ const LESSONS = [
     title: "Formularios básicos",
     category: "HTML",
     theory: "Los formularios (<form>) permiten que los usuarios envíen información. Son la base de registros, logins, buscadores y más. Los campos más comunes son: <input> para texto, email, contraseñas y números; <textarea> para textos largos; <select> para menús desplegables; y <button> para enviar. Cada campo debería tener un <label> asociado que describa qué información se pide. El atributo type del input define qué tipo de dato acepta.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "html",
@@ -125,6 +132,7 @@ const LESSONS = [
     title: "Introducción a CSS",
     category: "CSS",
     theory: "CSS (Cascading Style Sheets) es el lenguaje que le da estilo visual a tu HTML: colores, tamaños, espaciados, fuentes y posiciones. Se puede escribir de tres formas: en línea (dentro de la etiqueta con style='...'), interno (en un bloque <style> en el <head>) o externo (en un archivo .css separado, que es la forma recomendada). Un archivo CSS se conecta al HTML con la etiqueta <link>. Las reglas CSS se componen de un selector (qué elemento), una propiedad (qué cambiar) y un valor (cómo cambiarlo).",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "css",
@@ -141,6 +149,7 @@ const LESSONS = [
     title: "Selectores y colores",
     category: "CSS",
     theory: "Los selectores CSS definen a qué elementos aplicas estilos. Los más comunes son: por etiqueta (h1, p, div), por clase (.mi-clase) y por ID (#mi-id). Las clases se asignan con el atributo class y se pueden reutilizar; los IDs con el atributo id y son únicos. Los colores se pueden definir por nombre (red, blue), hexadecimal (#FF5733), RGB (rgb(255, 87, 51)) o HSL. La buena práctica es usar clases para estilos reutilizables e IDs solo para elementos únicos.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "css",
@@ -157,6 +166,7 @@ const LESSONS = [
     title: "El modelo de caja (Box Model)",
     category: "CSS",
     theory: "Cada elemento HTML es una caja rectangular compuesta por 4 capas: content (el contenido), padding (espacio interno entre el contenido y el borde), border (el borde visible) y margin (espacio externo entre la caja y otros elementos). Entender el box model es fundamental para controlar el diseño. Por defecto, width y height solo afectan al content, pero con box-sizing: border-box puedes hacer que incluyan padding y border, lo cual simplifica los cálculos.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "css",
@@ -173,6 +183,7 @@ const LESSONS = [
     title: "Flexbox: diseños flexibles",
     category: "CSS",
     theory: "Flexbox es un sistema de diseño que facilita alinear y distribuir elementos en una dirección (fila o columna). Se activa con display: flex en el contenedor padre. Las propiedades principales del padre son: flex-direction (fila o columna), justify-content (alineación horizontal), align-items (alineación vertical) y gap (espacio entre hijos). Es la herramienta más usada hoy para crear layouts modernos sin complicaciones.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "css",
@@ -189,6 +200,7 @@ const LESSONS = [
     title: "CSS Grid: cuadrículas poderosas",
     category: "CSS",
     theory: "CSS Grid permite crear diseños en dos dimensiones (filas y columnas simultáneamente). Se activa con display: grid en el contenedor. Con grid-template-columns defines cuántas columnas y su ancho, y con grid-template-rows las filas. La unidad 'fr' (fracción) distribuye el espacio disponible proporcionalmente. Es ideal para layouts de página completos, galerías de imágenes y dashboards.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "css",
@@ -205,6 +217,7 @@ const LESSONS = [
     title: "Diseño responsive",
     category: "CSS",
     theory: "Un diseño responsive se adapta a diferentes tamaños de pantalla: móvil, tablet y escritorio. Las herramientas principales son: unidades relativas (%, rem, vw, vh en lugar de px fijos), media queries (@media) para aplicar estilos según el ancho de pantalla, y la meta etiqueta viewport en el HTML. La estrategia 'mobile first' consiste en diseñar primero para móvil y luego agregar estilos para pantallas más grandes.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "css",
@@ -221,6 +234,7 @@ const LESSONS = [
     title: "Mini proyecto: landing page",
     category: "CSS",
     theory: "Es hora de combinar todo lo aprendido de HTML y CSS en un proyecto real. Una landing page es una página de presentación con secciones típicas: hero (sección principal con título grande y botón), features (características o servicios), testimonios y footer. Usarás estructura HTML semántica (header, main, section, footer), Flexbox/Grid para el layout, y media queries para responsive.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "html",
@@ -241,6 +255,7 @@ const LESSONS = [
     title: "JavaScript: tu primer script",
     category: "JavaScript",
     theory: "JavaScript (JS) es el lenguaje de programación de la web. A diferencia de HTML y CSS que son declarativos, JS permite crear lógica: tomar decisiones, repetir acciones, responder a clics, manipular la página en tiempo real y comunicarse con servidores. Se puede ejecutar en el navegador (frontend) y en servidores (backend con Node.js). Para incluirlo en HTML usas la etiqueta <script> al final del <body> o un archivo .js externo.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -257,6 +272,7 @@ const LESSONS = [
     title: "Variables y tipos de datos",
     category: "JavaScript",
     theory: "Las variables son contenedores donde almacenas información. En JS moderno se declaran con let (puede cambiar) y const (no puede cambiar). Los tipos de datos principales son: string (texto entre comillas), number (números), boolean (true o false), null (vacío intencional), undefined (sin valor asignado), array (lista de valores) y object (colección de pares clave-valor). Usa const por defecto y let solo cuando necesites reasignar.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -273,6 +289,7 @@ const LESSONS = [
     title: "Condicionales: tomando decisiones",
     category: "JavaScript",
     theory: "Los condicionales permiten que tu código tome decisiones basándose en condiciones. La estructura if/else evalúa una condición: si es verdadera ejecuta un bloque, si no, ejecuta otro. Puedes encadenar múltiples condiciones con else if. Los operadores de comparación son: === (igual estricto), !== (diferente), >, <, >=, <=. Los operadores lógicos && (y), || (o), ! (no) permiten combinar condiciones.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -289,6 +306,7 @@ const LESSONS = [
     title: "Bucles: repitiendo acciones",
     category: "JavaScript",
     theory: "Los bucles repiten un bloque de código mientras se cumpla una condición. El bucle for es ideal cuando sabes cuántas veces repetir (tiene inicializador, condición y actualización). El bucle while repite mientras una condición sea verdadera. El for...of recorre los elementos de un array directamente. Cuidado con los bucles infinitos: siempre asegúrate de que la condición eventualmente sea falsa.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -305,6 +323,7 @@ const LESSONS = [
     title: "Funciones: bloques reutilizables",
     category: "JavaScript",
     theory: "Las funciones son bloques de código reutilizables que realizan una tarea específica. Se definen una vez y se pueden llamar (ejecutar) muchas veces. Pueden recibir parámetros (datos de entrada) y devolver un resultado con return. Hay dos formas principales: funciones declaradas (function nombre()) y funciones flecha (const nombre = () => {}). Las funciones flecha son más modernas y concisas.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -321,6 +340,7 @@ const LESSONS = [
     title: "Arrays y objetos",
     category: "JavaScript",
     theory: "Los arrays son listas ordenadas de valores que se acceden por índice (empezando en 0). Los objetos son colecciones de pares clave-valor que representan entidades con propiedades. Los métodos más útiles de arrays son: push (agregar), pop (quitar último), map (transformar cada elemento), filter (filtrar), find (buscar uno) y length (contar). Los objetos se acceden con punto (objeto.propiedad) o corchetes (objeto['propiedad']).",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -337,6 +357,7 @@ const LESSONS = [
     title: "El DOM: manipulando la página",
     category: "JavaScript",
     theory: "El DOM (Document Object Model) es la representación de tu HTML como un árbol de objetos que JavaScript puede leer y modificar. Con el DOM puedes seleccionar elementos (querySelector, getElementById), cambiar su contenido (textContent, innerHTML), modificar estilos (style), agregar/quitar clases (classList) y crear nuevos elementos (createElement). Es el puente entre tu código JS y lo que el usuario ve en pantalla.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -357,6 +378,7 @@ const LESSONS = [
     title: "Eventos: interactividad real",
     category: "JavaScript",
     theory: "Los eventos son acciones del usuario (clics, teclas, scroll, envío de formularios) que JavaScript puede detectar y responder. Se asignan con addEventListener, que recibe el tipo de evento y una función callback que se ejecuta cuando ocurre. Los eventos más comunes son: click, input, submit, keydown, mouseover, scroll y load. El objeto event (e) contiene información sobre lo que pasó, como e.target (el elemento que disparó el evento) y e.preventDefault() para evitar el comportamiento por defecto.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -373,6 +395,7 @@ const LESSONS = [
     title: "Proyecto JS: lista de tareas",
     category: "JavaScript",
     theory: "Es momento de combinar todo lo aprendido de JavaScript en un proyecto funcional. Una lista de tareas (To-Do List) usa: manipulación del DOM para agregar y eliminar elementos, eventos para responder al usuario, arrays para almacenar los datos, y funciones para organizar la lógica. localStorage del navegador permite guardar datos que persisten incluso al cerrar la pestaña. Este es un proyecto clásico que todo principiante debe construir.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -389,6 +412,7 @@ const LESSONS = [
     title: "Introducción a Python",
     category: "Python",
     theory: "Python es uno de los lenguajes más populares del mundo por su sintaxis limpia y legible. Se usa en backend web, ciencia de datos, inteligencia artificial y automatización. A diferencia de JavaScript, Python usa indentación (espacios) para definir bloques de código en lugar de llaves {}. Para ejecutarlo necesitas instalar Python desde python.org. Se escribe en archivos .py y se ejecuta desde la terminal con 'python archivo.py'. print() es el equivalente a console.log().",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "python",
@@ -405,6 +429,7 @@ const LESSONS = [
     title: "Condicionales y bucles en Python",
     category: "Python",
     theory: "Python usa if, elif (equivalente a else if) y else para condicionales. Los bucles más comunes son for (para recorrer secuencias) y while (mientras se cumpla una condición). La función range(inicio, fin) genera una secuencia de números. La sintaxis es más limpia que en JS: no usa paréntesis en las condiciones ni llaves para los bloques, solo dos puntos (:) e indentación. Las listas en Python son equivalentes a los arrays de JavaScript.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "python",
@@ -421,6 +446,7 @@ const LESSONS = [
     title: "Funciones y estructuras de datos en Python",
     category: "Python",
     theory: "Las funciones en Python se definen con def nombre(parametros): y retornan valores con return. Python tiene dos estructuras de datos clave: listas (como arrays en JS, se definen con []) y diccionarios (como objetos en JS, se definen con {}). Las listas tienen métodos como append, remove, sort, y se pueden recorrer con for. Los diccionarios almacenan pares clave-valor y se acceden con corchetes o .get(). Las list comprehensions permiten crear listas de forma concisa.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "python",
@@ -437,6 +463,7 @@ const LESSONS = [
     title: "Tu primer servidor con Python",
     category: "Python",
     theory: "Un servidor web es un programa que escucha peticiones HTTP y responde con datos (HTML, JSON, etc.). Flask es un micro-framework de Python que permite crear servidores web con muy poco código. Se instala con 'pip install flask'. Con Flask defines rutas (URLs) y qué función se ejecuta cuando alguien visita esa ruta. Puedes devolver HTML, texto o datos JSON. El servidor se ejecuta localmente en http://localhost:5000.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "python",
@@ -453,6 +480,7 @@ const LESSONS = [
     title: "Conectando frontend y backend",
     category: "Fullstack",
     theory: "La comunicación entre frontend (navegador) y backend (servidor) se hace mediante peticiones HTTP usando fetch() en JavaScript. El frontend envía una petición a una URL del servidor (API), el servidor procesa la petición y devuelve datos (generalmente en formato JSON), y el frontend usa esos datos para actualizar la interfaz. Las peticiones más comunes son GET (obtener datos) y POST (enviar datos). Esto es la base de toda aplicación web moderna.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "javascript",
@@ -469,6 +497,7 @@ const LESSONS = [
     title: "Git y GitHub: guardando tu código",
     category: "Herramientas",
     theory: "Git es un sistema de control de versiones que registra cada cambio en tu código, permitiéndote volver atrás si algo falla. GitHub es una plataforma en la nube donde almacenas tus repositorios Git y compartes tu código con el mundo. Los comandos esenciales son: git init (iniciar repositorio), git add . (preparar cambios), git commit -m 'mensaje' (guardar cambios), git push (subir a GitHub) y git pull (descargar cambios). Todo desarrollador profesional usa Git a diario.",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "bash",
@@ -485,6 +514,7 @@ const LESSONS = [
     title: "Tu primera app en producción",
     category: "Deployment",
     theory: "Poner tu proyecto 'en producción' significa que cualquier persona en el mundo pueda acceder a él desde internet. Para proyectos frontend (HTML/CSS/JS) existen opciones gratuitas como GitHub Pages, Netlify y Vercel. Para proyectos con backend (Python/Flask) puedes usar Render, Railway o Fly.io. El proceso general es: subir tu código a GitHub, conectar el repositorio con la plataforma de hosting, y ella se encarga de publicarlo con una URL pública. ¡Hoy tu código sale al mundo!",
+    instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
       language: "bash",
@@ -833,6 +863,12 @@ export default function App() {
           <section className="card-base p-6 border-2 border-neon-cyan">
             <h2 className="text-2xl font-bold text-neon-cyan mb-4">📚 Teoría</h2>
             <p className="text-text-light leading-relaxed">{lesson.theory}</p>
+          </section>
+
+          {/* Instructions */}
+          <section className="card-base p-6 border-2 border-neon-orange">
+            <h2 className="text-2xl font-bold text-neon-orange mb-4">📋 Instrucciones Manuales</h2>
+            <p className="text-text-light leading-relaxed">{lesson.instructions}</p>
           </section>
 
           {/* Prompt */}
