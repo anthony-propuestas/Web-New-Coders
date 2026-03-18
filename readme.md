@@ -159,4 +159,20 @@ Un **único archivo `.jsx`** (React component) que contenga:
 
 ---
 
+## Despliegue en Producción
+
+Para evitar errores de tipo MIME ("text/jsx"), asegúrate de:
+
+1. Ejecutar el build:
+   - `npm run build`
+   - Esto genera la carpeta `dist/` con archivos `.js` y `.css` listos para producción.
+
+2. Desplegar solo la carpeta `dist/` en tu servidor o servicio de hosting.
+   - No sirvas archivos fuente (`src/*.jsx`).
+   - El servidor debe responder con el tipo MIME `application/javascript` para archivos `.js`.
+
+3. Verifica en la consola del navegador que no aparecen errores de MIME y que los archivos `.js` se cargan correctamente.
+
+---
+
 *Este prompt está diseñado para generar la aplicación en un solo paso. Si el resultado es demasiado largo, puedes dividirlo pidiendo primero la estructura + las primeras 10 lecciones, y luego el resto del contenido.*
