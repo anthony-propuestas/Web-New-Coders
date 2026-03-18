@@ -690,6 +690,18 @@ export default function App() {
               ))}
             </ul>
           </section>
+
+          <div className="mt-10 text-center">
+            <a
+              href="https://notebooklm.google.com/notebook/8167d8cc-9006-4d0b-97ae-256aa7b74790?pli=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-sm font-bold py-3 px-6 rounded-lg border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg transition-all duration-300"
+              style={{ fontFamily: 'Orbitron, monospace' }}
+            >
+              Aprende a instalar los recursos con IA
+            </a>
+          </div>
         </main>
 
         <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
