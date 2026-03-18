@@ -536,6 +536,139 @@ export default function App() {
 
   const progressPercent = (completedLessons.length / 30) * 100;
 
+  if (currentView === 'herramientas') {
+    return (
+      <div className="min-h-screen bg-dark-bg text-text-light font-mono">
+        <header className="border-b border-border-dark p-6" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(191,0,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+          <button onClick={() => setCurrentView('calendar')} className="text-neon-cyan hover:text-neon-green transition mb-4">
+            ← Volver al Calendario
+          </button>
+          <h1 className="text-4xl font-bold text-neon-green">Herramientas del curso</h1>
+          <p className="text-neon-yellow mt-1 text-lg">New Coders — 30 días</p>
+        </header>
+
+        <main className="max-w-4xl mx-auto p-6 space-y-8">
+          <section className="card-base p-6 border-2 border-neon-cyan">
+            <p className="text-text-light leading-relaxed">
+              Todo lo que necesitas instalar para completar el curso. Descarga siempre desde los sitios oficiales.
+            </p>
+          </section>
+
+          {/* Obligatorias */}
+          <section className="card-base p-6 border-2 border-neon-green">
+            <h2 className="text-2xl font-bold text-neon-green mb-5">🛠️ Obligatorias</h2>
+            <ul className="space-y-5">
+              {[
+                {
+                  name: 'VS Code',
+                  desc: 'Editor de código gratuito de Microsoft. Es donde escribirás todo tu código durante los 30 días.',
+                  detail: 'Descárgalo desde code.visualstudio.com/download, ejecuta el instalador y en Windows marca "Agregar a PATH".',
+                  url: 'https://code.visualstudio.com/download',
+                },
+                {
+                  name: 'Google Chrome',
+                  desc: 'Navegador con herramientas de desarrollo (DevTools) que usarás para inspeccionar HTML, depurar JS y probar CSS.',
+                  detail: 'Descárgalo desde google.com/chrome, la instalación es automática.',
+                  url: 'https://www.google.com/chrome',
+                },
+                {
+                  name: 'Python',
+                  desc: 'Lenguaje para crear tu primer servidor web (día 24 en adelante).',
+                  detail: 'Descárgalo desde python.org/downloads. En Windows es crítico marcar "Add to PATH" durante la instalación. En macOS/Linux el comando es python3.',
+                  url: 'https://www.python.org/downloads',
+                },
+                {
+                  name: 'Git',
+                  desc: 'Sistema de control de versiones que registra cada cambio en tu código (día 29).',
+                  detail: 'Descárgalo desde git-scm.com, acepta las opciones por defecto y luego configura tu nombre y email con git config --global.',
+                  url: 'https://git-scm.com',
+                },
+                {
+                  name: 'GitHub (cuenta)',
+                  desc: 'Plataforma donde almacenas tu código en la nube y despliegas tus proyectos.',
+                  detail: 'Crea una cuenta gratuita en github.com con un nombre de usuario profesional.',
+                  url: 'https://github.com',
+                },
+              ].map(tool => (
+                <li key={tool.name} className="border border-border-dark rounded-lg p-4" style={{ background: 'rgba(0,212,255,0.03)' }}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <span className="text-neon-green font-bold text-lg">{tool.name}</span>
+                      <p className="text-text-light text-sm mt-1">{tool.desc}</p>
+                      <p className="text-neon-yellow text-xs mt-2 leading-relaxed">{tool.detail}</p>
+                    </div>
+                    <a href={tool.url} target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-bold px-3 py-1 rounded border border-neon-cyan text-neon-cyan hover:text-neon-green hover:border-neon-green transition whitespace-nowrap">
+                      Descargar ↗
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Opcionales */}
+          <section className="card-base p-6 border-2 border-neon-yellow">
+            <h2 className="text-2xl font-bold text-neon-yellow mb-5">⚡ Opcionales</h2>
+            <ul className="space-y-5">
+              {[
+                {
+                  name: 'Node.js',
+                  desc: 'Permite ejecutar JavaScript fuera del navegador.',
+                  detail: 'Descarga la versión LTS desde nodejs.org.',
+                  url: 'https://nodejs.org',
+                },
+                {
+                  name: 'Netlify / Render (cuentas)',
+                  desc: 'Hosting gratuito para publicar tus proyectos en internet el día 30.',
+                  detail: 'Netlify (netlify.com) para frontend, Render (render.com) para backend. Regístrate con tu cuenta de GitHub.',
+                  url: 'https://netlify.com',
+                },
+              ].map(tool => (
+                <li key={tool.name} className="border border-border-dark rounded-lg p-4" style={{ background: 'rgba(255,0,153,0.03)' }}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <span className="text-neon-yellow font-bold text-lg">{tool.name}</span>
+                      <p className="text-text-light text-sm mt-1">{tool.desc}</p>
+                      <p className="text-neon-cyan text-xs mt-2 leading-relaxed">{tool.detail}</p>
+                    </div>
+                    <a href={tool.url} target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-bold px-3 py-1 rounded border border-neon-yellow text-neon-yellow hover:text-neon-green hover:border-neon-green transition whitespace-nowrap">
+                      Ver ↗
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Extensiones VS Code */}
+          <section className="card-base p-6 border-2 border-neon-cyan">
+            <h2 className="text-2xl font-bold text-neon-cyan mb-3">🧩 Extensiones de VS Code</h2>
+            <p className="text-neon-yellow text-xs mb-4">Instálalas con <code className="bg-dark-bg px-2 py-0.5 rounded border border-border-dark">Ctrl+Shift+X</code></p>
+            <ul className="space-y-2">
+              {[
+                { name: 'Live Server',       desc: 'Recarga automática al guardar.' },
+                { name: 'Prettier',          desc: 'Formatea tu código.' },
+                { name: 'Python (Microsoft)', desc: 'Autocompletado para archivos .py.' },
+                { name: 'ES7+ Snippets',     desc: 'Atajos de teclado para JavaScript.' },
+              ].map(ext => (
+                <li key={ext.name} className="flex gap-3 text-sm">
+                  <span className="text-neon-green font-bold min-w-fit">{ext.name}</span>
+                  <span className="text-text-light">— {ext.desc}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </main>
+
+        <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
+          <p className="text-neon-cyan">✦ Instala todo antes del Día 1 y arranca sin fricciones ✦</p>
+        </footer>
+      </div>
+    );
+  }
+
   if (currentView === 'intro') {
     return (
       <div className="min-h-screen bg-dark-bg text-text-light font-mono">
@@ -562,9 +695,9 @@ export default function App() {
         <main className="max-w-4xl mx-auto p-6 space-y-8">
           {/* Bienvenida */}
           <section className="card-base p-6 border-2 border-neon-cyan">
-            <h2 className="text-2xl font-bold text-neon-cyan mb-4">🚀 Bienvenida al curso</h2>
+            <h2 className="text-2xl font-bold text-neon-cyan mb-4">🚀 Bienvenida al Calendario Practico</h2>
             <p className="text-text-light leading-relaxed">
-              <strong className="text-neon-green">New Coders</strong> es un programa de 30 días diseñado para llevarte de cero a programador. Cada día aprenderás un concepto nuevo: desde cómo funciona la web, hasta escribir código real en HTML, CSS, JavaScript y Python. No necesitas experiencia previa — solo ganas de aprender y constancia.
+              <strong className="text-neon-green">New Coders</strong> es un programa 100% practico de 30 días diseñado para llevarte paso a paso desde cero en programación con los lenguajes mas usados en 2026. Cada día Practicaras un concepto nuevo: desde cómo funciona la web, hasta escribir código real en HTML, CSS, JavaScript y Python. No necesitas experiencia previa — solo ganas de aprender y constancia.
             </p>
           </section>
 
@@ -812,6 +945,25 @@ export default function App() {
                     ✦ New Coders ✦
                   </h2>
                   <p className="text-neon-yellow text-sm mt-1">First Commit — Introducción al curso</p>
+                </div>
+              </div>
+            </button>
+
+            {/* Casilla especial: Herramientas */}
+            <button
+              onClick={() => setCurrentView('herramientas')}
+              className="col-span-2 md:col-span-5 relative p-6 rounded-lg border-2 border-neon-yellow transition-all duration-300 text-left hover:shadow-lg hover:shadow-neon-yellow/50"
+              style={{ background: 'linear-gradient(135deg, rgba(255,0,153,0.06) 0%, rgba(191,0,255,0.06) 100%)' }}
+            >
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs font-bold text-neon-yellow uppercase tracking-widest mb-1" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    Recursos
+                  </p>
+                  <h2 className="text-2xl font-bold text-neon-yellow" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    🛠️ Herramientas
+                  </h2>
+                  <p className="text-text-light text-sm mt-1">Todo lo que necesitas instalar para el curso</p>
                 </div>
               </div>
             </button>
