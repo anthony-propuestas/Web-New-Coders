@@ -9,10 +9,10 @@ const LESSONS = [
     title: "¿Qué es programar?",
     category: "Fundamentos",
     theory: "Programar es dar instrucciones precisas a una computadora para que realice tareas. Estas instrucciones se escriben en lenguajes de programación que la máquina puede entender. Es como escribir una receta de cocina: paso a paso, sin ambigüedades. En este curso aprenderás tres lenguajes: HTML/CSS para la parte visual, JavaScript para la lógica, y Python para el servidor.",
-    prompt: "#",
+    prompt: "crea un archivo HTML y escribe en texto simple (Hola mundo) solo eso.",
     codeExample: {
-      language: "javascript",
-      code: "console.log('¡Hola, mundo!');"
+      language: "html",
+      code: "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Hola mundo</title>\n</head>\n<body>\n  Hola mundo\n</body>\n</html>"
     },
     challenge: "Abre la consola de tu navegador (presiona F12, ve a la pestaña 'Console') y escribe: console.log('¡Hola, soy un programador!'); Luego presiona Enter y observa el resultado.",
     resources: [
@@ -523,6 +523,7 @@ export default function App() {
   const today = new Date();
 
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, started: false });
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const calc = () => {
@@ -843,7 +844,17 @@ export default function App() {
           {/* Code Example */}
           <section className="card-base p-6 border-2 border-neon-green">
             <h2 className="text-2xl font-bold text-neon-green mb-4">💻 Ejemplo</h2>
-            <div className="bg-dark-bg p-4 rounded border border-neon-green overflow-x-auto">
+            <div className="relative bg-dark-bg p-4 rounded border border-neon-green overflow-x-auto">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(lesson.codeExample.code);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="absolute top-2 right-2 px-3 py-1 text-xs rounded bg-neon-green/20 text-neon-green border border-neon-green/50 hover:bg-neon-green/30 transition-colors"
+              >
+                {copied ? '✓ Copiado' : 'Copiar'}
+              </button>
               <pre className="text-sm">
                 <code className="text-neon-green">{lesson.codeExample.code}</code>
               </pre>
