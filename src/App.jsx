@@ -1010,6 +1010,35 @@ export default function App() {
               </div>
             </button>
 
+            {/* Casilla especial: Comunidad WhatsApp */}
+            <a
+              href="https://chat.whatsapp.com/EBB9GtaKths1ND1CrgAobi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="col-span-2 md:col-span-5 relative p-6 rounded-lg border-2 transition-all duration-300 text-left flex items-center gap-4"
+              style={{
+                borderColor: '#25D366',
+                background: 'linear-gradient(135deg, rgba(37,211,102,0.08) 0%, rgba(18,140,126,0.08) 100%)',
+                boxShadow: 'none',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 24px rgba(37,211,102,0.4)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="48" height="48" fill="#25D366">
+                <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.74 5.494 2.035 7.807L0 32l8.418-2.01A15.94 15.94 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.25a13.21 13.21 0 0 1-6.73-1.84l-.482-.286-4.997 1.194 1.222-4.862-.314-.5A13.22 13.22 0 0 1 2.75 16C2.75 8.682 8.682 2.75 16 2.75S29.25 8.682 29.25 16 23.318 29.25 16 29.25zm7.27-9.77c-.398-.199-2.355-1.162-2.72-1.295-.366-.133-.633-.199-.9.2-.266.398-1.031 1.295-1.264 1.562-.233.266-.465.299-.863.1-.398-.2-1.682-.62-3.203-1.977-1.184-1.056-1.983-2.36-2.216-2.759-.233-.398-.025-.613.175-.811.18-.179.398-.465.597-.698.199-.233.266-.398.398-.664.133-.266.067-.498-.033-.697-.1-.199-.9-2.169-1.232-2.967-.325-.779-.655-.673-.9-.686l-.765-.013c-.266 0-.697.1-1.063.498-.365.398-1.396 1.364-1.396 3.326 0 1.963 1.43 3.86 1.63 4.126.199.266 2.814 4.296 6.82 6.026.954.412 1.698.657 2.279.842.957.305 1.83.262 2.519.159.768-.115 2.355-.963 2.688-1.893.332-.93.332-1.729.232-1.893-.1-.166-.366-.266-.764-.465z"/>
+              </svg>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ fontFamily: 'Orbitron, monospace', color: '#25D366' }}>
+                  Comunidad
+                </p>
+                <h2 className="text-2xl font-bold" style={{ fontFamily: 'Orbitron, monospace', color: '#25D366' }}>
+                  Comunidad New Coders
+                </h2>
+                <p className="text-sm mt-1" style={{ color: '#a7f3d0' }}>Únete a nuestra comunidad en WhatsApp</p>
+              </div>
+            </a>
+
             {LESSONS.map((lesson) => {
               const status = getDayStatus(lesson.day);
               const isCurrentDay = lesson.day === getCurrentDayNumber();
