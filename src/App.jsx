@@ -921,6 +921,144 @@ export default function App() {
     );
   }
 
+  if (currentView === 'nosotros') {
+    return (
+      <div className="min-h-screen bg-dark-bg text-text-light font-mono">
+        {/* Header */}
+        <header className="border-b border-border-dark p-6" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(255,102,0,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+          <button
+            onClick={() => setCurrentView('calendar')}
+            className="text-neon-cyan hover:text-neon-green transition mb-4"
+          >
+            ← Volver al Calendario
+          </button>
+          <h1 className="text-4xl font-bold text-neon-orange" style={{ fontFamily: 'Orbitron, monospace' }}>
+            Nosotros
+          </h1>
+          <p className="text-neon-yellow mt-1 text-lg">El equipo detrás de New Coders</p>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-4xl mx-auto p-6 space-y-8">
+          {/* Quiénes somos */}
+          <section className="card-base p-6 border-2 border-neon-orange">
+            <h2 className="text-2xl font-bold text-neon-orange mb-4">🚀 ¿Quiénes somos?</h2>
+            <p className="text-text-light leading-relaxed">
+              Somos <strong className="text-neon-green">New Coders</strong>, un equipo apasionado por la tecnología y la educación. Creemos que aprender a programar debe ser accesible, práctico y divertido para todos. Nuestro objetivo es guiar a personas sin experiencia previa en sus primeros pasos en el mundo del desarrollo de software.
+            </p>
+          </section>
+
+          {/* Nuestra misión */}
+          <section className="card-base p-6 border-2 border-neon-green">
+            <h2 className="text-2xl font-bold text-neon-green mb-4">🎯 Nuestra Misión</h2>
+            <p className="text-text-light leading-relaxed">
+              Democratizar el acceso a la educación en programación, ofreciendo un programa estructurado de <strong className="text-neon-yellow">30 días</strong> que transforma a principiantes en personas capaces de escribir código real. Queremos que cada persona que empiece este camino termine con las habilidades y la confianza para seguir creciendo como desarrollador.
+            </p>
+          </section>
+
+          {/* Qué nos hace diferentes */}
+          <section className="card-base p-6 border-2 border-neon-cyan">
+            <h2 className="text-2xl font-bold text-neon-cyan mb-4">✦ ¿Qué nos hace diferentes?</h2>
+            <ul className="text-text-light space-y-3 leading-relaxed">
+              <li>💻 <strong className="text-neon-yellow">100% Práctico</strong> — Cada lección incluye código real que puedes escribir y ejecutar desde el primer día.</li>
+              <li>📅 <strong className="text-neon-yellow">Estructura día a día</strong> — Un plan de 30 días diseñado para que avances sin sentirte perdido.</li>
+              <li>🤖 <strong className="text-neon-yellow">Aprendizaje con IA</strong> — Integramos herramientas de inteligencia artificial para potenciar tu aprendizaje.</li>
+              <li>🤝 <strong className="text-neon-yellow">Comunidad activa</strong> — No estás solo: nuestra comunidad en WhatsApp te acompaña en cada paso.</li>
+              <li>🆓 <strong className="text-neon-yellow">Acceso libre</strong> — Creemos que la educación en tecnología no debería tener barreras de entrada.</li>
+            </ul>
+          </section>
+
+          {/* Nuestros valores */}
+          <section className="card-base p-6 border-2 border-neon-yellow">
+            <h2 className="text-2xl font-bold text-neon-yellow mb-4">⚡ Nuestros Valores</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg border border-border-dark bg-dark-card">
+                <h3 className="text-lg font-bold text-neon-orange mb-2">Constancia</h3>
+                <p className="text-text-light text-sm">30 días, un paso a la vez. El progreso se construye con disciplina diaria.</p>
+              </div>
+              <div className="p-4 rounded-lg border border-border-dark bg-dark-card">
+                <h3 className="text-lg font-bold text-neon-cyan mb-2">Comunidad</h3>
+                <p className="text-text-light text-sm">Aprender juntos es más poderoso que aprender solo. Nos apoyamos mutuamente.</p>
+              </div>
+              <div className="p-4 rounded-lg border border-border-dark bg-dark-card">
+                <h3 className="text-lg font-bold text-neon-green mb-2">Práctica</h3>
+                <p className="text-text-light text-sm">Menos teoría, más código. Se aprende haciendo, no solo leyendo.</p>
+              </div>
+              <div className="p-4 rounded-lg border border-border-dark bg-dark-card">
+                <h3 className="text-lg font-bold text-neon-yellow mb-2">Accesibilidad</h3>
+                <p className="text-text-light text-sm">Sin requisitos previos, sin costo. Solo necesitas ganas de aprender.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Comunidad WhatsApp */}
+          <section className="card-base p-6 border-2" style={{ borderColor: '#25D366' }}>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: '#25D366' }}>💬 Únete a la Comunidad</h2>
+            <p className="text-text-light leading-relaxed mb-4">
+              Forma parte de nuestra comunidad en WhatsApp donde compartimos dudas, avances y nos apoyamos mutuamente durante los 30 días del programa.
+            </p>
+            <a
+              href="https://chat.whatsapp.com/EBB9GtaKths1ND1CrgAobi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-4 rounded-lg border-2 transition-all duration-300"
+              style={{
+                borderColor: '#25D366',
+                background: 'linear-gradient(135deg, rgba(37,211,102,0.08) 0%, rgba(18,140,126,0.08) 100%)',
+                boxShadow: 'none',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 24px rgba(37,211,102,0.4)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="36" height="36" fill="#25D366">
+                <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.74 5.494 2.035 7.807L0 32l8.418-2.01A15.94 15.94 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.25a13.21 13.21 0 0 1-6.73-1.84l-.482-.286-4.997 1.194 1.222-4.862-.314-.5A13.22 13.22 0 0 1 2.75 16C2.75 8.682 8.682 2.75 16 2.75S29.25 8.682 29.25 16 23.318 29.25 16 29.25zm7.27-9.77c-.398-.199-2.355-1.162-2.72-1.295-.366-.133-.633-.199-.9.2-.266.398-1.031 1.295-1.264 1.562-.233.266-.465.299-.863.1-.398-.2-1.682-.62-3.203-1.977-1.184-1.056-1.983-2.36-2.216-2.759-.233-.398-.025-.613.175-.811.18-.179.398-.465.597-.698.199-.233.266-.398.398-.664.133-.266.067-.498-.033-.697-.1-.199-.9-2.169-1.232-2.967-.325-.779-.655-.673-.9-.686l-.765-.013c-.266 0-.697.1-1.063.498-.365.398-1.396 1.364-1.396 3.326 0 1.963 1.43 3.86 1.63 4.126.199.266 2.814 4.296 6.82 6.026.954.412 1.698.657 2.279.842.957.305 1.83.262 2.519.159.768-.115 2.355-.963 2.688-1.893.332-.93.332-1.729.232-1.893-.1-.166-.366-.266-.764-.465z"/>
+              </svg>
+              <div>
+                <h3 className="text-lg font-bold" style={{ color: '#25D366' }}>Comunidad New Coders</h3>
+                <p className="text-sm" style={{ color: '#a7f3d0' }}>Únete a nuestro grupo en WhatsApp ↗</p>
+              </div>
+            </a>
+          </section>
+
+          {/* X (Twitter) */}
+          <section className="card-base p-6 border-2 border-white/20">
+            <h2 className="text-2xl font-bold text-white mb-4">𝕏 Síguenos en X</h2>
+            <p className="text-text-light leading-relaxed mb-4">
+              Mantente al día con las últimas novedades, tips y contenido de programación siguiéndonos en X.
+            </p>
+            <a
+              href="https://x.com/NewCodersOrg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-4 rounded-lg border-2 border-white/20 transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(150,150,150,0.05) 100%)',
+                boxShadow: 'none',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 24px rgba(255,255,255,0.3)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              <div>
+                <h3 className="text-lg font-bold text-white">@NewCodersOrg</h3>
+                <p className="text-sm text-gray-400">Síguenos en X ↗</p>
+              </div>
+            </a>
+          </section>
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
+          <p className="text-neon-orange">✦ Hecho con pasión por el equipo New Coders ✦</p>
+        </footer>
+      </div>
+    );
+  }
+
   if (currentView === 'lesson' && selectedDay) {
     const lesson = LESSONS[selectedDay - 1];
     const currentDayNum = getCurrentDayNumber();
@@ -1179,34 +1317,24 @@ export default function App() {
               </div>
             </button>
 
-            {/* Casilla especial: Comunidad WhatsApp */}
-            <a
-              href="https://chat.whatsapp.com/EBB9GtaKths1ND1CrgAobi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="col-span-2 md:col-span-5 relative p-6 rounded-lg border-2 transition-all duration-300 text-left flex items-center gap-4"
-              style={{
-                borderColor: '#25D366',
-                background: 'linear-gradient(135deg, rgba(37,211,102,0.08) 0%, rgba(18,140,126,0.08) 100%)',
-                boxShadow: 'none',
-                textDecoration: 'none',
-              }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 24px rgba(37,211,102,0.4)'}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+            {/* Casilla especial: Nosotros */}
+            <button
+              onClick={() => setCurrentView('nosotros')}
+              className="col-span-2 md:col-span-5 relative p-6 rounded-lg border-2 border-neon-orange transition-all duration-300 text-left hover:shadow-lg hover:shadow-neon-orange/50"
+              style={{ background: 'linear-gradient(135deg, rgba(255,102,0,0.08) 0%, rgba(191,0,255,0.08) 100%)' }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="48" height="48" fill="#25D366">
-                <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.74 5.494 2.035 7.807L0 32l8.418-2.01A15.94 15.94 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.25a13.21 13.21 0 0 1-6.73-1.84l-.482-.286-4.997 1.194 1.222-4.862-.314-.5A13.22 13.22 0 0 1 2.75 16C2.75 8.682 8.682 2.75 16 2.75S29.25 8.682 29.25 16 23.318 29.25 16 29.25zm7.27-9.77c-.398-.199-2.355-1.162-2.72-1.295-.366-.133-.633-.199-.9.2-.266.398-1.031 1.295-1.264 1.562-.233.266-.465.299-.863.1-.398-.2-1.682-.62-3.203-1.977-1.184-1.056-1.983-2.36-2.216-2.759-.233-.398-.025-.613.175-.811.18-.179.398-.465.597-.698.199-.233.266-.398.398-.664.133-.266.067-.498-.033-.697-.1-.199-.9-2.169-1.232-2.967-.325-.779-.655-.673-.9-.686l-.765-.013c-.266 0-.697.1-1.063.498-.365.398-1.396 1.364-1.396 3.326 0 1.963 1.43 3.86 1.63 4.126.199.266 2.814 4.296 6.82 6.026.954.412 1.698.657 2.279.842.957.305 1.83.262 2.519.159.768-.115 2.355-.963 2.688-1.893.332-.93.332-1.729.232-1.893-.1-.166-.366-.266-.764-.465z"/>
-              </svg>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ fontFamily: 'Orbitron, monospace', color: '#25D366' }}>
-                  Comunidad
-                </p>
-                <h2 className="text-2xl font-bold" style={{ fontFamily: 'Orbitron, monospace', color: '#25D366' }}>
-                  Comunidad New Coders
-                </h2>
-                <p className="text-sm mt-1" style={{ color: '#a7f3d0' }}>Únete a nuestra comunidad en WhatsApp</p>
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs font-bold text-neon-orange uppercase tracking-widest mb-1" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    Equipo
+                  </p>
+                  <h2 className="text-2xl font-bold text-neon-orange" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    👥 Nosotros
+                  </h2>
+                  <p className="text-text-light text-sm mt-1">Conoce al equipo detrás de New Coders</p>
+                </div>
               </div>
-            </a>
+            </button>
 
             {LESSONS.map((lesson) => {
               const status = getDayStatus(lesson.day);
