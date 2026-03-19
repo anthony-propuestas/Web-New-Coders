@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useAuth } from './hooks/useAuth.jsx';
+import LoginPage from './views/LoginPage';
 
 const LESSONS = [
   // ============================================
@@ -540,6 +542,11 @@ const CAROUSEL_ITEMS = [
 ];
 
 export default function App() {
+  const { user, loading, logout } = useAuth();
+
+  if (loading) return null;
+  if (!user) return <LoginPage />;
+
   const [currentView, setCurrentView] = useState('calendar');
   const [selectedDay, setSelectedDay] = useState(null);
   const [completedLessons, setCompletedLessons] = useState(() => {
@@ -1222,7 +1229,21 @@ export default function App() {
         ))}
       </div>
       {/* Header */}
-      <header className="border-b border-border-dark p-8 text-center" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.13) 0%, rgba(191,0,255,0.06) 50%, transparent 80%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+      <header className="border-b border-border-dark p-8 text-center relative" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.13) 0%, rgba(191,0,255,0.06) 50%, transparent 80%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+        {/* User bar */}
+        <div className="absolute top-4 right-4 flex items-center gap-3">
+          {user?.picture && (
+            <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-neon-cyan" referrerPolicy="no-referrer" />
+          )}
+          <span className="text-text-light text-sm hidden sm:inline">{user?.name}</span>
+          <button
+            onClick={logout}
+            className="text-xs text-neon-yellow hover:text-neon-green border border-neon-yellow hover:border-neon-green px-3 py-1 rounded transition-all duration-200"
+            style={{ fontFamily: 'Orbitron, monospace' }}
+          >
+            Salir
+          </button>
+        </div>
         <h1 className="text-5xl font-bold text-neon-green mb-2">
           ✦ Dev Path: 30 Días de Código ✦
         </h1>
