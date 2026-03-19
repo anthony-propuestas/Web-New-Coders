@@ -530,6 +530,15 @@ const LESSONS = [
 
 const START_DATE = new Date('2026-04-01T00:00:00'); // Fecha de inicio del curso
 
+// Datos del carrusel de Aliados — reemplazar con imagenes y URLs reales
+const CAROUSEL_ITEMS = [
+  { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+1', url: 'https://example.com', title: 'Aliado 1', alt: 'Aliado 1' },
+  { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+2', url: 'https://example.com', title: 'Aliado 2', alt: 'Aliado 2' },
+  { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+3', url: 'https://example.com', title: 'Aliado 3', alt: 'Aliado 3' },
+  { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+4', url: 'https://example.com', title: 'Aliado 4', alt: 'Aliado 4' },
+  { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+5', url: 'https://example.com', title: 'Aliado 5', alt: 'Aliado 5' },
+];
+
 export default function App() {
   const [currentView, setCurrentView] = useState('calendar');
   const [selectedDay, setSelectedDay] = useState(null);
@@ -554,6 +563,13 @@ export default function App() {
 
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, started: false });
   const [copied, setCopied] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [carouselTransition, setCarouselTransition] = useState(true);
+  const [itemsPerView, setItemsPerView] = useState(() => {
+    if (window.innerWidth >= 1024) return 3;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
+  });
 
   useEffect(() => {
     const calc = () => {
@@ -574,6 +590,35 @@ export default function App() {
     const interval = setInterval(calc, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Resize listener para el carrusel
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setItemsPerView(3);
+      else if (window.innerWidth >= 768) setItemsPerView(2);
+      else setItemsPerView(1);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-scroll infinito del carrusel
+  useEffect(() => {
+    if (CAROUSEL_ITEMS.length === 0) return;
+    const interval = setInterval(() => {
+      setCarouselIndex(prev => {
+        const next = prev + 1;
+        if (next >= CAROUSEL_ITEMS.length) {
+          // Reset invisible: desactivar transición, saltar a 0
+          setCarouselTransition(false);
+          setTimeout(() => setCarouselTransition(true), 50);
+          return 0;
+        }
+        return next;
+      });
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [itemsPerView]);
 
   const stars = useMemo(() =>
     Array.from({ length: 160 }, (_, i) => ({
@@ -825,6 +870,47 @@ export default function App() {
               Repite eso cada día durante 30 días y al final de esta temporada habrás dado tu <strong className="text-neon-cyan">First Commit</strong> al mundo de la programación.
             </p>
           </section>
+
+          {/* Carrusel Aliados New Coders */}
+          {CAROUSEL_ITEMS.length > 0 && (
+            <section className="card-base p-6 border-2 border-neon-purple">
+              <h2 className="text-2xl font-bold text-neon-purple mb-4">🤝 Aliados New Coders</h2>
+
+              <div className="overflow-hidden">
+                <div
+                  className={`flex ${carouselTransition ? 'transition-transform duration-700 ease-in-out' : ''}`}
+                  style={{ transform: `translateX(-${carouselIndex * (100 / itemsPerView)}%)` }}
+                >
+                  {[...CAROUSEL_ITEMS, ...CAROUSEL_ITEMS].map((item, idx) => (
+                    <a
+                      key={idx}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0 px-2"
+                      style={{ width: `${100 / itemsPerView}%` }}
+                    >
+                      <div className="group relative rounded-lg border border-border-dark overflow-hidden transition-all duration-300 hover:border-neon-purple hover:shadow-lg hover:shadow-neon-purple/30">
+                        <div className="aspect-video bg-dark-bg overflow-hidden">
+                          <img
+                            src={item.image}
+                            alt={item.alt}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="p-3 bg-dark-card">
+                          <p className="text-sm font-bold text-neon-purple group-hover:text-neon-green transition-colors truncate">
+                            {item.title} ↗
+                          </p>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
         </main>
 
         {/* Footer */}

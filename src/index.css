@@ -93,6 +93,9 @@ h1, h2 {
 .text-neon-yellow {
   text-shadow: 0 0 10px rgba(255, 0, 153, 0.7), 0 0 20px rgba(255, 0, 153, 0.35);
 }
+.text-neon-purple {
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.7), 0 0 20px rgba(168, 85, 247, 0.35);
+}
 
 /* ── Glow en bordes neón ── */
 .border-neon-green {
@@ -103,6 +106,9 @@ h1, h2 {
 }
 .border-neon-yellow {
   box-shadow: 0 0 8px rgba(255, 0, 153, 0.3), inset 0 0 8px rgba(255, 0, 153, 0.05);
+}
+.border-neon-purple {
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3), inset 0 0 8px rgba(168, 85, 247, 0.05);
 }
 
 /* ── Glow en hover de botones de tarjeta ── */
