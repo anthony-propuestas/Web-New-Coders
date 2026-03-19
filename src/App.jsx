@@ -464,7 +464,7 @@ const LESSONS = [
     day: 27,
     title: "Tu primer servidor con Python",
     category: "Python",
-    theory: "Un servidor web es un programa que escucha peticiones HTTP y responde con datos (HTML, JSON, etc.). Flask es un micro-framework de Python que permite crear servidores web con muy poco código. Se instala con 'pip install flask'. Con Flask defines rutas (URLs) y qué función se ejecuta cuando alguien visita esa ruta. Puedes devolver HTML, texto o datos JSON. El servidor se ejecuta localmente en http://localhost:5000.",
+    theory: "Un servidor web es un programa que escucha peticiones HTTP y responde con datos (HTML, JSON, etc.). Flask es un micro-framework de Python que permite crear servidores web con muy poco código. Se instala con 'pip install flask'. Con Flask defines rutas (URLs) y qué función se ejecuta cuando alguien visita esa ruta. Puedes devolver HTML, texto o datos JSON. El servidor se ejecuta localmente en http://localhost:5000. Tip: en proyectos reales, guarda la URL del servidor en una variable o variable de entorno para no repetirla en cada archivo.",
     instructions: "Aqui van las instrucciones para completar esta tarea.",
     prompt: "#",
     codeExample: {
@@ -486,7 +486,7 @@ const LESSONS = [
     prompt: "#",
     codeExample: {
       language: "javascript",
-      code: "// Frontend: pidiendo datos al backend\nconst cargarDatos = async () => {\n  try {\n    const respuesta = await fetch('http://localhost:5000/api/tareas');\n    const datos = await respuesta.json();\n    console.log(datos);\n    \n    // Mostrar en el DOM\n    const lista = document.querySelector('#lista');\n    datos.forEach(tarea => {\n      const li = document.createElement('li');\n      li.textContent = tarea.texto;\n      lista.appendChild(li);\n    });\n  } catch (error) {\n    console.error('Error:', error);\n  }\n};\n\ncargarDatos();"
+      code: "// Frontend: pidiendo datos al backend\n// Tip: centraliza la URL del servidor en una variable\nconst API_URL = 'http://localhost:5000';\n\nconst cargarDatos = async () => {\n  try {\n    const respuesta = await fetch(`${API_URL}/api/tareas`);\n    const datos = await respuesta.json();\n    console.log(datos);\n    \n    // Mostrar en el DOM\n    const lista = document.querySelector('#lista');\n    datos.forEach(tarea => {\n      const li = document.createElement('li');\n      li.textContent = tarea.texto;\n      lista.appendChild(li);\n    });\n  } catch (error) {\n    console.error('Error:', error);\n  }\n};\n\ncargarDatos();"
     },
     challenge: "Crea un backend Flask con una ruta '/api/tareas' que devuelva una lista de tareas en JSON. Luego crea un frontend HTML con JavaScript que use fetch() para obtener esas tareas y mostrarlas en la página. Habrás creado tu primera app fullstack.",
     resources: [
@@ -1237,7 +1237,7 @@ export default function App() {
           )}
           <span className="text-text-light text-sm hidden sm:inline">{user?.name}</span>
           <button
-            onClick={logout}
+            onClick={() => { if (window.confirm('¿Deseas cerrar tu sesión?')) logout(); }}
             className="text-xs text-neon-yellow hover:text-neon-green border border-neon-yellow hover:border-neon-green px-3 py-1 rounded transition-all duration-200"
             style={{ fontFamily: 'Orbitron, monospace' }}
           >

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../hooks/useAuth.jsx';
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const [loginError, setLoginError] = useState(null);
 
   return (
     <div
@@ -73,8 +74,13 @@ export default function LoginPage() {
         {/* Google Login Button */}
         <div className="flex justify-center mb-8">
           <GoogleLogin
-            onSuccess={login}
-            onError={() => console.error('Login failed')}
+            onSuccess={(credentialResponse) => {
+              setLoginError(null);
+              login(credentialResponse);
+            }}
+            onError={() => {
+              setLoginError('No se pudo iniciar sesión. Verifica tu conexión e intenta de nuevo.');
+            }}
             theme="filled_black"
             shape="pill"
             size="large"
@@ -82,6 +88,9 @@ export default function LoginPage() {
             locale="es"
           />
         </div>
+        {loginError && (
+          <p className="text-neon-yellow text-sm mt-4">{loginError}</p>
+        )}
 
         <div
           className="w-full h-px mb-4"

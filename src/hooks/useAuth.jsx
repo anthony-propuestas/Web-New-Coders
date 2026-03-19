@@ -3,15 +3,31 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const AuthContext = createContext(null);
 
-function decodeJwt(token) {
+function decodeAndValidateJwt(token, clientId) {
   try {
-    const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload));
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+
+    // Validar issuer (debe ser Google)
+    const validIssuers = ['accounts.google.com', 'https://accounts.google.com'];
+    if (!validIssuers.includes(payload.iss)) return null;
+
+    // Validar audience (debe coincidir con nuestro Client ID)
+    if (payload.aud !== clientId) return null;
+
+    // Validar expiración
+    if (!payload.exp || payload.exp <= Date.now() / 1000) return null;
+
+    // Campos requeridos
+    if (!payload.email) return null;
+
     return {
-      name: decoded.name,
-      email: decoded.email,
-      picture: decoded.picture,
-      exp: decoded.exp,
+      name: payload.name || '',
+      email: payload.email,
+      picture: payload.picture || '',
+      exp: payload.exp,
     };
   } catch {
     return null;
@@ -28,23 +44,30 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('google_auth_credential');
-    if (saved) {
-      const decoded = decodeJwt(saved);
-      if (decoded && isTokenValid(decoded)) {
-        setUser(decoded);
-      } else {
-        localStorage.removeItem('google_auth_credential');
+    try {
+      const saved = sessionStorage.getItem('google_auth_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && isTokenValid(parsed)) {
+          setUser(parsed);
+        } else {
+          sessionStorage.removeItem('google_auth_user');
+        }
       }
+    } catch {
+      sessionStorage.removeItem('google_auth_user');
     }
+    // Limpieza única: eliminar token legacy de localStorage
+    localStorage.removeItem('google_auth_credential');
     setLoading(false);
   }, []);
 
   const login = useCallback((credentialResponse) => {
     const token = credentialResponse.credential;
-    const decoded = decodeJwt(token);
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const decoded = decodeAndValidateJwt(token, clientId);
     if (decoded) {
-      localStorage.setItem('google_auth_credential', token);
+      sessionStorage.setItem('google_auth_user', JSON.stringify(decoded));
       setUser(decoded);
     }
   }, []);
@@ -52,7 +75,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     const email = user?.email;
     setUser(null);
-    localStorage.removeItem('google_auth_credential');
+    sessionStorage.removeItem('google_auth_user');
     if (email && window.google?.accounts?.id) {
       window.google.accounts.id.revoke(email, () => {});
     }
