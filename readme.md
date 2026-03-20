@@ -1,178 +1,164 @@
-# Prompt: Calendario de Ruta para Programadores Nuevos
+# New Coders: Dev Path — 30 Dias de Codigo
 
-## Estilo: "Advent of Code" — Página Principal → Página Lección del Día
-
----
-
-## EL PROMPT
+Plataforma educativa interactiva tipo calendario que guia a programadores principiantes a traves de un curriculo de 30 dias. Cada dia desbloquea una leccion con teoria, ejemplos de codigo, retos practicos y recursos externos.
 
 ---
 
-Crea una aplicación web de **una sola página (SPA)** con estilo **"Advent Calendar"** inspirada en Advent of Code, pero enfocada en ser una **guía de aprendizaje paso a paso para programadores principiantes**.
+## Caracteristicas
+
+- **Calendario interactivo de 30 dias** con desbloqueo progresivo por fecha
+- **Autenticacion con Google OAuth 2.0** (login obligatorio para acceder)
+- **5 vistas**: Calendario, Leccion, Introduccion, Herramientas, Nosotros
+- **Seguimiento de progreso** con barra visual y persistencia en `localStorage`
+- **Carrusel de aliados** con auto-scroll responsive
+- **Cuenta regresiva** hasta la fecha de inicio del curso
+- **Tema cyberpunk/neon** con fondo oscuro, bordes brillantes y animaciones
+- **Responsive** — grid de 2 columnas (movil) a 5 columnas (desktop)
+- **Seguridad** — CSP headers, validacion JWT, sessionStorage para tokens
 
 ---
 
-### CONCEPTO GENERAL
+## Tech Stack
 
-- Un calendario visual con **30 casillas** (días), cada una representando una lección.
-- Las casillas se desbloquean progresivamente (las pasadas están abiertas, las futuras bloqueadas visualmente).
-- Al hacer clic en una casilla desuqeada, se navega a la **página de lección del día** correspondiente.
-- El diseño debe ser oscuro, con estética de terminal/código, y detalles de color neón (verde, cyan, amarillo).
+| Tecnologia | Version | Uso |
+|---|---|---|
+| React | 18.2 | UI y manejo de estado |
+| Vite | 6.2 | Build tool y dev server |
+| Tailwind CSS | 3.3 | Estilos utilitarios |
+| @react-oauth/google | 0.13 | Autenticacion Google OAuth 2.0 |
+| PostCSS + Autoprefixer | — | Procesamiento de CSS |
 
 ---
 
-### ESTRUCTURA DE NAVEGACIÓN (solo 2 vistas)
+## Estructura del Proyecto
 
 ```
-📅 Página Principal (Calendario)
- └── 📖 Página Lección del Día (contenido dinámico según el día seleccionado)
+Web New Coders/
+├── src/
+│   ├── App.jsx              # Componente principal (vistas, lecciones, logica)
+│   ├── main.jsx             # Entry point con AuthProvider
+│   ├── index.css            # Estilos globales (cyberpunk theme)
+│   ├── hooks/
+│   │   └── useAuth.jsx      # Context y logica de autenticacion
+│   └── views/
+│       └── LoginPage.jsx    # Pantalla de login con Google
+├── public/
+│   └── _redirects           # Configuracion de rutas para Netlify
+├── index.html               # HTML base con CSP headers
+├── tailwind.config.js       # Colores neon y animaciones personalizadas
+├── vite.config.js           # Configuracion de Vite
+├── postcss.config.js        # Configuracion PostCSS
+├── package.json             # Dependencias y scripts
+├── .env.local               # VITE_GOOGLE_CLIENT_ID (no incluido en repo)
+└── readme.md
 ```
 
-**No se necesita backend.** Todo el contenido de las lecciones vive en un archivo JSON o un objeto JS dentro del proyecto.
-
 ---
 
-### VISTA 1 — PÁGINA PRINCIPAL (Calendario)
+## Instalacion
 
-**Layout:**
-- Header con el título del calendario (ej: "Dev Path: 30 Días de Código") y un subtítulo motivacional.
-- Grid de 30 casillas organizadas en filas (5 columnas × 6 filas, o responsive).
-- Footer mínimo.
+```bash
+# 1. Clonar el repositorio
+git clone <url-del-repo>
+cd "Web New Coders"
 
-**Cada casilla del calendario debe mostrar:**
-- Número del día (grande, centrado).
-- Título corto de la lección (ej: "Variables", "Loops", "Tu primera API").
-- Estado visual:
-  - ✅ **Completada** → borde verde, ícono de check.
-  - 🔓 **Disponible (día actual)** → borde brillante/animado, efecto glow o pulso.
-  - 🔒 **Bloqueada (futuro)** → opacidad baja, ícono de candado, no clickeable.
-- Al hacer hover en una casilla disponible: efecto sutil (scale, glow, o reveal del título).
+# 2. Instalar dependencias
+npm install
 
-**Lógica de desbloqueo:**
-- Usa una fecha de inicio configurable (ej: `const START_DATE = "2026-04-01"`).
-- Calcula qué día es relativo al inicio → desbloquea las casillas correspondientes.
-- El estado "completada" se guarda en `localStorage` (el usuario marca como completada desde la página de lección).
+# 3. Configurar variables de entorno
+# Crear archivo .env.local con tu Google OAuth Client ID:
+echo "VITE_GOOGLE_CLIENT_ID=tu-client-id-aqui" > .env.local
 
----
-
-### VISTA 2 — PÁGINA LECCIÓN DEL DÍA
-
-**Navegación:** Al hacer clic en una casilla, se muestra la vista de lección (puede ser con un router simple, hash routing `#/day/5`, o renderizado condicional).
-
-**Layout de la lección:**
-- Botón "← Volver al Calendario" en la parte superior.
-- Header: "Día {N}: {Título de la Lección}".
-- Sección de contenido con:
-  - **Explicación teórica** → texto con formato (puede usar Markdown renderizado o HTML directo).
-  - **Ejemplo de código** → bloque `<pre><code>` con estilo de syntax highlighting (puede ser básico con CSS, no requiere librería externa).
-  - **Mini reto / ejercicio** → una caja destacada con un reto para que el usuario practique.
-  - **Recursos** → 1-3 links externos recomendados (documentación, videos, etc).
-- Botón "Marcar como completada ✅" → guarda en `localStorage` y cambia el estado de la casilla en el calendario.
-- Navegación inferior: "← Día anterior" | "Día siguiente →" (si están desbloqueados).
-
----
-
-### DATOS DE LAS LECCIONES
-
-Toda la data de las 30 lecciones debe vivir en un **único archivo/objeto de datos** con esta estructura:
-
-```js
-const LESSONS = [
-  {
-    day: 1,
-    title: "¿Qué es programar?",
-    category: "fundamentos",
-    theory: "Programar es dar instrucciones a una computadora...",
-    codeExample: {
-      language: "javascript",
-      code: "console.log('¡Hola, mundo!');"
-    },
-    challenge: "Abre la consola de tu navegador (F12) y escribe tu primer console.log con tu nombre.",
-    resources: [
-      { label: "MDN: ¿Qué es JavaScript?", url: "https://developer.mozilla.org/es/docs/Learn/JavaScript/First_steps/What_is_JavaScript" }
-    ]
-  },
-  // ... días 2-30
-];
+# 4. Iniciar servidor de desarrollo
+npm run dev
 ```
 
-**Genera contenido placeholder realista para los 30 días** siguiendo esta progresión temática:
+### Scripts disponibles
 
-| Semana | Días | Tema General |
-|--------|------|-------------|
-| 1 | 1-5 | **Fundamentos**: qué es programar, variables, tipos de datos, operadores, strings |
-| 2 | 6-10 | **Control de flujo**: condicionales, if/else, switch, bucles for, bucles while |
-| 3 | 11-15 | **Funciones y estructuras**: funciones, parámetros/retorno, arrays, objetos, métodos de array |
-| 4 | 16-20 | **DOM y web**: qué es el DOM, seleccionar elementos, eventos, crear/modificar elementos, mini proyecto |
-| 5 | 21-25 | **Pensamiento programador**: debugging, leer errores, pseudocódigo, algoritmos básicos, buenas prácticas |
-| 6 | 26-30 | **Siguiente nivel**: intro a Git, intro a terminal, APIs y fetch, JSON, proyecto final integrador |
+| Comando | Descripcion |
+|---|---|
+| `npm run dev` | Servidor de desarrollo con hot reload |
+| `npm run build` | Build de produccion en `/dist` |
+| `npm run preview` | Preview del build de produccion |
 
 ---
 
-### REQUISITOS TÉCNICOS
+## Vistas de la Aplicacion
 
-- **Stack**: React (JSX) con un solo componente raíz, Tailwind CSS para estilos.
-- **Sin dependencias externas** más allá de React y Tailwind (ya disponibles en el entorno).
-- **Responsive**: debe verse bien en móvil (grid de 2 columnas) y desktop (5 columnas).
-- **Persistencia**: `localStorage` para el progreso del usuario.
-- **Routing**: usar estado de React (`useState`) para alternar entre vista calendario y vista lección. No se necesita React Router.
-- **Accesibilidad**: casillas bloqueadas deben tener `aria-disabled`, botones con labels claros.
+### 1. Login
+Pantalla de autenticacion con Google OAuth 2.0. El acceso al contenido requiere login.
 
----
+### 2. Calendario (vista principal)
+Grid de 30 casillas con estados visuales:
+- **Bloqueada** — opacidad baja, icono de candado
+- **Disponible** — borde neon con efecto glow
+- **Dia actual** — badge "HOY" con animacion pulse
+- **Completada** — checkmark verde
 
-### ESTILO VISUAL (referencias)
+Incluye barra de progreso, cuenta regresiva, y botones de acceso a Intro, Herramientas y Nosotros.
 
-- **Inspiración directa**: [adventofcode.com](https://adventofcode.com) — fondo oscuro, tipografía monoespaciada, estrellas/puntos como decoración.
-- **Paleta sugerida**:
-  - Fondo: `#0f0f23` (azul muy oscuro)
-  - Texto principal: `#cccccc`
-  - Acento primario: `#00cc00` (verde terminal)
-  - Acento secundario: `#ffff66` (amarillo estrella)
-  - Acento terciario: `#00cccc` (cyan)
-  - Casilla bloqueada: `#333340`
-  - Bordes: `#444466`
-- **Tipografía**: monoespaciada (`'Source Code Pro', 'Fira Code', monospace`).
-- **Efectos**:
-  - Casillas desbloqueadas con `box-shadow` glow sutil.
-  - Día actual con animación `pulse` o `glow` CSS.
-  - Transición suave al cambiar entre vistas.
-  - Estrellas decorativas (caracteres `*` o `✦`) esparcidas como en Advent of Code.
+### 3. Leccion
+Contenido detallado de cada dia:
+- Teoria explicativa
+- Instrucciones paso a paso
+- Prompt para aprender con IA
+- Ejemplo de codigo con boton de copiar
+- Reto practico
+- Recursos externos
+- Navegacion entre lecciones (anterior/siguiente)
+- Boton "Marcar como completada"
 
----
+### 4. Introduccion
+Descripcion del programa, como funciona, y carrusel de aliados/partners.
 
-### FUNCIONALIDADES EXTRA (nice to have)
+### 5. Herramientas
+Guia de instalacion de herramientas necesarias (VS Code, Chrome, Python, Git, GitHub) y opcionales (Node.js, Netlify, Render). Incluye extensiones recomendadas de VS Code.
 
-- **Barra de progreso** en el header: "12/30 lecciones completadas".
-- **Confetti o animación** al marcar una lección como completada.
-- **Categoría/badge** visible en cada casilla (color-coded por semana/tema).
-- **Easter egg**: si completas las 30, mostrar un mensaje especial de felicitación.
+### 6. Nosotros
+Mision del equipo, valores (Constancia, Comunidad, Practica, Accesibilidad) y enlaces a la comunidad.
 
 ---
 
-### ENTREGABLE
+## Curriculo de 30 Dias
 
-Un **único archivo `.jsx`** (React component) que contenga:
-1. El componente principal con ambas vistas.
-2. El array completo de las 30 lecciones con contenido realista en español.
-3. Todos los estilos usando clases de Tailwind.
-4. La lógica de desbloqueo por fecha y persistencia en localStorage.
-
----
-
-## Despliegue en Producción
-
-Para evitar errores de tipo MIME ("text/jsx"), asegúrate de:
-
-1. Ejecutar el build:
-   - `npm run build`
-   - Esto genera la carpeta `dist/` con archivos `.js` y `.css` listos para producción.
-
-2. Desplegar solo la carpeta `dist/` en tu servidor o servicio de hosting.
-   - No sirvas archivos fuente (`src/*.jsx`).
-   - El servidor debe responder con el tipo MIME `application/javascript` para archivos `.js`.
-
-3. Verifica en la consola del navegador que no aparecen errores de MIME y que los archivos `.js` se cargan correctamente.
+| Semana | Dias | Tema |
+|---|---|---|
+| 1 | 1–7 | **HTML** — Que es programar, herramientas, estructura HTML, etiquetas, formularios, enlaces, imagenes |
+| 2 | 8–14 | **CSS** — Selectores, colores, box model, Flexbox, Grid, responsive design, mini proyecto |
+| 3 | 15–21 | **JavaScript** — Variables, condicionales, bucles, funciones, arrays, objetos, DOM |
+| 4 | 22–26 | **Eventos, Proyectos y Python** — Eventos JS, To-Do List, Python basico, funciones, estructuras de datos |
+| 5 | 27–30 | **Fullstack y Deploy** — Flask, conexion frontend-backend, Git/GitHub, despliegue en produccion |
 
 ---
 
-*Este prompt está diseñado para generar la aplicación en un solo paso. Si el resultado es demasiado largo, puedes dividirlo pidiendo primero la estructura + las primeras 10 lecciones, y luego el resto del contenido.*
+## Seguridad
+
+- **Content Security Policy (CSP)** configurada en `index.html`
+- **Validacion JWT** con verificacion de issuer, audience y expiracion
+- **sessionStorage** para datos de autenticacion (no localStorage)
+- **Validacion de entrada** para numeros de dia (rango 1-30)
+- **`rel="noopener noreferrer"`** en todos los enlaces externos
+- **Headers de seguridad** en Vite config (X-Content-Type-Options, X-Frame-Options)
+
+---
+
+## Despliegue en Produccion
+
+```bash
+# Generar build optimizado
+npm run build
+```
+
+La carpeta `dist/` contiene los archivos listos para produccion. Desplegar en cualquier servicio de hosting estatico (Netlify, Vercel, etc.).
+
+**Notas:**
+- No servir archivos fuente (`src/*.jsx`) en produccion
+- El archivo `public/_redirects` ya esta configurado para Netlify SPA routing
+- Verificar que el servidor responda con `application/javascript` para archivos `.js`
+
+---
+
+## Comunidad
+
+- **WhatsApp** — Grupo de la comunidad New Coders
+- **X (Twitter)** — @NewCodersOrg
