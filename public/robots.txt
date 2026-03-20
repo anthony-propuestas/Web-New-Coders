@@ -1,0 +1,26 @@
+# New Coders: Dev Path — robots.txt
+User-agent: *
+Allow: /
+Sitemap: https://newcoders.org/sitemap.xml
+
+# Permitir explicitamente bots de IA
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /

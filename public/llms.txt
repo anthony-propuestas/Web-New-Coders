@@ -1,0 +1,32 @@
+# New Coders: Dev Path — 30 Días de Código
+
+## About
+New Coders es un programa educativo gratuito de 30 días diseñado para enseñar programación desde cero.
+El programa está en español y cubre HTML, CSS, JavaScript y Python.
+No requiere experiencia previa en programación.
+Sitio web: https://newcoders.org/
+
+## Course Structure
+- Semana 1 (Días 1-7): Fundamentos y HTML — Qué es programar, herramientas, estructura HTML, etiquetas, formularios, enlaces, imágenes
+- Semana 2 (Días 8-14): CSS — Selectores, colores, box model, Flexbox, Grid, responsive design, mini proyecto
+- Semana 3 (Días 15-21): JavaScript — Variables, condicionales, bucles, funciones, arrays, objetos, DOM
+- Semana 4 (Días 22-26): Eventos, Proyectos y Python — Eventos JS, To-Do List, Python básico, funciones, estructuras de datos
+- Semana 5 (Días 27-30): Fullstack y Deploy — Flask, conexión frontend-backend, Git/GitHub, despliegue en producción
+
+## Features
+- Lecciones desbloqueadas día a día con progreso visual
+- Cada lección incluye: teoría, instrucciones, prompt para IA, ejemplo de código, reto práctico y recursos
+- Seguimiento de progreso con barra visual
+- Autenticación segura con Google OAuth
+- Comunidad activa en WhatsApp
+
+## Community
+- WhatsApp: https://chat.whatsapp.com/EBB9GtaKths1ND1CrgAobi
+- X (Twitter): https://x.com/NewCodersOrg
+
+## Contact
+- Organización: New Coders (@NewCodersOrg)
+- Email: propuestas@newcoders.org
+
+## Tech Stack
+React 18.2, Vite 6.2, Tailwind CSS 3.3, Google OAuth 2.0

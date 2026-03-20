@@ -541,6 +541,33 @@ const CAROUSEL_ITEMS = [
   { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+5', url: 'https://example.com', title: 'Aliado 5', alt: 'Aliado 5' },
 ];
 
+const SocialLinks = () => (
+  <div className="flex justify-center items-center gap-5 mt-3">
+    <a
+      href="https://chat.whatsapp.com/EBB9GtaKths1ND1CrgAobi"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Únete a nuestra comunidad en WhatsApp"
+      className="text-text-light hover:text-neon-green transition-colors duration-300"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="currentColor">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.74 5.494 2.035 7.807L0 32l8.418-2.01A15.94 15.94 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.25a13.21 13.21 0 0 1-6.73-1.84l-.482-.286-4.997 1.194 1.222-4.862-.314-.5A13.22 13.22 0 0 1 2.75 16C2.75 8.682 8.682 2.75 16 2.75S29.25 8.682 29.25 16 23.318 29.25 16 29.25zm7.27-9.77c-.398-.199-2.355-1.162-2.72-1.295-.366-.133-.633-.199-.9.2-.266.398-1.031 1.295-1.264 1.562-.233.266-.465.299-.863.1-.398-.2-1.682-.62-3.203-1.977-1.184-1.056-1.983-2.36-2.216-2.759-.233-.398-.025-.613.175-.811.18-.179.398-.465.597-.698.199-.233.266-.398.398-.664.133-.266.067-.498-.033-.697-.1-.199-.9-2.169-1.232-2.967-.325-.779-.655-.673-.9-.686l-.765-.013c-.266 0-.697.1-1.063.498-.365.398-1.396 1.364-1.396 3.326 0 1.963 1.43 3.86 1.63 4.126.199.266 2.814 4.296 6.82 6.026.954.412 1.698.657 2.279.842.957.305 1.83.262 2.519.159.768-.115 2.355-.963 2.688-1.893.332-.93.332-1.729.232-1.893-.1-.166-.366-.266-.764-.465z"/>
+      </svg>
+    </a>
+    <a
+      href="https://x.com/NewCodersOrg"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Síguenos en X (Twitter)"
+      className="text-text-light hover:text-neon-green transition-colors duration-300"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+    </a>
+  </div>
+);
+
 export default function App() {
   const { user, loading, logout } = useAuth();
 
@@ -819,6 +846,7 @@ export default function App() {
 
         <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
           <p className="text-neon-cyan">✦ Instala todo antes del Día 1 y arranca sin fricciones ✦</p>
+          <SocialLinks />
         </footer>
       </div>
     );
@@ -923,6 +951,7 @@ export default function App() {
         {/* Footer */}
         <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
           <p className="text-neon-cyan">✦ Tu viaje empieza con un solo paso — el Día 1 ✦</p>
+          <SocialLinks />
         </footer>
       </div>
     );
@@ -1061,6 +1090,7 @@ export default function App() {
         {/* Footer */}
         <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
           <p className="text-neon-orange">✦ Hecho con pasión por el equipo New Coders ✦</p>
+          <SocialLinks />
         </footer>
       </div>
     );
@@ -1202,6 +1232,7 @@ export default function App() {
               <div />
             )}
           </div>
+          <SocialLinks />
         </footer>
       </div>
     );
@@ -1233,7 +1264,7 @@ export default function App() {
         {/* User bar */}
         <div className="absolute top-4 right-4 flex items-center gap-3">
           {user?.picture && (
-            <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-neon-cyan" referrerPolicy="no-referrer" />
+            <img src={user.picture} alt={user?.name || 'Usuario'} className="w-8 h-8 rounded-full border border-neon-cyan" referrerPolicy="no-referrer" />
           )}
           <span className="text-text-light text-sm hidden sm:inline">{user?.name}</span>
           <button
@@ -1462,6 +1493,7 @@ export default function App() {
         <div className="max-w-6xl mx-auto">
           <p className="text-neon-cyan mb-2">✦ ¡Sigue el camino! Cada día es un paso hacia tu objetivo ✦</p>
           <p className="text-border-dark text-sm">Hoy es {today.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <SocialLinks />
         </div>
       </footer>
 
