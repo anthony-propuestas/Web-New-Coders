@@ -14,14 +14,14 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()
 
   # Content Security Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://lh3.googleusercontent.com https://placehold.co; font-src 'self' https://fonts.gstatic.com; frame-src https://accounts.google.com; connect-src 'self' https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; img-src 'self' data: https://lh3.googleusercontent.com https://placehold.co; font-src 'self' https://fonts.gstatic.com; frame-src https://accounts.google.com; connect-src 'self' https://accounts.google.com https://apis.google.com https://oauth2.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
 
   # Force HTTPS
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
   # Prevent cross-origin resource leaks
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Resource-Policy: same-origin
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: cross-origin
 
 /robots.txt
   Cache-Control: public, max-age=86400
