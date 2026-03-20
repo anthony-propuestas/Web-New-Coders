@@ -270,14 +270,24 @@ server: {
 },
 ```
 
+#### Configuracion en produccion (`public/_headers`)
+```
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+```
+
 | Header | Funcion |
 |--------|---------|
+| `Strict-Transport-Security` | Fuerza HTTPS con HSTS preload (1 ano) |
 | `X-Content-Type-Options: nosniff` | Previene MIME type sniffing |
 | `X-Frame-Options: DENY` | Previene clickjacking |
-| `X-XSS-Protection: 1; mode=block` | Activa filtro XSS del navegador |
+| `X-XSS-Protection: 1; mode=block` | Activa filtro XSS del navegador (solo dev) |
 | `Referrer-Policy: strict-origin-when-cross-origin` | Limita informacion del referrer |
 
-> **Importante:** Estos headers solo aplican en el servidor de desarrollo (Vite). Para produccion en Netlify, ver seccion de Recomendaciones.
+> Los headers aplican tanto en desarrollo (Vite) como en produccion (Cloudflare Pages via `public/_headers`).
 
 ---
 
@@ -391,12 +401,10 @@ const payload = JSON.parse(atob(parts[1]));
 
 ---
 
-### 5. **Security Headers solo en desarrollo**
-Los headers de seguridad configurados en `vite.config.js` solo aplican durante `npm run dev`. En produccion (Netlify), la app se sirve como archivos estaticos sin estos headers.
+### 5. **Security Headers en produccion**
+Los headers de seguridad estan configurados tanto en `vite.config.js` (desarrollo) como en `public/_headers` (produccion en Cloudflare Pages), incluyendo HSTS con preload.
 
-**Impacto**: MEDIO para despliegue en produccion
-
-**Solucion**: Ver Recomendacion #1.
+**Impacto**: RESUELTO
 
 ---
 
@@ -415,7 +423,7 @@ Los headers de seguridad configurados en `vite.config.js` solo aplican durante `
 | **Autenticacion** | BIEN | Google OAuth con validacion JWT |
 | **JWT Validation** | BIEN | Issuer, audience, expiracion, email |
 | **CSP** | IMPLEMENTADA | Meta tag completa en index.html |
-| **Security Headers** | PARCIAL | Solo en dev server (vite.config.js) |
+| **Security Headers** | BIEN | Dev (vite.config.js) + Prod (public/_headers con HSTS) |
 | **Variables de Entorno** | BIEN | `.env.local` en `.gitignore` |
 | **Dependencias** | BIEN | 0 vulnerabilidades, 3 deps produccion |
 | **Tests de Seguridad** | PENDIENTE | No existen tests automatizados |
@@ -425,15 +433,14 @@ Los headers de seguridad configurados en `vite.config.js` solo aplican durante `
 
 ## Recomendaciones para Produccion
 
-### 1. **Headers de seguridad en Netlify**
-Crear archivo `public/_headers` para aplicar headers en produccion:
+### 1. **Headers de seguridad en Cloudflare Pages** (IMPLEMENTADO)
+Archivo `public/_headers` configurado con headers de seguridad para produccion:
 ```
 /*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
-  X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
 ```
 
 ### 2. **Tests automatizados de seguridad**
