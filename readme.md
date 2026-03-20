@@ -8,7 +8,7 @@ Plataforma educativa interactiva tipo calendario que guia a programadores princi
 
 - **Calendario interactivo de 30 dias** con desbloqueo progresivo por fecha
 - **Autenticacion con Google OAuth 2.0** (login obligatorio para acceder)
-- **5 vistas**: Calendario, Leccion, Introduccion, Herramientas, Nosotros
+- **6 vistas**: Calendario, Leccion, Introduccion, Herramientas, Nosotros, Mi Perfil
 - **Seguimiento de progreso** con barra visual y persistencia en `localStorage`
 - **Carrusel de aliados** con auto-scroll responsive
 - **Cuenta regresiva** hasta la fecha de inicio del curso
@@ -116,6 +116,13 @@ Guia de instalacion de herramientas necesarias (VS Code, Chrome, Python, Git, Gi
 
 ### 6. Nosotros
 Mision del equipo, valores (Constancia, Comunidad, Practica, Accesibilidad) y enlaces a la comunidad.
+
+### 7. Mi Perfil
+Perfil del usuario accesible desde el icono de persona en la esquina superior derecha (visible en todas las vistas). Contiene:
+- Avatar de Google con nombre y badge de miembro
+- Campos editables de nombre y correo (pre-rellenados con datos de Google OAuth)
+- Barra de progreso con lecciones completadas
+- Boton de cierre de sesion
 
 ---
 

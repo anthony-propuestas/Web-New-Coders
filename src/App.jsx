@@ -709,10 +709,27 @@ export default function App() {
   if (currentView === 'herramientas') {
     return (
       <div className="min-h-screen bg-dark-bg text-text-light font-mono">
-        <header className="border-b border-border-dark p-6" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(191,0,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+        <header className="border-b border-border-dark p-6 relative" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(191,0,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
           <button onClick={() => setCurrentView('calendar')} className="text-neon-cyan hover:text-neon-green transition mb-4">
             ← Volver al Calendario
           </button>
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={() => setCurrentView('perfil')}
+              className="w-10 h-10 rounded-full border-2 border-neon-cyan hover:border-neon-green transition-all duration-300 flex items-center justify-center overflow-hidden"
+              style={{ background: 'rgba(0,212,255,0.08)', boxShadow: '0 0 12px rgba(0,212,255,0.15)' }}
+              title="Mi Perfil"
+              aria-label="Mi Perfil"
+            >
+              {user?.picture ? (
+                <img src={user.picture} alt="" className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-neon-cyan">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+              )}
+            </button>
+          </div>
           <h1 className="text-4xl font-bold text-neon-green">Herramientas del curso</h1>
           <p className="text-neon-yellow mt-1 text-lg">New Coders — 30 días</p>
         </header>
@@ -856,13 +873,30 @@ export default function App() {
     return (
       <div className="min-h-screen bg-dark-bg text-text-light font-mono">
         {/* Header */}
-        <header className="border-b border-border-dark p-6" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(191,0,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+        <header className="border-b border-border-dark p-6 relative" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(191,0,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
           <button
             onClick={() => setCurrentView('calendar')}
             className="text-neon-cyan hover:text-neon-green transition mb-4"
           >
             ← Volver al Calendario
           </button>
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={() => setCurrentView('perfil')}
+              className="w-10 h-10 rounded-full border-2 border-neon-cyan hover:border-neon-green transition-all duration-300 flex items-center justify-center overflow-hidden"
+              style={{ background: 'rgba(0,212,255,0.08)', boxShadow: '0 0 12px rgba(0,212,255,0.15)' }}
+              title="Mi Perfil"
+              aria-label="Mi Perfil"
+            >
+              {user?.picture ? (
+                <img src={user.picture} alt="" className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-neon-cyan">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+              )}
+            </button>
+          </div>
           <div className="flex items-center gap-3 mb-1">
             <span className="text-xs font-bold px-3 py-1 rounded-full border border-neon-cyan text-neon-cyan uppercase tracking-widest" style={{ fontFamily: 'Orbitron, monospace' }}>
               Temporada 1
@@ -961,13 +995,30 @@ export default function App() {
     return (
       <div className="min-h-screen bg-dark-bg text-text-light font-mono">
         {/* Header */}
-        <header className="border-b border-border-dark p-6" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(255,102,0,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+        <header className="border-b border-border-dark p-6 relative" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(255,102,0,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
           <button
             onClick={() => setCurrentView('calendar')}
             className="text-neon-cyan hover:text-neon-green transition mb-4"
           >
             ← Volver al Calendario
           </button>
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={() => setCurrentView('perfil')}
+              className="w-10 h-10 rounded-full border-2 border-neon-cyan hover:border-neon-green transition-all duration-300 flex items-center justify-center overflow-hidden"
+              style={{ background: 'rgba(0,212,255,0.08)', boxShadow: '0 0 12px rgba(0,212,255,0.15)' }}
+              title="Mi Perfil"
+              aria-label="Mi Perfil"
+            >
+              {user?.picture ? (
+                <img src={user.picture} alt="" className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-neon-cyan">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+              )}
+            </button>
+          </div>
           <h1 className="text-4xl font-bold text-neon-orange" style={{ fontFamily: 'Orbitron, monospace' }}>
             Nosotros
           </h1>
@@ -1105,13 +1156,30 @@ export default function App() {
     return (
       <div className="min-h-screen bg-dark-bg text-text-light font-mono">
         {/* Header */}
-        <header className="border-b border-border-dark p-6" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(0,212,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+        <header className="border-b border-border-dark p-6 relative" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(0,212,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
           <button
             onClick={() => setCurrentView('calendar')}
             className="text-neon-cyan hover:text-neon-green transition mb-4"
           >
             ← Volver al Calendario
           </button>
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={() => setCurrentView('perfil')}
+              className="w-10 h-10 rounded-full border-2 border-neon-cyan hover:border-neon-green transition-all duration-300 flex items-center justify-center overflow-hidden"
+              style={{ background: 'rgba(0,212,255,0.08)', boxShadow: '0 0 12px rgba(0,212,255,0.15)' }}
+              title="Mi Perfil"
+              aria-label="Mi Perfil"
+            >
+              {user?.picture ? (
+                <img src={user.picture} alt="" className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-neon-cyan">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+              )}
+            </button>
+          </div>
           <h1 className="text-4xl font-bold text-neon-green">
             Día {lesson.day}: {lesson.title}
           </h1>
@@ -1238,6 +1306,136 @@ export default function App() {
     );
   }
 
+  // Profile View
+  if (currentView === 'perfil') {
+    return (
+      <div className="min-h-screen bg-dark-bg text-text-light font-mono">
+        {/* Header */}
+        <header className="border-b border-border-dark p-6 relative" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(0,212,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+          <button
+            onClick={() => setCurrentView('calendar')}
+            className="text-neon-cyan hover:text-neon-green transition mb-4"
+          >
+            ← Volver al Calendario
+          </button>
+          <h1 className="text-4xl font-bold text-neon-green" style={{ fontFamily: 'Orbitron, monospace' }}>
+            Mi Perfil
+          </h1>
+          <p className="text-neon-cyan mt-1 text-lg">Tu información personal</p>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-4xl mx-auto p-6 space-y-8">
+          {/* Avatar + Name Card */}
+          <section className="rounded-lg bg-dark-card p-6 border-2 border-neon-cyan" style={{ boxShadow: '0 0 20px rgba(0,212,255,0.08)' }}>
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+              {user?.picture ? (
+                <img
+                  src={user.picture}
+                  alt={user?.name || 'Usuario'}
+                  className="w-24 h-24 rounded-full border-2 border-neon-green"
+                  referrerPolicy="no-referrer"
+                  style={{ boxShadow: '0 0 20px rgba(0,212,255,0.4)' }}
+                />
+              ) : (
+                <div
+                  className="w-24 h-24 rounded-full border-2 border-neon-green flex items-center justify-center"
+                  style={{ background: 'rgba(0,212,255,0.1)', boxShadow: '0 0 20px rgba(0,212,255,0.4)' }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-12 h-12 text-neon-green">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                  </svg>
+                </div>
+              )}
+              <div className="text-center sm:text-left">
+                <h2 className="text-2xl font-bold text-neon-green" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  {user?.name || 'Usuario'}
+                </h2>
+                <p className="text-neon-cyan text-sm mt-1">Miembro de New Coders</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Profile Form Fields */}
+          <section className="rounded-lg bg-dark-card p-6 border-2 border-neon-green" style={{ boxShadow: '0 0 20px rgba(0,255,100,0.06)' }}>
+            <h2 className="text-2xl font-bold text-neon-green mb-5" style={{ fontFamily: 'Orbitron, monospace' }}>Datos personales</h2>
+            <div className="space-y-5">
+              {/* Nombre */}
+              <div>
+                <label className="block text-neon-yellow text-xs uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  defaultValue={user?.name || ''}
+                  className="w-full bg-dark-bg border border-border-dark rounded-lg px-4 py-3 text-text-light focus:border-neon-cyan focus:outline-none transition-colors"
+                  style={{ boxShadow: 'inset 0 0 8px rgba(0,212,255,0.05)' }}
+                  placeholder="Tu nombre"
+                />
+              </div>
+              {/* Correo */}
+              <div>
+                <label className="block text-neon-yellow text-xs uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Correo electrónico
+                </label>
+                <input
+                  type="email"
+                  defaultValue={user?.email || ''}
+                  className="w-full bg-dark-bg border border-border-dark rounded-lg px-4 py-3 text-text-light focus:border-neon-cyan focus:outline-none transition-colors"
+                  style={{ boxShadow: 'inset 0 0 8px rgba(0,212,255,0.05)' }}
+                  placeholder="tu@correo.com"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-border-dark mt-4">
+              Los cambios se guardarán cuando el backend esté disponible.
+            </p>
+          </section>
+
+          {/* Progress Summary */}
+          <section className="rounded-lg bg-dark-card p-6 border-2 border-neon-yellow" style={{ boxShadow: '0 0 20px rgba(255,0,153,0.06)' }}>
+            <h2 className="text-2xl font-bold text-neon-yellow mb-4" style={{ fontFamily: 'Orbitron, monospace' }}>Tu progreso</h2>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <div className="flex justify-between mb-2">
+                  <span className="text-neon-green text-sm">{completedLessons.length}/30 Lecciones</span>
+                  <span className="text-neon-green text-sm">{Math.round(progressPercent)}%</span>
+                </div>
+                <div className="w-full bg-dark-bg rounded-full h-3 overflow-hidden border border-neon-green">
+                  <div
+                    className="h-full transition-all duration-500 rounded-full"
+                    style={{
+                      width: `${progressPercent}%`,
+                      background: 'linear-gradient(90deg, #00d4ff 0%, #bf00ff 100%)',
+                      boxShadow: '0 0 12px rgba(0,212,255,0.5)',
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Logout */}
+          <div className="text-center">
+            <button
+              onClick={() => { if (window.confirm('¿Deseas cerrar tu sesión?')) logout(); }}
+              className="text-sm font-bold py-3 px-8 rounded-lg border-2 border-neon-yellow text-neon-yellow hover:bg-neon-yellow hover:text-dark-bg transition-all duration-300"
+              style={{ fontFamily: 'Orbitron, monospace' }}
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-border-dark p-6 mt-12 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
+          <p className="text-neon-cyan">✦ Tu perfil en New Coders ✦</p>
+          <SocialLinks />
+        </footer>
+      </div>
+    );
+  }
+
   // Calendar View
   return (
     <div className="min-h-screen bg-dark-bg text-text-light font-mono flex flex-col">
@@ -1261,18 +1459,22 @@ export default function App() {
       </div>
       {/* Header */}
       <header className="border-b border-border-dark p-8 text-center relative" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.13) 0%, rgba(191,0,255,0.06) 50%, transparent 80%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
-        {/* User bar */}
-        <div className="absolute top-4 right-4 flex items-center gap-3">
-          {user?.picture && (
-            <img src={user.picture} alt={user?.name || 'Usuario'} className="w-8 h-8 rounded-full border border-neon-cyan" referrerPolicy="no-referrer" />
-          )}
-          <span className="text-text-light text-sm hidden sm:inline">{user?.name}</span>
+        {/* Profile button */}
+        <div className="absolute top-4 right-4">
           <button
-            onClick={() => { if (window.confirm('¿Deseas cerrar tu sesión?')) logout(); }}
-            className="text-xs text-neon-yellow hover:text-neon-green border border-neon-yellow hover:border-neon-green px-3 py-1 rounded transition-all duration-200"
-            style={{ fontFamily: 'Orbitron, monospace' }}
+            onClick={() => setCurrentView('perfil')}
+            className="w-10 h-10 rounded-full border-2 border-neon-cyan hover:border-neon-green transition-all duration-300 flex items-center justify-center overflow-hidden"
+            style={{ background: 'rgba(0,212,255,0.08)', boxShadow: '0 0 12px rgba(0,212,255,0.15)' }}
+            title="Mi Perfil"
+            aria-label="Mi Perfil"
           >
-            Salir
+            {user?.picture ? (
+              <img src={user.picture} alt={user?.name || 'Usuario'} className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-neon-cyan">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+              </svg>
+            )}
           </button>
         </div>
         <h1 className="text-5xl font-bold text-neon-green mb-2">
