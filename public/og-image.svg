@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="20%" r="70%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="#bf00ff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#04040f" stop-opacity="1"/>
+    </radialGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#04040f"/>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="3" fill="url(#topline)"/>
+  <defs>
+    <linearGradient id="topline" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#04040f"/>
+      <stop offset="30%" stop-color="#bf00ff"/>
+      <stop offset="50%" stop-color="#00d4ff"/>
+      <stop offset="70%" stop-color="#bf00ff"/>
+      <stop offset="100%" stop-color="#04040f"/>
+    </linearGradient>
+    <linearGradient id="divider" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#04040f"/>
+      <stop offset="30%" stop-color="#bf00ff"/>
+      <stop offset="50%" stop-color="#00d4ff"/>
+      <stop offset="70%" stop-color="#bf00ff"/>
+      <stop offset="100%" stop-color="#04040f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Logo mark -->
+  <text x="600" y="195" font-family="'Orbitron', 'Courier New', monospace" font-size="72" font-weight="900" text-anchor="middle" fill="#39ff14">&lt;</text>
+  <text x="600" y="195" font-family="'Orbitron', 'Courier New', monospace" font-size="72" font-weight="900" text-anchor="middle" fill="#39ff14" dx="-38" dy="0">&#x200b;</text>
+
+  <!-- NC letters -->
+  <text x="565" y="195" font-family="'Orbitron', 'Courier New', monospace" font-size="72" font-weight="900" text-anchor="middle" fill="#39ff14">&lt;</text>
+  <text x="635" y="195" font-family="'Orbitron', 'Courier New', monospace" font-size="72" font-weight="900" text-anchor="middle" fill="#00d4ff">NC</text>
+  <text x="705" y="195" font-family="'Orbitron', 'Courier New', monospace" font-size="72" font-weight="900" text-anchor="middle" fill="#39ff14">/&gt;</text>
+
+  <!-- Brand name -->
+  <text x="600" y="275" font-family="'Orbitron', 'Courier New', monospace" font-size="56" font-weight="900" text-anchor="middle" fill="#39ff14" letter-spacing="4">NEW CODERS</text>
+
+  <!-- Divider -->
+  <rect x="100" y="305" width="1000" height="2" fill="url(#divider)"/>
+
+  <!-- Tagline -->
+  <text x="600" y="365" font-family="'Orbitron', 'Courier New', monospace" font-size="28" font-weight="700" text-anchor="middle" fill="#00d4ff" letter-spacing="2">Dev Path: 30 Días de Código</text>
+
+  <!-- Description -->
+  <text x="600" y="415" font-family="'Courier New', monospace" font-size="20" text-anchor="middle" fill="#c8c8ff">Aprende HTML · CSS · JavaScript · Python</text>
+  <text x="600" y="445" font-family="'Courier New', monospace" font-size="20" text-anchor="middle" fill="#c8c8ff">Programa gratuito · En español · Desde cero</text>
+
+  <!-- Bottom URL -->
+  <text x="600" y="565" font-family="'Orbitron', 'Courier New', monospace" font-size="22" font-weight="700" text-anchor="middle" fill="#bf00ff" letter-spacing="1">newcoders.org</text>
+</svg>

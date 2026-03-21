@@ -1,8 +1,8 @@
-				import worker, * as OTHER_EXPORTS from "C:\\Users\\dell\\Desktop\\New Coders\\Web New Coders\\.wrangler\\tmp\\pages-1mfqwV\\functionsWorker-0.910672415199615.mjs";
+				import worker, * as OTHER_EXPORTS from "C:\\Users\\dell\\Desktop\\New Coders\\Web New Coders\\.wrangler\\tmp\\pages-AGxS4o\\functionsWorker-0.613104982560069.mjs";
 				import * as __MIDDLEWARE_0__ from "C:\\Users\\dell\\Desktop\\New Coders\\Web New Coders\\node_modules\\wrangler\\templates\\middleware\\middleware-ensure-req-body-drained.ts";
 import * as __MIDDLEWARE_1__ from "C:\\Users\\dell\\Desktop\\New Coders\\Web New Coders\\node_modules\\wrangler\\templates\\middleware\\middleware-miniflare3-json-error.ts";
 
-				export * from "C:\\Users\\dell\\Desktop\\New Coders\\Web New Coders\\.wrangler\\tmp\\pages-1mfqwV\\functionsWorker-0.910672415199615.mjs";
+				export * from "C:\\Users\\dell\\Desktop\\New Coders\\Web New Coders\\.wrangler\\tmp\\pages-AGxS4o\\functionsWorker-0.613104982560069.mjs";
 
 				export const __INTERNAL_WRANGLER_MIDDLEWARE__ = [
 					

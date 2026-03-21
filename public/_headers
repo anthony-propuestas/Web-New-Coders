@@ -39,3 +39,9 @@
 
 /og-image.png
   Cache-Control: public, max-age=604800
+  Content-Type: image/png
+
+/og-image.svg
+  Cache-Control: public, max-age=604800
+  Content-Type: image/svg+xml
+  X-Content-Type-Options: nosniff
