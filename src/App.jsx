@@ -596,6 +596,9 @@ export default function App() {
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminPagination, setAdminPagination] = useState({ page: 1, total: 0, pages: 1 });
   const [loadingAdmin, setLoadingAdmin] = useState(false);
+  const [adminStats, setAdminStats] = useState(null);
+  const [loadingAdminStats, setLoadingAdminStats] = useState(false);
+  const [adminSection, setAdminSection] = useState('users');
 
   // Cargar progreso desde la API
   useEffect(() => {
@@ -679,6 +682,20 @@ export default function App() {
       });
       setAdminUsers(prev => prev.map(u => u.id === userId ? { ...u, is_active: !currentActive } : u));
     } catch { /* ignorar */ }
+  };
+
+  const loadAdminStats = async () => {
+    setAdminSection('stats');
+    setLoadingAdminStats(true);
+    try {
+      const res = await fetch('/api/admin/stats', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setAdminStats(data);
+      }
+    } catch { /* ignorar */ } finally {
+      setLoadingAdminStats(false);
+    }
   };
 
   const today = new Date();
@@ -1449,93 +1466,168 @@ export default function App() {
         <main className="max-w-6xl mx-auto p-6">
           <div className="flex gap-3 mb-6">
             <button
-              onClick={() => loadAdminUsers(1)}
-              className="px-5 py-2 rounded-lg border-2 border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-dark-bg transition-all text-sm font-bold"
+              onClick={() => { setAdminSection('users'); loadAdminUsers(1); }}
+              className={`px-5 py-2 rounded-lg border-2 transition-all text-sm font-bold ${adminSection === 'users' ? 'bg-neon-cyan text-dark-bg border-neon-cyan' : 'border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-dark-bg'}`}
               style={{ fontFamily: 'Orbitron, monospace' }}
             >
               {loadingAdmin ? 'Cargando...' : 'Cargar usuarios'}
             </button>
-            <a
-              href="/api/admin/users"
-              className="px-5 py-2 rounded-lg border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg transition-all text-sm font-bold"
+            <button
+              onClick={loadAdminStats}
+              className={`px-5 py-2 rounded-lg border-2 transition-all text-sm font-bold ${adminSection === 'stats' ? 'bg-neon-green text-dark-bg border-neon-green' : 'border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg'}`}
               style={{ fontFamily: 'Orbitron, monospace' }}
-              onClick={() => setCurrentView('admin')}
             >
-              Stats →
-            </a>
+              {loadingAdminStats ? 'Cargando...' : 'Stats'}
+            </button>
           </div>
 
-          {adminUsers.length > 0 && (
-            <div className="rounded-lg border border-border-dark overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border-dark" style={{ background: 'rgba(0,212,255,0.06)' }}>
-                    <th className="text-left p-3 text-neon-cyan">Usuario</th>
-                    <th className="text-left p-3 text-neon-cyan hidden md:table-cell">Email</th>
-                    <th className="text-center p-3 text-neon-cyan">Días</th>
-                    <th className="text-center p-3 text-neon-cyan">Logins</th>
-                    <th className="text-center p-3 text-neon-cyan">Estado</th>
-                    <th className="text-center p-3 text-neon-cyan">Acción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {adminUsers.map((u, i) => (
-                    <tr key={u.id} className="border-b border-border-dark hover:bg-white/5 transition-colors">
-                      <td className="p-3">
-                        <div className="text-text-light font-semibold">{u.name}</div>
-                        <div className="text-border-dark text-xs">{u.role}</div>
-                      </td>
-                      <td className="p-3 text-text-light/60 hidden md:table-cell text-xs">{u.email}</td>
-                      <td className="p-3 text-center">
-                        <span className="text-neon-green font-bold">{u.lessons_completed}</span>
-                        <span className="text-border-dark">/30</span>
-                      </td>
-                      <td className="p-3 text-center text-neon-cyan">{u.login_count}</td>
-                      <td className="p-3 text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${u.is_active ? 'bg-neon-green/20 text-neon-green' : 'bg-red-500/20 text-red-400'}`}>
-                          {u.is_active ? 'Activo' : 'Inactivo'}
-                        </span>
-                      </td>
-                      <td className="p-3 text-center">
+          {/* Sección Usuarios */}
+          {adminSection === 'users' && (
+            <>
+              {adminUsers.length > 0 && (
+                <div className="rounded-lg border border-border-dark overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border-dark" style={{ background: 'rgba(0,212,255,0.06)' }}>
+                        <th className="text-left p-3 text-neon-cyan">Usuario</th>
+                        <th className="text-left p-3 text-neon-cyan hidden md:table-cell">Email</th>
+                        <th className="text-center p-3 text-neon-cyan">Días</th>
+                        <th className="text-center p-3 text-neon-cyan">Logins</th>
+                        <th className="text-center p-3 text-neon-cyan">Estado</th>
+                        <th className="text-center p-3 text-neon-cyan">Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminUsers.map((u) => (
+                        <tr key={u.id} className="border-b border-border-dark hover:bg-white/5 transition-colors">
+                          <td className="p-3">
+                            <div className="text-text-light font-semibold">{u.name}</div>
+                            <div className="text-border-dark text-xs">{u.role}</div>
+                          </td>
+                          <td className="p-3 text-text-light/60 hidden md:table-cell text-xs">{u.email}</td>
+                          <td className="p-3 text-center">
+                            <span className="text-neon-green font-bold">{u.lessons_completed}</span>
+                            <span className="text-border-dark">/30</span>
+                          </td>
+                          <td className="p-3 text-center text-neon-cyan">{u.login_count}</td>
+                          <td className="p-3 text-center">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${u.is_active ? 'bg-neon-green/20 text-neon-green' : 'bg-red-500/20 text-red-400'}`}>
+                              {u.is_active ? 'Activo' : 'Inactivo'}
+                            </span>
+                          </td>
+                          <td className="p-3 text-center">
+                            <button
+                              onClick={() => handleToggleUserActive(u.id, u.is_active)}
+                              className={`px-3 py-1 rounded text-xs font-bold border transition-all ${
+                                u.is_active
+                                  ? 'border-red-400 text-red-400 hover:bg-red-400 hover:text-dark-bg'
+                                  : 'border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg'
+                              }`}
+                            >
+                              {u.is_active ? 'Desactivar' : 'Activar'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {adminPagination.pages > 1 && (
+                    <div className="flex justify-center gap-2 p-4">
+                      {Array.from({ length: adminPagination.pages }, (_, i) => i + 1).map(p => (
                         <button
-                          onClick={() => handleToggleUserActive(u.id, u.is_active)}
-                          className={`px-3 py-1 rounded text-xs font-bold border transition-all ${
-                            u.is_active
-                              ? 'border-red-400 text-red-400 hover:bg-red-400 hover:text-dark-bg'
-                              : 'border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg'
+                          key={p}
+                          onClick={() => loadAdminUsers(p)}
+                          className={`w-8 h-8 rounded text-xs font-bold border transition-all ${
+                            p === adminPagination.page
+                              ? 'border-neon-cyan bg-neon-cyan text-dark-bg'
+                              : 'border-border-dark text-text-light hover:border-neon-cyan'
                           }`}
                         >
-                          {u.is_active ? 'Desactivar' : 'Activar'}
+                          {p}
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {adminPagination.pages > 1 && (
-                <div className="flex justify-center gap-2 p-4">
-                  {Array.from({ length: adminPagination.pages }, (_, i) => i + 1).map(p => (
-                    <button
-                      key={p}
-                      onClick={() => loadAdminUsers(p)}
-                      className={`w-8 h-8 rounded text-xs font-bold border transition-all ${
-                        p === adminPagination.page
-                          ? 'border-neon-cyan bg-neon-cyan text-dark-bg'
-                          : 'border-border-dark text-text-light hover:border-neon-cyan'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+              {adminUsers.length === 0 && !loadingAdmin && (
+                <div className="text-center py-16 text-text-light/40">
+                  <p className="text-lg mb-4">Presiona "Cargar usuarios" para ver la lista</p>
+                </div>
+              )}
+            </>
           )}
 
-          {adminUsers.length === 0 && !loadingAdmin && (
-            <div className="text-center py-16 text-text-light/40">
-              <p className="text-lg mb-4">Presiona "Cargar usuarios" para ver la lista</p>
-            </div>
+          {/* Sección Stats */}
+          {adminSection === 'stats' && (
+            <>
+              {loadingAdminStats && (
+                <div className="text-center py-16 text-neon-green animate-pulse">Cargando stats...</div>
+              )}
+              {!loadingAdminStats && adminStats && (
+                <div className="space-y-8">
+                  {/* Tarjetas de resumen */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Usuarios activos', value: adminStats.total_users, color: 'neon-cyan' },
+                      { label: 'Activos 7 días', value: adminStats.active_last_7_days, color: 'neon-green' },
+                      { label: 'Activos 30 días', value: adminStats.active_last_30_days, color: 'neon-yellow' },
+                      { label: 'Progreso promedio', value: `${adminStats.avg_progress_percent}%`, color: 'neon-pink' },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} className={`rounded-lg border border-${color}/40 p-5 text-center`} style={{ background: 'rgba(0,0,0,0.3)' }}>
+                        <div className={`text-3xl font-bold text-${color}`} style={{ fontFamily: 'Orbitron, monospace' }}>{value}</div>
+                        <div className="text-text-light/60 text-xs mt-1">{label}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Inscripciones por temporada */}
+                  {Object.keys(adminStats.enrollments_by_season).length > 0 && (
+                    <div className="rounded-lg border border-border-dark overflow-hidden">
+                      <div className="p-4 border-b border-border-dark" style={{ background: 'rgba(0,212,255,0.06)' }}>
+                        <h3 className="text-neon-cyan font-bold text-sm" style={{ fontFamily: 'Orbitron, monospace' }}>Inscripciones por Temporada</h3>
+                      </div>
+                      <div className="flex flex-wrap gap-3 p-4">
+                        {Object.entries(adminStats.enrollments_by_season).map(([season, count]) => (
+                          <div key={season} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-neon-yellow/30" style={{ background: 'rgba(255,213,0,0.05)' }}>
+                            <span className="text-neon-yellow font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>{count}</span>
+                            <span className="text-text-light/60 text-xs">Temporada {season}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tasa de completado por lección */}
+                  {adminStats.completion_rate_by_lesson.length > 0 && (
+                    <div className="rounded-lg border border-border-dark overflow-hidden">
+                      <div className="p-4 border-b border-border-dark" style={{ background: 'rgba(0,212,255,0.06)' }}>
+                        <h3 className="text-neon-cyan font-bold text-sm" style={{ fontFamily: 'Orbitron, monospace' }}>Completados por Lección</h3>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        {adminStats.completion_rate_by_lesson.map(({ day, completions, rate }) => (
+                          <div key={day} className="flex items-center gap-3">
+                            <span className="text-text-light/50 text-xs w-14 shrink-0">Día {day}</span>
+                            <div className="flex-1 bg-white/5 rounded-full h-3 overflow-hidden">
+                              <div
+                                className="h-3 rounded-full transition-all"
+                                style={{ width: `${Math.min(rate, 100)}%`, background: rate >= 50 ? 'var(--neon-green, #00ff87)' : rate >= 25 ? 'var(--neon-yellow, #ffd500)' : '#f97316' }}
+                              />
+                            </div>
+                            <span className="text-neon-green text-xs w-16 text-right shrink-0">{completions} ({rate}%)</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!loadingAdminStats && !adminStats && (
+                <div className="text-center py-16 text-text-light/40">
+                  <p className="text-lg">Error al cargar las estadísticas</p>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
