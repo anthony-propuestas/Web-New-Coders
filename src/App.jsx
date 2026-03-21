@@ -11,13 +11,13 @@ const LESSONS = [
     title: "¿Qué es programar?",
     category: "Fundamentos",
     theory: "Programar es dar instrucciones precisas a una computadora para que realice tareas. Estas instrucciones se escriben en lenguajes de programación que la máquina puede entender. Es como escribir una receta de cocina: paso a paso, sin ambigüedades. En este curso aprenderás tres lenguajes: HTML/CSS para la parte visual, JavaScript para la lógica, y Python para el servidor.",
-    instructions: "Aqui van las instrucciones para completar esta tarea.",
+    instructions: "1. Abre Cursor en tu computadora.\n2. Crea una carpeta nueva llamada 'dia-01'.\n3. Dentro de Cursor, abre esa carpeta (File > Open Folder).\n4. Crea un archivo nuevo llamado 'index.html'.\n5. Escribe (o pega) la estructura HTML del ejemplo de abajo.\n6. Guarda el archivo con Ctrl+S (o Cmd+S en Mac).\n7. Abre el archivo en tu navegador: haz clic derecho sobre 'index.html' > 'Open with Live Preview' o arrástralo al navegador.",
     prompt: "crea un archivo HTML y escribe en texto simple (Hola mundo) solo eso.",
     codeExample: {
       language: "html",
       code: "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Hola mundo</title>\n</head>\n<body>\n  Hola mundo\n</body>\n</html>"
     },
-    challenge: "Abre la consola de tu navegador (presiona F12, ve a la pestaña 'Console') y escribe: console.log('¡Hola, soy un programador!'); Luego presiona Enter y observa el resultado.",
+    challenge: "Abre tu archivo index.html en el navegador y verifica que se vea el texto 'Hola mundo' en la pantalla. Cuando lo logres, toma una captura de pantalla y compártela en el grupo de WhatsApp con el mensaje: '¡Día 1 completado! 🚀'",
     resources: [
       { label: "Aprende con IA", url: "https://github.com/" }
     ],
@@ -530,7 +530,7 @@ const LESSONS = [
   }
 ];
 
-const START_DATE = new Date('2026-04-01T00:00:00'); // Fecha de inicio del curso
+const START_DATE = new Date('2026-01-01T00:00:00'); // Fecha de inicio del curso
 
 // Metadatos de logros/badges
 const ACHIEVEMENT_META = {
