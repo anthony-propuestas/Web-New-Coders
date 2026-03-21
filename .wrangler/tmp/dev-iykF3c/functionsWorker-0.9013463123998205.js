@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-wXzluE/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-y5Ayix/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
@@ -16,7 +16,23 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 
-// lib/session.js
+// .wrangler/tmp/pages-gAe0jc/functionsWorker-0.9013463123998205.mjs
+var __defProp2 = Object.defineProperty;
+var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
+function stripCfConnectingIPHeader2(input, init) {
+  const request = new Request(input, init);
+  request.headers.delete("CF-Connecting-IP");
+  return request;
+}
+__name(stripCfConnectingIPHeader2, "stripCfConnectingIPHeader");
+__name2(stripCfConnectingIPHeader2, "stripCfConnectingIPHeader");
+globalThis.fetch = new Proxy(globalThis.fetch, {
+  apply(target, thisArg, argArray) {
+    return Reflect.apply(target, thisArg, [
+      stripCfConnectingIPHeader2.apply(null, argArray)
+    ]);
+  }
+});
 var SESSION_DURATION_HOURS = 72;
 var IDLE_TIMEOUT_HOURS = 24;
 function generateSessionId() {
@@ -25,20 +41,24 @@ function generateSessionId() {
   return Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 __name(generateSessionId, "generateSessionId");
+__name2(generateSessionId, "generateSessionId");
 function sessionCookie(sessionId, maxAge = SESSION_DURATION_HOURS * 3600) {
   return `session=${sessionId}; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=${maxAge}`;
 }
 __name(sessionCookie, "sessionCookie");
+__name2(sessionCookie, "sessionCookie");
 function clearSessionCookie() {
   return "session=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0";
 }
 __name(clearSessionCookie, "clearSessionCookie");
+__name2(clearSessionCookie, "clearSessionCookie");
 function getSessionId(request) {
   const cookie = request.headers.get("Cookie") || "";
   const match2 = cookie.match(/(?:^|;\s*)session=([a-f0-9]{64})/);
   return match2 ? match2[1] : null;
 }
 __name(getSessionId, "getSessionId");
+__name2(getSessionId, "getSessionId");
 async function getAuthenticatedUser(db, request) {
   const sessionId = getSessionId(request);
   if (!sessionId)
@@ -77,8 +97,7 @@ async function getAuthenticatedUser(db, request) {
   };
 }
 __name(getAuthenticatedUser, "getAuthenticatedUser");
-
-// lib/cors.js
+__name2(getAuthenticatedUser, "getAuthenticatedUser");
 var ALLOWED_ORIGIN = "https://newcoders.org";
 function corsHeaders(request) {
   const origin = request.headers.get("Origin") || "";
@@ -91,6 +110,7 @@ function corsHeaders(request) {
   };
 }
 __name(corsHeaders, "corsHeaders");
+__name2(corsHeaders, "corsHeaders");
 function handleOptions(request) {
   return new Response(null, {
     status: 204,
@@ -98,6 +118,7 @@ function handleOptions(request) {
   });
 }
 __name(handleOptions, "handleOptions");
+__name2(handleOptions, "handleOptions");
 function jsonResponse(data, status = 200, request) {
   return new Response(JSON.stringify(data), {
     status,
@@ -108,12 +129,12 @@ function jsonResponse(data, status = 200, request) {
   });
 }
 __name(jsonResponse, "jsonResponse");
+__name2(jsonResponse, "jsonResponse");
 function errorResponse(message, status = 400, request) {
   return jsonResponse({ error: message }, status, request);
 }
 __name(errorResponse, "errorResponse");
-
-// lib/audit.js
+__name2(errorResponse, "errorResponse");
 async function logAudit(db, { userId = null, action, details = null, ip = null }) {
   try {
     await db.prepare(
@@ -125,8 +146,7 @@ async function logAudit(db, { userId = null, action, details = null, ip = null }
   }
 }
 __name(logAudit, "logAudit");
-
-// lib/rate-limit.js
+__name2(logAudit, "logAudit");
 var LIMITS = {
   auth: { max: 10, windowSeconds: 60 },
   // 10 logins/minuto por IP
@@ -167,16 +187,17 @@ async function checkRateLimit(db, key, type) {
   }
 }
 __name(checkRateLimit, "checkRateLimit");
+__name2(checkRateLimit, "checkRateLimit");
 function getClientIP(request) {
   return request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For")?.split(",")[0]?.trim() || "unknown";
 }
 __name(getClientIP, "getClientIP");
-
-// api/admin/stats.js
+__name2(getClientIP, "getClientIP");
 async function onRequestOptions(context) {
   return handleOptions(context.request);
 }
 __name(onRequestOptions, "onRequestOptions");
+__name2(onRequestOptions, "onRequestOptions");
 async function onRequestGet(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -243,12 +264,12 @@ async function onRequestGet(context) {
   );
 }
 __name(onRequestGet, "onRequestGet");
-
-// api/admin/users.js
+__name2(onRequestGet, "onRequestGet");
 async function onRequestOptions2(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions2, "onRequestOptions");
+__name(onRequestOptions2, "onRequestOptions2");
+__name2(onRequestOptions2, "onRequestOptions");
 async function onRequestGet2(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -326,7 +347,8 @@ async function onRequestGet2(context) {
     return errorResponse("Failed to list users", 500, request);
   }
 }
-__name(onRequestGet2, "onRequestGet");
+__name(onRequestGet2, "onRequestGet2");
+__name2(onRequestGet2, "onRequestGet");
 async function onRequestPatch(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -361,8 +383,7 @@ async function onRequestPatch(context) {
   }
 }
 __name(onRequestPatch, "onRequestPatch");
-
-// lib/google-jwt.js
+__name2(onRequestPatch, "onRequestPatch");
 var GOOGLE_CERTS_URL = "https://www.googleapis.com/oauth2/v3/certs";
 var GOOGLE_ISSUERS = ["accounts.google.com", "https://accounts.google.com"];
 var cachedCerts = null;
@@ -374,6 +395,7 @@ function base64UrlDecode(str) {
   return new Uint8Array([...binary].map((c) => c.charCodeAt(0)));
 }
 __name(base64UrlDecode, "base64UrlDecode");
+__name2(base64UrlDecode, "base64UrlDecode");
 function decodeJwtParts(token) {
   const parts = token.split(".");
   if (parts.length !== 3)
@@ -383,6 +405,7 @@ function decodeJwtParts(token) {
   return { header, payload, signatureB64: parts[2], signedContent: `${parts[0]}.${parts[1]}` };
 }
 __name(decodeJwtParts, "decodeJwtParts");
+__name2(decodeJwtParts, "decodeJwtParts");
 async function fetchGoogleCerts() {
   const now = Date.now();
   if (cachedCerts && now - cachedAt < CACHE_DURATION_MS) {
@@ -397,6 +420,7 @@ async function fetchGoogleCerts() {
   return cachedCerts;
 }
 __name(fetchGoogleCerts, "fetchGoogleCerts");
+__name2(fetchGoogleCerts, "fetchGoogleCerts");
 async function importKey(jwk) {
   return crypto.subtle.importKey(
     "jwk",
@@ -407,6 +431,7 @@ async function importKey(jwk) {
   );
 }
 __name(importKey, "importKey");
+__name2(importKey, "importKey");
 async function verifyGoogleJwt(token, clientId) {
   const { header, payload, signatureB64, signedContent } = decodeJwtParts(token);
   if (header.alg !== "RS256") {
@@ -449,12 +474,12 @@ async function verifyGoogleJwt(token, clientId) {
   };
 }
 __name(verifyGoogleJwt, "verifyGoogleJwt");
-
-// api/auth/google.js
+__name2(verifyGoogleJwt, "verifyGoogleJwt");
 async function onRequestOptions3(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions3, "onRequestOptions");
+__name(onRequestOptions3, "onRequestOptions3");
+__name2(onRequestOptions3, "onRequestOptions");
 async function onRequestPost(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -539,12 +564,12 @@ async function onRequestPost(context) {
   }
 }
 __name(onRequestPost, "onRequestPost");
-
-// api/auth/logout.js
+__name2(onRequestPost, "onRequestPost");
 async function onRequestOptions4(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions4, "onRequestOptions");
+__name(onRequestOptions4, "onRequestOptions4");
+__name2(onRequestOptions4, "onRequestOptions");
 async function onRequestPost2(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -561,13 +586,13 @@ async function onRequestPost2(context) {
     }
   });
 }
-__name(onRequestPost2, "onRequestPost");
-
-// api/auth/me.js
+__name(onRequestPost2, "onRequestPost2");
+__name2(onRequestPost2, "onRequestPost");
 async function onRequestOptions5(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions5, "onRequestOptions");
+__name(onRequestOptions5, "onRequestOptions5");
+__name2(onRequestOptions5, "onRequestOptions");
 async function onRequestGet3(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -577,13 +602,13 @@ async function onRequestGet3(context) {
   }
   return jsonResponse({ user }, 200, request);
 }
-__name(onRequestGet3, "onRequestGet");
-
-// api/progress/migrate.js
+__name(onRequestGet3, "onRequestGet3");
+__name2(onRequestGet3, "onRequestGet");
 async function onRequestOptions6(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions6, "onRequestOptions");
+__name(onRequestOptions6, "onRequestOptions6");
+__name2(onRequestOptions6, "onRequestOptions");
 async function onRequestPost3(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -613,13 +638,13 @@ async function onRequestPost3(context) {
     return errorResponse("Migration failed", 500, request);
   }
 }
-__name(onRequestPost3, "onRequestPost");
-
-// api/users/achievements.js
+__name(onRequestPost3, "onRequestPost3");
+__name2(onRequestPost3, "onRequestPost");
 async function onRequestOptions7(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions7, "onRequestOptions");
+__name(onRequestOptions7, "onRequestOptions7");
+__name2(onRequestOptions7, "onRequestOptions");
 async function onRequestGet4(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -634,13 +659,13 @@ async function onRequestGet4(context) {
     return errorResponse("Failed to get achievements", 500, request);
   }
 }
-__name(onRequestGet4, "onRequestGet");
-
-// api/users/certificate.js
+__name(onRequestGet4, "onRequestGet4");
+__name2(onRequestGet4, "onRequestGet");
 async function onRequestOptions8(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions8, "onRequestOptions");
+__name(onRequestOptions8, "onRequestOptions8");
+__name2(onRequestOptions8, "onRequestOptions");
 async function onRequestGet5(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -682,23 +707,23 @@ async function onRequestGet5(context) {
     return errorResponse("Failed to get certificate", 500, request);
   }
 }
-__name(onRequestGet5, "onRequestGet");
-
-// api/users/delete.js
+__name(onRequestGet5, "onRequestGet5");
+__name2(onRequestGet5, "onRequestGet");
 async function onRequestOptions9(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions9, "onRequestOptions");
+__name(onRequestOptions9, "onRequestOptions9");
+__name2(onRequestOptions9, "onRequestOptions");
 async function onRequestDelete(context) {
   return errorResponse("Use DELETE /api/users/me to delete your account", 410, context.request);
 }
 __name(onRequestDelete, "onRequestDelete");
-
-// api/users/export.js
+__name2(onRequestDelete, "onRequestDelete");
 async function onRequestOptions10(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions10, "onRequestOptions");
+__name(onRequestOptions10, "onRequestOptions10");
+__name2(onRequestOptions10, "onRequestOptions");
 async function onRequestGet6(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -745,13 +770,13 @@ async function onRequestGet6(context) {
     return errorResponse("Failed to export data", 500, request);
   }
 }
-__name(onRequestGet6, "onRequestGet");
-
-// api/users/me.js
+__name(onRequestGet6, "onRequestGet6");
+__name2(onRequestGet6, "onRequestGet");
 async function onRequestOptions11(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions11, "onRequestOptions");
+__name(onRequestOptions11, "onRequestOptions11");
+__name2(onRequestOptions11, "onRequestOptions");
 async function onRequestGet7(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -780,7 +805,8 @@ async function onRequestGet7(context) {
     request
   );
 }
-__name(onRequestGet7, "onRequestGet");
+__name(onRequestGet7, "onRequestGet7");
+__name2(onRequestGet7, "onRequestGet");
 async function onRequestPatch2(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -818,7 +844,8 @@ async function onRequestPatch2(context) {
     return errorResponse("Failed to update profile", 500, request);
   }
 }
-__name(onRequestPatch2, "onRequestPatch");
+__name(onRequestPatch2, "onRequestPatch2");
+__name2(onRequestPatch2, "onRequestPatch");
 async function onRequestDelete2(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -852,9 +879,8 @@ async function onRequestDelete2(context) {
     return errorResponse("Failed to delete account", 500, request);
   }
 }
-__name(onRequestDelete2, "onRequestDelete");
-
-// api/progress/[day].js
+__name(onRequestDelete2, "onRequestDelete2");
+__name2(onRequestDelete2, "onRequestDelete");
 var ACHIEVEMENT_CHECKS = [
   {
     type: "primer_dia",
@@ -912,6 +938,7 @@ async function checkAndGrantAchievements(db, userId) {
   return newAchievements;
 }
 __name(checkAndGrantAchievements, "checkAndGrantAchievements");
+__name2(checkAndGrantAchievements, "checkAndGrantAchievements");
 async function getStreakData(db, userId) {
   const completions = await db.prepare(
     "SELECT completed_at FROM lesson_completions WHERE user_id = ? ORDER BY completed_at DESC"
@@ -942,10 +969,12 @@ async function getStreakData(db, userId) {
   return { current_streak: streak };
 }
 __name(getStreakData, "getStreakData");
+__name2(getStreakData, "getStreakData");
 async function onRequestOptions12(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions12, "onRequestOptions");
+__name(onRequestOptions12, "onRequestOptions12");
+__name2(onRequestOptions12, "onRequestOptions");
 async function onRequestPost4(context) {
   const { request, env, params } = context;
   const db = env.DB;
@@ -972,9 +1001,8 @@ async function onRequestPost4(context) {
     return errorResponse("Failed to save progress", 500, request);
   }
 }
-__name(onRequestPost4, "onRequestPost");
-
-// api/progress/index.js
+__name(onRequestPost4, "onRequestPost4");
+__name2(onRequestPost4, "onRequestPost");
 function calculateStreaks(dates) {
   if (dates.length === 0)
     return { current_streak: 0, longest_streak: 0 };
@@ -1013,10 +1041,12 @@ function calculateStreaks(dates) {
   return { current_streak: currentStreak, longest_streak: longestStreak };
 }
 __name(calculateStreaks, "calculateStreaks");
+__name2(calculateStreaks, "calculateStreaks");
 async function onRequestOptions13(context) {
   return handleOptions(context.request);
 }
-__name(onRequestOptions13, "onRequestOptions");
+__name(onRequestOptions13, "onRequestOptions13");
+__name2(onRequestOptions13, "onRequestOptions");
 async function onRequestGet8(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -1041,9 +1071,8 @@ async function onRequestGet8(context) {
     request
   );
 }
-__name(onRequestGet8, "onRequestGet");
-
-// ../.wrangler/tmp/pages-AGxS4o/functionsRoutes-0.26636114659503973.mjs
+__name(onRequestGet8, "onRequestGet8");
+__name2(onRequestGet8, "onRequestGet");
 var routes = [
   {
     routePath: "/api/admin/stats",
@@ -1249,8 +1278,6 @@ var routes = [
     modules: [onRequestOptions13]
   }
 ];
-
-// ../node_modules/path-to-regexp/dist.es2015/index.js
 function lexer(str) {
   var tokens = [];
   var i = 0;
@@ -1335,6 +1362,7 @@ function lexer(str) {
   return tokens;
 }
 __name(lexer, "lexer");
+__name2(lexer, "lexer");
 function parse(str, options) {
   if (options === void 0) {
     options = {};
@@ -1345,18 +1373,18 @@ function parse(str, options) {
   var key = 0;
   var i = 0;
   var path = "";
-  var tryConsume = /* @__PURE__ */ __name(function(type) {
+  var tryConsume = /* @__PURE__ */ __name2(function(type) {
     if (i < tokens.length && tokens[i].type === type)
       return tokens[i++].value;
   }, "tryConsume");
-  var mustConsume = /* @__PURE__ */ __name(function(type) {
+  var mustConsume = /* @__PURE__ */ __name2(function(type) {
     var value2 = tryConsume(type);
     if (value2 !== void 0)
       return value2;
     var _a2 = tokens[i], nextType = _a2.type, index = _a2.index;
     throw new TypeError("Unexpected ".concat(nextType, " at ").concat(index, ", expected ").concat(type));
   }, "mustConsume");
-  var consumeText = /* @__PURE__ */ __name(function() {
+  var consumeText = /* @__PURE__ */ __name2(function() {
     var result2 = "";
     var value2;
     while (value2 = tryConsume("CHAR") || tryConsume("ESCAPED_CHAR")) {
@@ -1364,7 +1392,7 @@ function parse(str, options) {
     }
     return result2;
   }, "consumeText");
-  var isSafe = /* @__PURE__ */ __name(function(value2) {
+  var isSafe = /* @__PURE__ */ __name2(function(value2) {
     for (var _i = 0, delimiter_1 = delimiter; _i < delimiter_1.length; _i++) {
       var char2 = delimiter_1[_i];
       if (value2.indexOf(char2) > -1)
@@ -1372,7 +1400,7 @@ function parse(str, options) {
     }
     return false;
   }, "isSafe");
-  var safePattern = /* @__PURE__ */ __name(function(prefix2) {
+  var safePattern = /* @__PURE__ */ __name2(function(prefix2) {
     var prev = result[result.length - 1];
     var prevText = prefix2 || (prev && typeof prev === "string" ? prev : "");
     if (prev && !prevText) {
@@ -1435,12 +1463,14 @@ function parse(str, options) {
   return result;
 }
 __name(parse, "parse");
+__name2(parse, "parse");
 function match(str, options) {
   var keys = [];
   var re = pathToRegexp(str, keys, options);
   return regexpToFunction(re, keys, options);
 }
 __name(match, "match");
+__name2(match, "match");
 function regexpToFunction(re, keys, options) {
   if (options === void 0) {
     options = {};
@@ -1454,7 +1484,7 @@ function regexpToFunction(re, keys, options) {
       return false;
     var path = m[0], index = m.index;
     var params = /* @__PURE__ */ Object.create(null);
-    var _loop_1 = /* @__PURE__ */ __name(function(i2) {
+    var _loop_1 = /* @__PURE__ */ __name2(function(i2) {
       if (m[i2] === void 0)
         return "continue";
       var key = keys[i2 - 1];
@@ -1473,14 +1503,17 @@ function regexpToFunction(re, keys, options) {
   };
 }
 __name(regexpToFunction, "regexpToFunction");
+__name2(regexpToFunction, "regexpToFunction");
 function escapeString(str) {
   return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 }
 __name(escapeString, "escapeString");
+__name2(escapeString, "escapeString");
 function flags(options) {
   return options && options.sensitive ? "" : "i";
 }
 __name(flags, "flags");
+__name2(flags, "flags");
 function regexpToRegexp(path, keys) {
   if (!keys)
     return path;
@@ -1501,6 +1534,7 @@ function regexpToRegexp(path, keys) {
   return path;
 }
 __name(regexpToRegexp, "regexpToRegexp");
+__name2(regexpToRegexp, "regexpToRegexp");
 function arrayToRegexp(paths, keys, options) {
   var parts = paths.map(function(path) {
     return pathToRegexp(path, keys, options).source;
@@ -1508,10 +1542,12 @@ function arrayToRegexp(paths, keys, options) {
   return new RegExp("(?:".concat(parts.join("|"), ")"), flags(options));
 }
 __name(arrayToRegexp, "arrayToRegexp");
+__name2(arrayToRegexp, "arrayToRegexp");
 function stringToRegexp(path, keys, options) {
   return tokensToRegexp(parse(path, options), keys, options);
 }
 __name(stringToRegexp, "stringToRegexp");
+__name2(stringToRegexp, "stringToRegexp");
 function tokensToRegexp(tokens, keys, options) {
   if (options === void 0) {
     options = {};
@@ -1567,6 +1603,7 @@ function tokensToRegexp(tokens, keys, options) {
   return new RegExp(route, flags(options));
 }
 __name(tokensToRegexp, "tokensToRegexp");
+__name2(tokensToRegexp, "tokensToRegexp");
 function pathToRegexp(path, keys, options) {
   if (path instanceof RegExp)
     return regexpToRegexp(path, keys);
@@ -1575,8 +1612,7 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp(path, keys, options);
 }
 __name(pathToRegexp, "pathToRegexp");
-
-// ../node_modules/wrangler/templates/pages-template-worker.ts
+__name2(pathToRegexp, "pathToRegexp");
 var escapeRegex = /[.+?^${}()|[\]\\]/g;
 function* executeRequest(request) {
   const requestPath = new URL(request.url).pathname;
@@ -1627,13 +1663,14 @@ function* executeRequest(request) {
   }
 }
 __name(executeRequest, "executeRequest");
+__name2(executeRequest, "executeRequest");
 var pages_template_worker_default = {
   async fetch(originalRequest, env, workerContext) {
     let request = originalRequest;
     const handlerIterator = executeRequest(request);
     let data = {};
     let isFailOpen = false;
-    const next = /* @__PURE__ */ __name(async (input, init) => {
+    const next = /* @__PURE__ */ __name2(async (input, init) => {
       if (input !== void 0) {
         let url = input;
         if (typeof input === "string") {
@@ -1688,16 +1725,14 @@ var pages_template_worker_default = {
     }
   }
 };
-var cloneResponse = /* @__PURE__ */ __name((response) => (
+var cloneResponse = /* @__PURE__ */ __name2((response) => (
   // https://fetch.spec.whatwg.org/#null-body-status
   new Response(
     [101, 204, 205, 304].includes(response.status) ? null : response.body,
     response
   )
 ), "cloneResponse");
-
-// ../node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } finally {
@@ -1713,8 +1748,6 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
-
-// ../node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
 function reduceError(e) {
   return {
     name: e?.name,
@@ -1724,7 +1757,8 @@ function reduceError(e) {
   };
 }
 __name(reduceError, "reduceError");
-var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+__name2(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } catch (e) {
@@ -1736,20 +1770,17 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
-
-// ../.wrangler/tmp/bundle-wXzluE/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = pages_template_worker_default;
-
-// ../node_modules/wrangler/templates/middleware/common.ts
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
 }
 __name(__facade_register__, "__facade_register__");
+__name2(__facade_register__, "__facade_register__");
 function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   const [head, ...tail] = middlewareChain;
   const middlewareCtx = {
@@ -1761,6 +1792,7 @@ function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   return head(request, env, ctx, middlewareCtx);
 }
 __name(__facade_invokeChain__, "__facade_invokeChain__");
+__name2(__facade_invokeChain__, "__facade_invokeChain__");
 function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   return __facade_invokeChain__(request, env, ctx, dispatch, [
     ...__facade_middleware__,
@@ -1768,9 +1800,8 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 __name(__facade_invoke__, "__facade_invoke__");
-
-// ../.wrangler/tmp/bundle-wXzluE/middleware-loader.entry.ts
-var __Facade_ScheduledController__ = class {
+__name2(__facade_invoke__, "__facade_invoke__");
+var __Facade_ScheduledController__ = /* @__PURE__ */ __name(class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
     this.cron = cron;
@@ -1783,8 +1814,8 @@ var __Facade_ScheduledController__ = class {
     }
     this.#noRetry();
   }
-};
-__name(__Facade_ScheduledController__, "__Facade_ScheduledController__");
+}, "__Facade_ScheduledController__");
+__name2(__Facade_ScheduledController__, "__Facade_ScheduledController__");
 function wrapExportedHandler(worker) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return worker;
@@ -1792,7 +1823,7 @@ function wrapExportedHandler(worker) {
   for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
     __facade_register__(middleware);
   }
-  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+  const fetchDispatcher = /* @__PURE__ */ __name2(function(request, env, ctx) {
     if (worker.fetch === void 0) {
       throw new Error("Handler does not export a fetch() function.");
     }
@@ -1801,7 +1832,7 @@ function wrapExportedHandler(worker) {
   return {
     ...worker,
     fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+      const dispatcher = /* @__PURE__ */ __name2(function(type, init) {
         if (type === "scheduled" && worker.scheduled !== void 0) {
           const controller = new __Facade_ScheduledController__(
             Date.now(),
@@ -1817,6 +1848,7 @@ function wrapExportedHandler(worker) {
   };
 }
 __name(wrapExportedHandler, "wrapExportedHandler");
+__name2(wrapExportedHandler, "wrapExportedHandler");
 function wrapWorkerEntrypoint(klass) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return klass;
@@ -1856,6 +1888,7 @@ function wrapWorkerEntrypoint(klass) {
   };
 }
 __name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+__name2(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
 var WRAPPED_ENTRY;
 if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
@@ -1863,8 +1896,176 @@ if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
 }
 var middleware_loader_entry_default = WRAPPED_ENTRY;
-export {
-  __INTERNAL_WRANGLER_MIDDLEWARE__,
-  middleware_loader_entry_default as default
+
+// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default2 = drainBody2;
+
+// node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError2(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError2(e.cause)
+  };
+}
+__name(reduceError2, "reduceError");
+var jsonError2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError2(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default2 = jsonError2;
+
+// .wrangler/tmp/bundle-y5Ayix/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
+  middleware_ensure_req_body_drained_default2,
+  middleware_miniflare3_json_error_default2
+];
+var middleware_insertion_facade_default2 = middleware_loader_entry_default;
+
+// node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__2 = [];
+function __facade_register__2(...args) {
+  __facade_middleware__2.push(...args.flat());
+}
+__name(__facade_register__2, "__facade_register__");
+function __facade_invokeChain__2(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__2(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__2, "__facade_invokeChain__");
+function __facade_invoke__2(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__2(request, env, ctx, dispatch, [
+    ...__facade_middleware__2,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__2, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-y5Ayix/middleware-loader.entry.ts
+var __Facade_ScheduledController__2 = class {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof __Facade_ScheduledController__2)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
 };
-//# sourceMappingURL=functionsWorker-0.613104982560069.mjs.map
+__name(__Facade_ScheduledController__2, "__Facade_ScheduledController__");
+function wrapExportedHandler2(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__2(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__2(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler2, "wrapExportedHandler");
+function wrapWorkerEntrypoint2(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = (request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    };
+    #dispatcher = (type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__2(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    };
+    fetch(request) {
+      return __facade_invoke__2(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint2, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY2;
+if (typeof middleware_insertion_facade_default2 === "object") {
+  WRAPPED_ENTRY2 = wrapExportedHandler2(middleware_insertion_facade_default2);
+} else if (typeof middleware_insertion_facade_default2 === "function") {
+  WRAPPED_ENTRY2 = wrapWorkerEntrypoint2(middleware_insertion_facade_default2);
+}
+var middleware_loader_entry_default2 = WRAPPED_ENTRY2;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default2 as default
+};
+//# sourceMappingURL=functionsWorker-0.9013463123998205.js.map

@@ -8,3 +8,4 @@ dist
 .env.production
 .env.development
 .env.test
+.dev.vars
