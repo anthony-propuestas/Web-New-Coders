@@ -532,6 +532,16 @@ const LESSONS = [
 
 const START_DATE = new Date('2026-04-01T00:00:00'); // Fecha de inicio del curso
 
+// Metadatos de logros/badges
+const ACHIEVEMENT_META = {
+  primer_dia:  { icon: '🚀', label: 'Primer Paso',           desc: 'Completaste tu primer día' },
+  semana_html: { icon: '🌐', label: 'Maestro HTML',           desc: 'Completaste los 7 días de HTML' },
+  semana_css:  { icon: '🎨', label: 'Maestro CSS',            desc: 'Completaste los 14 días (CSS)' },
+  semana_js:   { icon: '⚡', label: 'Maestro JavaScript',     desc: 'Completaste los 21 días (JS)' },
+  racha_7:     { icon: '🔥', label: 'Racha 7 días',           desc: '7 días consecutivos de práctica' },
+  completado:  { icon: '🏆', label: 'Dev Path Completado',    desc: '¡Los 30 días completados!' },
+};
+
 // Datos del carrusel de Aliados — reemplazar con imagenes y URLs reales
 const CAROUSEL_ITEMS = [
   { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+1', url: 'https://example.com', title: 'Aliado 1', alt: 'Aliado 1' },
@@ -576,22 +586,100 @@ export default function App() {
 
   const [currentView, setCurrentView] = useState('calendar');
   const [selectedDay, setSelectedDay] = useState(null);
-  const [completedLessons, setCompletedLessons] = useState(() => {
-    try {
-      const saved = localStorage.getItem('completedLessons');
-      if (!saved) return [];
-      
-      // ✅ SEGURIDAD: Validar datos recuperados de localStorage
-      const parsed = JSON.parse(saved);
-      if (!Array.isArray(parsed)) return [];
-      
-      // ✅ SEGURIDAD: Filtrar solo números válidos entre 1-30
-      return parsed.filter(day => Number.isInteger(day) && day >= 1 && day <= 30);
-    } catch (error) {
-      console.warn('Error al recuperar datos de localStorage:', error);
-      return [];
+  const [completedLessons, setCompletedLessons] = useState([]);
+  const [profileName, setProfileName] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [progressStats, setProgressStats] = useState({ current_streak: 0, longest_streak: 0 });
+  const [achievements, setAchievements] = useState([]);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [adminUsers, setAdminUsers] = useState([]);
+  const [adminPagination, setAdminPagination] = useState({ page: 1, total: 0, pages: 1 });
+  const [loadingAdmin, setLoadingAdmin] = useState(false);
+
+  // Cargar progreso desde la API
+  useEffect(() => {
+    async function loadProgress() {
+      try {
+        const res = await fetch('/api/progress', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setCompletedLessons(data.completed || []);
+          setProgressStats({ current_streak: data.current_streak, longest_streak: data.longest_streak });
+        }
+      } catch {
+        // Fallback a localStorage si la API no está disponible
+        try {
+          const saved = localStorage.getItem('completedLessons');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+              setCompletedLessons(parsed.filter(day => Number.isInteger(day) && day >= 1 && day <= 30));
+            }
+          }
+        } catch { /* ignorar */ }
+      }
     }
-  });
+    loadProgress();
+  }, []);
+
+  // Cargar logros del usuario
+  useEffect(() => {
+    async function loadAchievements() {
+      try {
+        const res = await fetch('/api/users/achievements', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setAchievements(data.achievements || []);
+        }
+      } catch { /* ignorar */ }
+    }
+    loadAchievements();
+  }, []);
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('¿Estás seguro? Esta acción eliminará tu cuenta permanentemente. Esta operación no puede deshacerse.')) return;
+    if (!window.confirm('Confirmar de nuevo: ¿Deseas eliminar definitivamente tu cuenta y todos tus datos?')) return;
+    setDeletingAccount(true);
+    try {
+      const res = await fetch('/api/users/me', { method: 'DELETE', credentials: 'include' });
+      if (res.ok) {
+        logout();
+      } else {
+        alert('Error al eliminar la cuenta. Por favor intenta de nuevo.');
+      }
+    } catch {
+      alert('Error de conexión. Por favor intenta de nuevo.');
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
+  const loadAdminUsers = async (page = 1) => {
+    setLoadingAdmin(true);
+    try {
+      const res = await fetch(`/api/admin/users?page=${page}&limit=20`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setAdminUsers(data.users || []);
+        setAdminPagination(data.pagination || { page: 1, total: 0, pages: 1 });
+      }
+    } catch { /* ignorar */ } finally {
+      setLoadingAdmin(false);
+    }
+  };
+
+  const handleToggleUserActive = async (userId, currentActive) => {
+    try {
+      await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ user_id: userId, is_active: !currentActive }),
+      });
+      setAdminUsers(prev => prev.map(u => u.id === userId ? { ...u, is_active: !currentActive } : u));
+    } catch { /* ignorar */ }
+  };
 
   const today = new Date();
 
@@ -685,8 +773,7 @@ export default function App() {
     return Math.max(1, Math.min(30, diffDays));
   };
 
-  const handleMarkComplete = (dayNumber) => {
-    // ✅ SEGURIDAD: Validar que dayNumber sea válido
+  const handleMarkComplete = async (dayNumber) => {
     if (!Number.isInteger(dayNumber) || dayNumber < 1 || dayNumber > 30) {
       console.warn('Intento de marcar día inválido:', dayNumber);
       return;
@@ -695,12 +782,54 @@ export default function App() {
     if (!completedLessons.includes(dayNumber)) {
       const newCompleted = [...completedLessons, dayNumber];
       setCompletedLessons(newCompleted);
-      // ✅ SEGURIDAD: Validar antes de guardar en localStorage
+
       try {
-        localStorage.setItem('completedLessons', JSON.stringify(newCompleted));
-      } catch (error) {
-        console.error('Error al guardar en localStorage:', error);
+        const res = await fetch(`/api/progress/${dayNumber}`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+        if (res.ok) {
+          const resData = await res.json();
+
+          // Actualizar achievements si hay nuevos logros
+          if (resData.new_achievements && resData.new_achievements.length > 0) {
+            const achRes = await fetch('/api/users/achievements', { credentials: 'include' });
+            if (achRes.ok) {
+              const achData = await achRes.json();
+              setAchievements(achData.achievements || []);
+            }
+          }
+
+          // Recargar stats para actualizar rachas
+          const statsRes = await fetch('/api/progress', { credentials: 'include' });
+          if (statsRes.ok) {
+            const data = await statsRes.json();
+            setProgressStats({ current_streak: data.current_streak, longest_streak: data.longest_streak });
+          }
+        }
+      } catch {
+        // Fallback: guardar en localStorage
+        try {
+          localStorage.setItem('completedLessons', JSON.stringify(newCompleted));
+        } catch { /* ignorar */ }
       }
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!profileName.trim()) return;
+    setSavingProfile(true);
+    try {
+      await fetch('/api/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ display_name: profileName.trim() }),
+      });
+    } catch {
+      // Ignorar errores silenciosamente
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -1306,6 +1435,113 @@ export default function App() {
     );
   }
 
+  // Admin View
+  if (currentView === 'admin' && user?.role === 'admin') {
+    return (
+      <div className="min-h-screen bg-dark-bg text-text-light font-mono">
+        <header className="border-b border-border-dark p-6" style={{ background: 'linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+          <button onClick={() => setCurrentView('calendar')} className="text-neon-cyan hover:text-neon-green transition mb-4">
+            ← Volver al Calendario
+          </button>
+          <h1 className="text-4xl font-bold text-neon-yellow" style={{ fontFamily: 'Orbitron, monospace' }}>Panel Admin</h1>
+          <p className="text-neon-cyan mt-1">Gestión de usuarios</p>
+        </header>
+        <main className="max-w-6xl mx-auto p-6">
+          <div className="flex gap-3 mb-6">
+            <button
+              onClick={() => loadAdminUsers(1)}
+              className="px-5 py-2 rounded-lg border-2 border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-dark-bg transition-all text-sm font-bold"
+              style={{ fontFamily: 'Orbitron, monospace' }}
+            >
+              {loadingAdmin ? 'Cargando...' : 'Cargar usuarios'}
+            </button>
+            <a
+              href="/api/admin/users"
+              className="px-5 py-2 rounded-lg border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg transition-all text-sm font-bold"
+              style={{ fontFamily: 'Orbitron, monospace' }}
+              onClick={() => setCurrentView('admin')}
+            >
+              Stats →
+            </a>
+          </div>
+
+          {adminUsers.length > 0 && (
+            <div className="rounded-lg border border-border-dark overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border-dark" style={{ background: 'rgba(0,212,255,0.06)' }}>
+                    <th className="text-left p-3 text-neon-cyan">Usuario</th>
+                    <th className="text-left p-3 text-neon-cyan hidden md:table-cell">Email</th>
+                    <th className="text-center p-3 text-neon-cyan">Días</th>
+                    <th className="text-center p-3 text-neon-cyan">Logins</th>
+                    <th className="text-center p-3 text-neon-cyan">Estado</th>
+                    <th className="text-center p-3 text-neon-cyan">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminUsers.map((u, i) => (
+                    <tr key={u.id} className="border-b border-border-dark hover:bg-white/5 transition-colors">
+                      <td className="p-3">
+                        <div className="text-text-light font-semibold">{u.name}</div>
+                        <div className="text-border-dark text-xs">{u.role}</div>
+                      </td>
+                      <td className="p-3 text-text-light/60 hidden md:table-cell text-xs">{u.email}</td>
+                      <td className="p-3 text-center">
+                        <span className="text-neon-green font-bold">{u.lessons_completed}</span>
+                        <span className="text-border-dark">/30</span>
+                      </td>
+                      <td className="p-3 text-center text-neon-cyan">{u.login_count}</td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${u.is_active ? 'bg-neon-green/20 text-neon-green' : 'bg-red-500/20 text-red-400'}`}>
+                          {u.is_active ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </td>
+                      <td className="p-3 text-center">
+                        <button
+                          onClick={() => handleToggleUserActive(u.id, u.is_active)}
+                          className={`px-3 py-1 rounded text-xs font-bold border transition-all ${
+                            u.is_active
+                              ? 'border-red-400 text-red-400 hover:bg-red-400 hover:text-dark-bg'
+                              : 'border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg'
+                          }`}
+                        >
+                          {u.is_active ? 'Desactivar' : 'Activar'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {adminPagination.pages > 1 && (
+                <div className="flex justify-center gap-2 p-4">
+                  {Array.from({ length: adminPagination.pages }, (_, i) => i + 1).map(p => (
+                    <button
+                      key={p}
+                      onClick={() => loadAdminUsers(p)}
+                      className={`w-8 h-8 rounded text-xs font-bold border transition-all ${
+                        p === adminPagination.page
+                          ? 'border-neon-cyan bg-neon-cyan text-dark-bg'
+                          : 'border-border-dark text-text-light hover:border-neon-cyan'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {adminUsers.length === 0 && !loadingAdmin && (
+            <div className="text-center py-16 text-text-light/40">
+              <p className="text-lg mb-4">Presiona "Cargar usuarios" para ver la lista</p>
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
   // Profile View
   if (currentView === 'perfil') {
     return (
@@ -1368,6 +1604,7 @@ export default function App() {
                 <input
                   type="text"
                   defaultValue={user?.name || ''}
+                  onChange={(e) => setProfileName(e.target.value)}
                   className="w-full bg-dark-bg border border-border-dark rounded-lg px-4 py-3 text-text-light focus:border-neon-cyan focus:outline-none transition-colors"
                   style={{ boxShadow: 'inset 0 0 8px rgba(0,212,255,0.05)' }}
                   placeholder="Tu nombre"
@@ -1381,15 +1618,21 @@ export default function App() {
                 <input
                   type="email"
                   defaultValue={user?.email || ''}
-                  className="w-full bg-dark-bg border border-border-dark rounded-lg px-4 py-3 text-text-light focus:border-neon-cyan focus:outline-none transition-colors"
+                  readOnly
+                  className="w-full bg-dark-bg border border-border-dark rounded-lg px-4 py-3 text-text-light/50 cursor-not-allowed"
                   style={{ boxShadow: 'inset 0 0 8px rgba(0,212,255,0.05)' }}
-                  placeholder="tu@correo.com"
                 />
+                <p className="text-xs text-border-dark mt-1">El correo está vinculado a tu cuenta de Google.</p>
               </div>
             </div>
-            <p className="text-xs text-border-dark mt-4">
-              Los cambios se guardarán cuando el backend esté disponible.
-            </p>
+            <button
+              onClick={handleSaveProfile}
+              disabled={savingProfile}
+              className="mt-5 px-6 py-2 rounded-lg border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg transition-all duration-300 text-sm font-bold disabled:opacity-50"
+              style={{ fontFamily: 'Orbitron, monospace' }}
+            >
+              {savingProfile ? 'Guardando...' : 'Guardar cambios'}
+            </button>
           </section>
 
           {/* Progress Summary */}
@@ -1413,16 +1656,101 @@ export default function App() {
                 </div>
               </div>
             </div>
+            {/* Rachas */}
+            <div className="grid grid-cols-2 gap-4 mt-5">
+              <div className="bg-dark-bg rounded-lg p-4 border border-border-dark text-center">
+                <p className="text-neon-cyan text-2xl font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>{progressStats.current_streak}</p>
+                <p className="text-text-light/60 text-xs mt-1">Racha actual</p>
+              </div>
+              <div className="bg-dark-bg rounded-lg p-4 border border-border-dark text-center">
+                <p className="text-neon-purple text-2xl font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>{progressStats.longest_streak}</p>
+                <p className="text-text-light/60 text-xs mt-1">Mejor racha</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Logros / Badges */}
+          {achievements.length > 0 && (
+            <section className="rounded-lg bg-dark-card p-6 border-2 border-neon-purple" style={{ boxShadow: '0 0 20px rgba(191,0,255,0.06)' }}>
+              <h2 className="text-2xl font-bold text-neon-purple mb-4" style={{ fontFamily: 'Orbitron, monospace' }}>Logros</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {achievements.map((a) => {
+                  const meta = ACHIEVEMENT_META[a.type] || { icon: '⭐', label: a.type, desc: '' };
+                  return (
+                    <div key={a.type} className="bg-dark-bg rounded-lg p-3 border border-neon-purple/40 text-center" title={meta.desc}>
+                      <div className="text-3xl mb-1">{meta.icon}</div>
+                      <div className="text-neon-yellow text-xs font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>{meta.label}</div>
+                      <div className="text-border-dark text-xs mt-1">{new Date(a.earned_at).toLocaleDateString('es-ES')}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Certificado (solo si completó 30 días) */}
+          {completedLessons.length >= 30 && (
+            <section className="rounded-lg bg-dark-card p-6 border-2 border-neon-green text-center" style={{ boxShadow: '0 0 30px rgba(0,255,100,0.15)' }}>
+              <div className="text-5xl mb-3">🏆</div>
+              <h2 className="text-2xl font-bold text-neon-green mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>¡Curso Completado!</h2>
+              <p className="text-text-light/70 mb-4 text-sm">Has completado los 30 días del Dev Path. ¡Felicidades!</p>
+              <button
+                onClick={() => setShowCertificate(true)}
+                className="px-6 py-3 rounded-lg border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg transition-all duration-300 font-bold"
+                style={{ fontFamily: 'Orbitron, monospace' }}
+              >
+                Ver Certificado
+              </button>
+            </section>
+          )}
+
+          {/* Admin Panel Link */}
+          {user?.role === 'admin' && (
+            <section className="rounded-lg bg-dark-card p-4 border border-neon-yellow/40 flex items-center justify-between">
+              <div>
+                <p className="text-neon-yellow text-sm font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>Panel de Administración</p>
+                <p className="text-text-light/50 text-xs mt-1">Gestiona usuarios y estadísticas</p>
+              </div>
+              <button
+                onClick={() => { loadAdminUsers(1); setCurrentView('admin'); }}
+                className="px-4 py-2 rounded-lg border border-neon-yellow text-neon-yellow hover:bg-neon-yellow hover:text-dark-bg transition-all text-xs font-bold"
+                style={{ fontFamily: 'Orbitron, monospace' }}
+              >
+                Abrir →
+              </button>
+            </section>
+          )}
+
+          {/* Exportar datos */}
+          <section className="rounded-lg bg-dark-card p-4 border border-border-dark">
+            <h3 className="text-text-light text-sm font-bold mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>Mis Datos (GDPR)</h3>
+            <p className="text-text-light/50 text-xs mb-3">Descarga una copia de todos tus datos almacenados en New Coders.</p>
+            <a
+              href="/api/users/export"
+              download
+              className="inline-block px-4 py-2 rounded-lg border border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-dark-bg transition-all text-xs font-bold"
+              style={{ fontFamily: 'Orbitron, monospace' }}
+            >
+              Descargar mis datos
+            </a>
           </section>
 
           {/* Logout */}
-          <div className="text-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
               onClick={() => { if (window.confirm('¿Deseas cerrar tu sesión?')) logout(); }}
               className="text-sm font-bold py-3 px-8 rounded-lg border-2 border-neon-yellow text-neon-yellow hover:bg-neon-yellow hover:text-dark-bg transition-all duration-300"
               style={{ fontFamily: 'Orbitron, monospace' }}
             >
               Cerrar sesión
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deletingAccount}
+              className="text-sm font-bold py-3 px-8 rounded-lg border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-dark-bg transition-all duration-300 disabled:opacity-50"
+              style={{ fontFamily: 'Orbitron, monospace' }}
+            >
+              {deletingAccount ? 'Eliminando...' : 'Eliminar cuenta'}
             </button>
           </div>
         </main>
@@ -1432,6 +1760,59 @@ export default function App() {
           <p className="text-neon-cyan">✦ Tu perfil en New Coders ✦</p>
           <SocialLinks />
         </footer>
+
+        {/* Modal Certificado */}
+        {showCertificate && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(4,4,15,0.95)' }}
+            onClick={() => setShowCertificate(false)}
+          >
+            <div
+              className="max-w-2xl w-full rounded-2xl p-8 border-2 border-neon-cyan"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,212,255,0.06) 0%, rgba(191,0,255,0.06) 100%)',
+                boxShadow: '0 0 60px rgba(0,212,255,0.3), 0 0 120px rgba(191,0,255,0.2)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <div className="text-6xl mb-4">🏆</div>
+                <div className="text-neon-cyan text-xs uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  New Coders — Certificado de Completación
+                </div>
+                <h2 className="text-3xl font-bold text-neon-green mt-4 mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  {user?.name}
+                </h2>
+                <p className="text-text-light/70 text-base mb-1">ha completado satisfactoriamente el programa</p>
+                <p className="text-neon-yellow text-xl font-bold mb-4" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Dev Path — 30 Días
+                </p>
+                <div className="border-t border-border-dark pt-4 mt-4">
+                  <p className="text-text-light/50 text-xs">HTML · CSS · JavaScript · Python · Git</p>
+                  <p className="text-border-dark text-xs mt-2">
+                    Emitido el {new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </p>
+                </div>
+                <div className="mt-6 flex justify-center gap-3">
+                  <button
+                    onClick={() => setShowCertificate(false)}
+                    className="px-5 py-2 rounded-lg border border-border-dark text-text-light/60 hover:border-neon-cyan hover:text-neon-cyan transition-all text-sm"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="px-5 py-2 rounded-lg border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg transition-all text-sm font-bold"
+                    style={{ fontFamily: 'Orbitron, monospace' }}
+                  >
+                    Imprimir
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

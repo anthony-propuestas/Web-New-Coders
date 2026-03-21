@@ -3,79 +3,89 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const AuthContext = createContext(null);
 
-function decodeAndValidateJwt(token, clientId) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-
-    const payload = JSON.parse(atob(parts[1]));
-
-    // Validar issuer (debe ser Google)
-    const validIssuers = ['accounts.google.com', 'https://accounts.google.com'];
-    if (!validIssuers.includes(payload.iss)) return null;
-
-    // Validar audience (debe coincidir con nuestro Client ID)
-    if (payload.aud !== clientId) return null;
-
-    // Validar expiración
-    if (!payload.exp || payload.exp <= Date.now() / 1000) return null;
-
-    // Campos requeridos
-    if (!payload.email) return null;
-
-    return {
-      name: payload.name || '',
-      email: payload.email,
-      picture: payload.picture || '',
-      exp: payload.exp,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function isTokenValid(user) {
-  if (!user || !user.exp) return false;
-  return user.exp > Date.now() / 1000;
-}
+const API_BASE = '/api';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Restaurar sesión desde cookie al cargar
   useEffect(() => {
+    async function restoreSession() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        }
+      } catch {
+        // Sin sesión válida
+      } finally {
+        // Limpieza legacy
+        localStorage.removeItem('google_auth_credential');
+        sessionStorage.removeItem('google_auth_user');
+        setLoading(false);
+      }
+    }
+    restoreSession();
+  }, []);
+
+  const login = useCallback(async (credentialResponse) => {
     try {
-      const saved = sessionStorage.getItem('google_auth_user');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && isTokenValid(parsed)) {
-          setUser(parsed);
-        } else {
-          sessionStorage.removeItem('google_auth_user');
+      const res = await fetch(`${API_BASE}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      if (!res.ok) {
+        console.error('Login failed:', res.status);
+        return;
+      }
+
+      const data = await res.json();
+      setUser(data.user);
+
+      // Migrar progreso de localStorage al servidor
+      const savedProgress = localStorage.getItem('completedLessons');
+      if (savedProgress) {
+        try {
+          const completedDays = JSON.parse(savedProgress);
+          if (Array.isArray(completedDays) && completedDays.length > 0) {
+            const migrateRes = await fetch(`${API_BASE}/progress/migrate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ completedDays }),
+            });
+            if (migrateRes.ok) {
+              localStorage.removeItem('completedLessons');
+            }
+          }
+        } catch {
+          // Ignorar errores de migración
         }
       }
-    } catch {
-      sessionStorage.removeItem('google_auth_user');
-    }
-    // Limpieza única: eliminar token legacy de localStorage
-    localStorage.removeItem('google_auth_credential');
-    setLoading(false);
-  }, []);
-
-  const login = useCallback((credentialResponse) => {
-    const token = credentialResponse.credential;
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const decoded = decodeAndValidateJwt(token, clientId);
-    if (decoded) {
-      sessionStorage.setItem('google_auth_user', JSON.stringify(decoded));
-      setUser(decoded);
+    } catch (err) {
+      console.error('Login error:', err);
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     const email = user?.email;
+
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {
+      // Continuar con logout local
+    }
+
     setUser(null);
-    sessionStorage.removeItem('google_auth_user');
+
     if (email && window.google?.accounts?.id) {
       window.google.accounts.id.revoke(email, () => {});
     }

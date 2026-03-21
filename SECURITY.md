@@ -3,90 +3,102 @@
 ## Reporte de Auditoria de Seguridad
 
 ### Resumen Ejecutivo
-- **Tipo de Aplicacion**: React SPA (Single Page Application) con Google OAuth
-- **Tipo de Datos**: Contenido educativo + Perfil Google (nombre, email, foto) + Estado local
-- **Autenticacion**: Google OAuth 2.0 con validacion JWT
+- **Tipo de Aplicacion**: React SPA + API REST serverless (Cloudflare Workers + D1)
+- **Tipo de Datos**: Contenido educativo + Perfil Google (nombre, email, foto) + Progreso en servidor
+- **Autenticacion**: Google OAuth 2.0 con verificacion JWT criptografica server-side (RS256 + JWKS)
+- **Sesiones**: HTTP-only cookies server-side persistidas en Cloudflare D1
 - **Nivel de Riesgo General**: BAJO
 
 ---
 
 ## Controles de Seguridad Implementados
 
-### 1. **Autenticacion con Google OAuth**
+### 1. **Autenticacion Server-Side con Google OAuth**
 
 #### Flujo de autenticacion
 ```
 Usuario -> GoogleLogin (boton) -> Google OAuth -> JWT credential
--> decodeAndValidateJwt() -> sessionStorage -> user state
+-> POST /api/auth/google -> verifyGoogleJwt() (RS256 + JWKS)
+-> INSERT sessions (D1) -> Set-Cookie: session=... (HttpOnly; Secure; SameSite=Strict)
+-> useAuth.jsx setUser(data.user)
 ```
 
 #### Implementacion (`src/hooks/useAuth.jsx`)
 ```javascript
-// Login: validar credential y guardar en sessionStorage
-const login = useCallback((credentialResponse) => {
-  const token = credentialResponse.credential;
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const decoded = decodeAndValidateJwt(token, clientId);
-  if (decoded) {
-    sessionStorage.setItem('google_auth_user', JSON.stringify(decoded));
-    setUser(decoded);
+// Login: envia credential al servidor, no procesa nada en cliente
+const login = useCallback(async (credentialResponse) => {
+  const res = await fetch('/api/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ credential: credentialResponse.credential }),
+  });
+  if (res.ok) {
+    const data = await res.json();
+    setUser(data.user);
   }
+}, []);
+```
+
+#### Restauracion de sesion
+```javascript
+// Al cargar la app: consulta al servidor, no lee localStorage/sessionStorage
+useEffect(() => {
+  async function restoreSession() {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (res.ok) {
+      const data = await res.json();
+      setUser(data.user);
+    }
+    // Limpieza de datos legacy de versiones anteriores
+    localStorage.removeItem('google_auth_credential');
+    sessionStorage.removeItem('google_auth_user');
+  }
+  restoreSession();
 }, []);
 ```
 
 #### Logout con revocacion
 ```javascript
-const logout = useCallback(() => {
-  const email = user?.email;
+const logout = useCallback(async () => {
+  // Elimina sesion en servidor (borra de D1 + limpia cookie)
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
   setUser(null);
-  sessionStorage.removeItem('google_auth_user');
+  // Revoca el token de Google
   if (email && window.google?.accounts?.id) {
     window.google.accounts.id.revoke(email, () => {});
   }
 }, [user?.email]);
 ```
 
-#### Auth Gate (`src/App.jsx`)
-```javascript
-// Si no hay usuario autenticado, mostrar pagina de login
-if (!user) return <LoginPage />;
-```
-
 ---
 
-### 2. **Validacion de JWT**
+### 2. **Verificacion Criptografica de JWT (RS256 + JWKS)**
 
-#### Funcion `decodeAndValidateJwt()` (`src/hooks/useAuth.jsx`)
+#### Implementacion (`functions/lib/google-jwt.js`)
 ```javascript
-function decodeAndValidateJwt(token, clientId) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
+export async function verifyGoogleJwt(token, clientId) {
+  const { header, payload, signatureB64, signedContent } = decodeJwtParts(token);
 
-    const payload = JSON.parse(atob(parts[1]));
+  // 1. Verificar algoritmo RS256
+  if (header.alg !== 'RS256') throw new Error('Unsupported algorithm');
 
-    // 1. Validar issuer (debe ser Google)
-    const validIssuers = ['accounts.google.com', 'https://accounts.google.com'];
-    if (!validIssuers.includes(payload.iss)) return null;
+  // 2. Obtener claves publicas de Google (con cache de 1h)
+  const certs = await fetchGoogleCerts(); // https://www.googleapis.com/oauth2/v3/certs
+  const jwk = certs.find((k) => k.kid === header.kid);
 
-    // 2. Validar audience (debe coincidir con nuestro Client ID)
-    if (payload.aud !== clientId) return null;
+  // 3. Verificar firma criptografica con Web Crypto API
+  const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+  const valid = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, signature, data);
+  if (!valid) throw new Error('Invalid JWT signature');
 
-    // 3. Validar expiracion
-    if (!payload.exp || payload.exp <= Date.now() / 1000) return null;
-
-    // 4. Campos requeridos
-    if (!payload.email) return null;
-
-    return {
-      name: payload.name || '',
-      email: payload.email,
-      picture: payload.picture || '',
-      exp: payload.exp,
-    };
-  } catch {
-    return null;
-  }
+  // 4. Validar claims
+  if (!GOOGLE_ISSUERS.includes(payload.iss)) throw new Error('Invalid issuer');
+  if (payload.aud !== clientId) throw new Error('Invalid audience');
+  if (payload.exp < Math.floor(Date.now() / 1000)) throw new Error('Token expired');
+  if (payload.nbf && payload.nbf > now) throw new Error('Token not yet valid');
+  if (!payload.email) throw new Error('Missing email claim');
+  if (!payload.sub) throw new Error('Missing sub claim');
 }
 ```
 
@@ -94,131 +106,211 @@ function decodeAndValidateJwt(token, clientId) {
 | # | Validacion | Descripcion |
 |---|-----------|-------------|
 | 1 | Estructura | Token debe tener 3 partes (header.payload.signature) |
-| 2 | Issuer | Debe ser `accounts.google.com` o `https://accounts.google.com` |
-| 3 | Audience | Debe coincidir con `VITE_GOOGLE_CLIENT_ID` |
-| 4 | Expiracion | `payload.exp` debe ser mayor a `Date.now() / 1000` |
-| 5 | Email | Campo `email` debe existir |
+| 2 | Algoritmo | Solo RS256 aceptado |
+| 3 | Firma | Verificacion criptografica con clave publica Google (JWKS) |
+| 4 | Issuer | Debe ser `accounts.google.com` o `https://accounts.google.com` |
+| 5 | Audience | Debe coincidir con `GOOGLE_CLIENT_ID` (server-side) |
+| 6 | Expiracion | `payload.exp` debe ser mayor al tiempo actual |
+| 7 | nbf | Token no valido antes de su tiempo de emision |
+| 8 | Email | Campo `email` debe existir |
+| 9 | Sub | Campo `sub` (Google ID unico) debe existir |
+
+> **Diferencia clave vs version anterior**: La verificacion anterior usaba `atob()` sin verificar la firma criptografica. La version actual verifica la firma RS256 con las claves publicas de Google via Web Crypto API.
 
 ---
 
-### 3. **Gestion de Sesion**
+### 3. **Gestion de Sesiones Server-Side**
 
-#### sessionStorage para autenticacion
+#### Cookie HTTP-only (`functions/lib/session.js`)
 ```javascript
-// Restaurar sesion al cargar la app
-useEffect(() => {
-  try {
-    const saved = sessionStorage.getItem('google_auth_user');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && isTokenValid(parsed)) {
-        setUser(parsed);
-      } else {
-        sessionStorage.removeItem('google_auth_user');
-      }
-    }
-  } catch {
-    sessionStorage.removeItem('google_auth_user');
-  }
-  // Limpieza unica: eliminar token legacy de localStorage
-  localStorage.removeItem('google_auth_credential');
-  setLoading(false);
-}, []);
+export function sessionCookie(sessionId, maxAge = 72 * 3600) {
+  return `session=${sessionId}; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=${maxAge}`;
+}
 ```
 
-**Ventajas de sessionStorage sobre localStorage:**
-- Los datos se eliminan automaticamente al cerrar la pestana/navegador
-- Aislado por pestana (cada pestana tiene su propia sesion)
-- Reduce la ventana de exposicion de datos de autenticacion
+**Atributos de la cookie:**
+| Atributo | Valor | Proposito |
+|----------|-------|-----------|
+| `HttpOnly` | — | Inaccesible desde JavaScript (previene robo via XSS) |
+| `Secure` | — | Solo se envia por HTTPS |
+| `SameSite=Strict` | — | Previene CSRF (no se envia en requests cross-site) |
+| `Path=/api` | — | Solo se envia a endpoints de la API |
+| `Max-Age=259200` | 72h | Expiracion absoluta |
 
-**Validacion de sesion existente:**
+#### Ciclo de vida de la sesion (`functions/lib/session.js`)
 ```javascript
-function isTokenValid(user) {
-  if (!user || !user.exp) return false;
-  return user.exp > Date.now() / 1000;
+export async function getAuthenticatedUser(db, request) {
+  const sessionId = getSessionId(request);
+
+  // Validar formato del session ID (hex 64 chars)
+  const row = await db.prepare(`
+    SELECT u.*, s.expires_at, s.last_used_at
+    FROM sessions s JOIN users u ON u.id = s.user_id
+    WHERE s.id = ? AND u.is_active = 1
+  `).bind(sessionId).first();
+
+  // Verificar expiracion absoluta (72h)
+  if (new Date(row.expires_at) < now) {
+    await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
+    return null;
+  }
+
+  // Verificar idle timeout (24h sin actividad)
+  const idleHours = (now - new Date(row.last_used_at)) / (1000 * 60 * 60);
+  if (idleHours > 24) {
+    await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
+    return null;
+  }
+
+  // Actualizar last_used_at en cada request autenticado
+  await db.prepare('UPDATE sessions SET last_used_at = datetime(\'now\') WHERE id = ?').bind(sessionId).run();
+}
+```
+
+**Propiedades de la sesion:**
+- **Expiracion absoluta**: 72 horas desde creacion
+- **Idle timeout**: 24 horas sin actividad invalida la sesion
+- **Auto-limpieza**: sesiones expiradas se eliminan al primer acceso fallido
+- **Verificacion de usuario activo**: `is_active = 1` en cada request
+
+---
+
+### 4. **Rate Limiting (`functions/lib/rate-limit.js`)**
+
+Rate limiting por ventana deslizante implementado en D1:
+
+| Tipo | Limite | Ventana | Identificador |
+|------|--------|---------|---------------|
+| `auth` | 10 requests | 60 segundos | IP (`CF-Connecting-IP`) |
+| `progress` | 30 requests | 60 segundos | user_id |
+| `migrate` | 3 requests | 300 segundos | user_id |
+| `profile` | 20 requests | 60 segundos | user_id |
+
+```javascript
+// Respuesta cuando se supera el limite
+return new Response(JSON.stringify({ error: 'Too many requests.' }), {
+  status: 429,
+  headers: { 'Retry-After': String(rateCheck.retryAfter) },
+});
+```
+
+**Comportamiento fail-open**: si la DB de rate limiting falla, se permite el request para no bloquear usuarios legitimos.
+
+---
+
+### 5. **Audit Log (`functions/lib/audit.js`)**
+
+Registro de acciones sensibles en la tabla `audit_log`:
+
+| Accion | Cuando se registra |
+|--------|--------------------|
+| `profile_update` | Usuario actualiza display_name |
+| `account_deleted` | Usuario elimina su cuenta |
+| `data_export` | Usuario exporta sus datos |
+| `certificate_generated` | Usuario genera certificado |
+| `admin_stats_view` | Admin accede a estadisticas |
+| `admin_users_list` | Admin lista usuarios |
+| `admin_user_activated` | Admin activa/desactiva usuario |
+
+Campos registrados: `user_id`, `action`, `details` (JSON), `ip_address`, `created_at`.
+
+---
+
+### 6. **Sanitizacion de Entrada**
+
+#### display_name (`functions/api/users/me.js`)
+```javascript
+// Validaciones en PATCH /api/users/me
+if (typeof display_name !== 'string') return error('must be string', 400);
+
+const trimmed = display_name.trim();
+if (trimmed.length > 100) return error('max 100 chars', 400);
+
+// Rechazar caracteres HTML peligrosos
+if (/[<>&"']/.test(trimmed)) return error('invalid characters', 400);
+
+// Eliminar null bytes y caracteres de control
+const sanitized = trimmed.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+```
+
+#### Validacion de dia en progress
+```javascript
+// CHECK constraint en schema.sql
+day_number INTEGER NOT NULL CHECK (day_number >= 1 AND day_number <= 30)
+```
+
+#### Admin: paginacion segura
+```javascript
+const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
+const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10)));
+```
+
+---
+
+### 7. **GDPR y Privacidad**
+
+#### Soft-delete con anonimizacion (`functions/api/users/me.js`)
+```javascript
+// DELETE /api/users/me — anonimiza datos personales, no elimina registros de progreso
+await db.prepare(`
+  UPDATE users
+  SET email = ?, name = 'Usuario eliminado', display_name = NULL,
+      picture_url = NULL, is_active = 0, google_sub = ?
+  WHERE id = ?
+`).bind(`deleted_${user.id}@deleted.invalid`, `deleted_${user.id}`, user.id).run();
+
+// Elimina todas las sesiones activas
+await db.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id).run();
+```
+
+#### Exportacion de datos (`functions/api/users/export.js`)
+```javascript
+// GET /api/users/export — descarga JSON con todos los datos del usuario
+const exportData = {
+  profile: { id, name, email, role, created_at },
+  progress: { lessons_completed, total },
+  enrollments,
+  achievements,
+  active_sessions: count, // sin IDs por seguridad
+};
+// Content-Disposition: attachment; filename="newcoders-datos-{id}.json"
+```
+
+---
+
+### 8. **Control de Acceso por Roles**
+
+```javascript
+// Endpoints admin requieren role = 'admin' en DB
+const user = await getAuthenticatedUser(db, request);
+if (!user) return errorResponse('Not authenticated', 401, request);
+if (user.role !== 'admin') return errorResponse('Forbidden', 403, request);
+
+// Proteccion adicional: admin no puede desactivarse a si mismo
+if (user_id === admin.id) {
+  return errorResponse('Cannot modify your own account status', 400, request);
 }
 ```
 
 ---
 
-### 4. **Proteccion contra XSS (Cross-Site Scripting)**
+### 9. **Proteccion contra XSS**
 
 #### React escapa HTML automaticamente
 ```jsx
-// React automaticamente escapa contenido de texto
-<p>{lesson.theory}</p>          // HTML es escapado
-<code>{lesson.codeExample.code}</code>  // HTML es escapado
+<p>{lesson.theory}</p>          // HTML escapado por React
+<code>{lesson.codeExample.code}</code>  // HTML escapado por React
 ```
 
 #### Sin uso de innerHTML peligroso
-```javascript
-// NUNCA se usa:
-dangerouslySetInnerHTML={{ __html: userInput }}
+No se usa `dangerouslySetInnerHTML`, `eval()`, ni `Function()` en toda la aplicacion.
 
-// Siempre se usa:
-<p>{userInput}</p> // React lo escapa automaticamente
-```
-
-#### Sin eval() o ejecucion dinamica
-No se usa `eval()`, `Function()`, o evaluacion de codigo dinamico en toda la aplicacion.
+#### Sanitizacion adicional en servidor
+Todos los datos editables por el usuario (display_name) pasan por sanitizacion estricta antes de guardarse en DB.
 
 ---
 
-### 5. **Validacion de Entrada y Estado**
-
-#### Validacion de `selectedDay`
-```javascript
-// SEGURIDAD: Solo aceptar dias validos (1-30)
-if (status !== 'locked' &&
-    Number.isInteger(lesson.day) &&
-    lesson.day >= 1 &&
-    lesson.day <= 30) {
-  setSelectedDay(lesson.day);
-  setCurrentView('lesson');
-}
-```
-
-#### Validacion de `handleMarkComplete()`
-```javascript
-// SEGURIDAD: Validar dayNumber antes de procesar
-if (!Number.isInteger(dayNumber) || dayNumber < 1 || dayNumber > 30) {
-  console.warn('Intento de marcar dia invalido:', dayNumber);
-  return; // Rechazar dia invalido
-}
-```
-
----
-
-### 6. **Seguridad de localStorage**
-
-> **Nota:** `localStorage` se usa SOLO para datos de progreso educativo (`completedLessons`). Los datos de autenticacion se almacenan en `sessionStorage`.
-
-#### Validacion al leer
-```javascript
-const saved = localStorage.getItem('completedLessons');
-if (!saved) return [];
-
-const parsed = JSON.parse(saved);
-if (!Array.isArray(parsed)) return []; // Verificar tipo
-
-// Filtrar solo valores legitimos
-return parsed.filter(day =>
-  Number.isInteger(day) && day >= 1 && day <= 30
-);
-```
-
-#### Validacion al escribir con try/catch
-```javascript
-try {
-  localStorage.setItem('completedLessons', JSON.stringify(newCompleted));
-} catch (error) {
-  console.error('Error al guardar en localStorage:', error);
-}
-```
-
----
-
-### 7. **Content Security Policy (CSP) Implementada**
+### 10. **Content Security Policy (CSP)**
 
 #### Configuracion actual (`index.html`)
 ```html
@@ -237,40 +329,31 @@ try {
 " />
 ```
 
-#### Explicacion de cada directiva
 | Directiva | Valor | Proposito |
 |-----------|-------|-----------|
-| `default-src` | `'self'` | Solo permite recursos del mismo origen |
+| `default-src` | `'self'` | Solo recursos del mismo origen |
 | `script-src` | `'self'` + Google | Scripts propios + Google OAuth SDK |
-| `style-src` | `'self' 'unsafe-inline'` + Google Fonts | Estilos propios + Tailwind inline + Google Fonts |
-| `img-src` | `'self' data:` + Google + placehold.co | Imagenes propias + fotos de perfil Google + placeholders |
-| `font-src` | `'self'` + Google Fonts | Fuentes propias + Orbitron/Source Code Pro |
-| `frame-src` | Google | Popup de Google Sign-In |
-| `connect-src` | `'self'` + Google | Conexiones AJAX al mismo origen + Google |
-| `object-src` | `'none'` | Bloquea plugins (Flash, Java, etc.) |
-| `base-uri` | `'self'` | Previene inyeccion de `<base>` tag |
-| `form-action` | `'self'` | Formularios solo al mismo origen |
-| `frame-ancestors` | `'none'` | Previene clickjacking (no se puede incrustar en iframes) |
-
-> **Nota:** `'unsafe-inline'` en `style-src` es necesario para Tailwind CSS y estilos inline usados en la aplicacion.
+| `style-src` | `'self' 'unsafe-inline'` + Google Fonts | Estilos propios + Tailwind inline |
+| `img-src` | `'self' data:` + Google + placehold.co | Fotos de perfil Google + placeholders |
+| `connect-src` | `'self'` + Google | Fetch a la API propia + Google OAuth |
+| `frame-ancestors` | `'none'` | Previene clickjacking |
+| `object-src` | `'none'` | Bloquea plugins (Flash, etc.) |
 
 ---
 
-### 8. **Security Headers**
+### 11. **Security Headers**
 
-#### Configuracion en desarrollo (`vite.config.js`)
+#### Desarrollo (`vite.config.js`)
 ```javascript
-server: {
-  headers: {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-  },
-},
+headers: {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+}
 ```
 
-#### Configuracion en produccion (`public/_headers`)
+#### Produccion (`public/_headers`)
 ```
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
@@ -279,132 +362,30 @@ server: {
   Referrer-Policy: strict-origin-when-cross-origin
 ```
 
-| Header | Funcion |
-|--------|---------|
-| `Strict-Transport-Security` | Fuerza HTTPS con HSTS preload (1 ano) |
-| `X-Content-Type-Options: nosniff` | Previene MIME type sniffing |
-| `X-Frame-Options: DENY` | Previene clickjacking |
-| `X-XSS-Protection: 1; mode=block` | Activa filtro XSS del navegador (solo dev) |
-| `Referrer-Policy: strict-origin-when-cross-origin` | Limita informacion del referrer |
-
-> Los headers aplican tanto en desarrollo (Vite) como en produccion (Cloudflare Pages via `public/_headers`).
-
 ---
 
-### 9. **Seguridad de Enlaces Externos**
+### 12. **Seguridad de Enlaces Externos**
 
-#### Prevencion de Tabnabbing
 ```jsx
-<a
-  href={resource.url}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="text-neon-cyan hover:text-neon-green underline"
->
-  {resource.label}
-</a>
-```
+// Prevencion de tabnabbing en todos los enlaces externos
+<a href={url} target="_blank" rel="noopener noreferrer">...</a>
 
-- `noopener`: Impide que la pagina nueva acceda a `window.opener`
-- `noreferrer`: No envia informacion del referrer
-
-#### Proteccion de imagenes de perfil
-```jsx
-<img
-  src={user.picture}
-  referrerPolicy="no-referrer"
-/>
+// Fotos de perfil sin filtrado de referrer
+<img src={user.picture} referrerPolicy="no-referrer" />
 ```
 
 ---
 
-### 10. **Variables de Entorno**
+### 13. **Variables de Entorno**
 
-#### Configuracion (`.env.local`)
-```
-VITE_GOOGLE_CLIENT_ID=<Google OAuth Client ID>
-```
+| Variable | Ubicacion | Descripcion |
+|----------|-----------|-------------|
+| `VITE_GOOGLE_CLIENT_ID` | `.env.local` (frontend) | Client ID visible en bundle (OAuth requiere exposicion) |
+| `GOOGLE_CLIENT_ID` | Cloudflare Dashboard | Client ID para validacion server-side |
+| `GOOGLE_CLIENT_SECRET` | Cloudflare Dashboard | Secret nunca expuesto al cliente |
 
-- `.env.local` esta incluido en `.gitignore` (no se sube al repositorio)
-- El prefijo `VITE_` indica que la variable se incluye en el bundle del cliente
-- El Google Client ID es publico por diseno (OAuth requiere que el cliente lo exponga)
-- No se almacenan secretos del servidor (client secret, API keys privadas, etc.)
-
----
-
-### 11. **Auditoria de Dependencias**
-
-#### Dependencias de produccion (3 total)
-```json
-{
-  "@react-oauth/google": "^0.13.4",
-  "react": "^18.2.0",
-  "react-dom": "^18.2.0"
-}
-```
-
-#### Estado de vulnerabilidades
-```bash
-$ npm audit
-# 0 vulnerabilities found
-```
-
-- Superficie de ataque minima con solo 3 dependencias de produccion
-- Todas las dependencias son de fuentes confiables (npm oficial, Google)
-
----
-
-## Vulnerabilidades Identificadas (Bajo Riesgo)
-
-### 1. **localStorage accesible via DevTools**
-```javascript
-// localStorage es accesible desde la consola del navegador
-localStorage.getItem('completedLessons')
-// Cualquiera puede modificar su progreso manualmente
-```
-
-**Impacto**: BAJO (solo contiene progreso educativo, no datos sensibles)
-
-**Mitigacion actual**: Validacion al leer (tipo, rango 1-30)
-
----
-
-### 2. **Codigo educativo mostrado como texto**
-```javascript
-// Leccion 9 tiene un prompt() que es codigo de ejemplo
-adivinanza = parseInt(prompt('Adivina el numero (1-10):'));
-```
-
-**Impacto**: BAJO (es codigo educativo intencional, no se ejecuta)
-
----
-
-### 3. **CSRF**
-Esta es una SPA sin backend propio. La comunicacion con Google OAuth es manejada por el SDK `@react-oauth/google`, que implementa protecciones CSRF internamente siguiendo las mejores practicas de Google Identity Services.
-
----
-
-### 4. **JWT sin verificacion criptografica**
-```javascript
-// La funcion decodeAndValidateJwt() usa atob() para decodificar
-const payload = JSON.parse(atob(parts[1]));
-// Valida issuer, audience, expiracion y email
-// PERO no verifica la firma criptografica del token
-```
-
-**Impacto**: BAJO en el contexto actual
-- El SDK de Google ya valida el token criptograficamente antes de retornarlo
-- No hay backend propio que dependa de este token
-- Las validaciones de issuer/audience/expiracion son una capa adicional de defensa
-
-**Si se agrega un backend**: Se DEBE verificar la firma del JWT en el servidor usando las claves publicas de Google (JWKS).
-
----
-
-### 5. **Security Headers en produccion**
-Los headers de seguridad estan configurados tanto en `vite.config.js` (desarrollo) como en `public/_headers` (produccion en Cloudflare Pages), incluyendo HSTS con preload.
-
-**Impacto**: RESUELTO
+- `.env.local` incluido en `.gitignore`
+- `GOOGLE_CLIENT_SECRET` solo en el servidor, nunca en el bundle del cliente
 
 ---
 
@@ -412,50 +393,81 @@ Los headers de seguridad estan configurados tanto en `vite.config.js` (desarroll
 
 | Aspecto | Estado | Notas |
 |---------|--------|-------|
-| **XSS Protection** | BIEN | React escapa HTML, sin innerHTML, sin eval |
-| **Input Validation** | BIEN | Validacion en handleMarkComplete y selectedDay |
-| **localStorage** | PRESENTE | Validacion de datos; solo progreso educativo |
-| **sessionStorage Auth** | BIEN | Datos de autenticacion en sessionStorage |
+| **XSS Protection** | BIEN | React escapa HTML, sanitizacion server-side de inputs |
+| **Input Validation** | BIEN | display_name: tipo, longitud, chars peligrosos, null bytes |
+| **JWT Signature Verification** | BIEN | RS256 + JWKS via Web Crypto API (server-side) |
+| **HTTP-only Cookies** | BIEN | `HttpOnly; Secure; SameSite=Strict; Path=/api` |
+| **Session Expiry** | BIEN | 72h absoluto + 24h idle timeout, eliminacion activa |
+| **Rate Limiting** | BIEN | Por IP (auth) y por user_id (progreso, perfil, migrate) |
+| **Audit Log** | BIEN | Acciones sensibles y administrativas registradas |
+| **GDPR** | BIEN | Soft-delete con anonimizacion + exportacion de datos |
+| **RBAC** | BIEN | Endpoints admin validados por `role = 'admin'` en DB |
+| **CSRF** | BIEN | `SameSite=Strict` en cookie + Google OAuth SDK |
+| **SQL Injection** | BIEN | Prepared statements con `.bind()` en toda la API |
 | **Tabnabbing** | BIEN | `rel="noopener noreferrer"` en todos los enlaces |
-| **Data Leakage** | BIEN | Solo datos educativos + perfil Google basico |
-| **SQL Injection** | N/A | No hay base de datos |
-| **CSRF** | N/A | Google OAuth SDK maneja proteccion CSRF |
-| **Autenticacion** | BIEN | Google OAuth con validacion JWT |
-| **JWT Validation** | BIEN | Issuer, audience, expiracion, email |
 | **CSP** | IMPLEMENTADA | Meta tag completa en index.html |
 | **Security Headers** | BIEN | Dev (vite.config.js) + Prod (public/_headers con HSTS) |
-| **Variables de Entorno** | BIEN | `.env.local` en `.gitignore` |
-| **Dependencias** | BIEN | 0 vulnerabilidades, 3 deps produccion |
+| **Variables de Entorno** | BIEN | `.env.local` en `.gitignore`, secrets solo en servidor |
+| **Dependencias** | BIEN | Minimas (3 deps produccion), sin vulnerabilidades conocidas |
+| **localStorage Auth** | N/A | Eliminado — auth solo via HTTP-only cookie server-side |
 | **Tests de Seguridad** | PENDIENTE | No existen tests automatizados |
 | **CI/CD Security** | PENDIENTE | No hay pipeline de CI/CD |
 
 ---
 
+## Vulnerabilidades Identificadas (Bajo Riesgo)
+
+### 1. **Progreso editable via DevTools (si se usa antes de login)**
+Antes del primer login, el progreso podria estar en localStorage si el usuario nunca inicio sesion. La migracion al iniciar sesion mueve estos datos al servidor y los valida (solo dias 1-30).
+
+**Impacto**: BAJO — solo contenido educativo, validado al migrar
+
+---
+
+### 2. **Codigo educativo mostrado como texto**
+```javascript
+// Leccion 9 muestra un prompt() como codigo de ejemplo
+adivinanza = parseInt(prompt('Adivina el numero (1-10):'));
+```
+
+**Impacto**: BAJO — es codigo educativo intencional, nunca se ejecuta
+
+---
+
+### 3. **`unsafe-inline` en style-src**
+Necesario para Tailwind CSS y estilos inline de React. Mitiga el riesgo el hecho de que `script-src` no incluye `unsafe-inline`.
+
+**Impacto**: BAJO
+
+---
+
+### 4. **Rate limiting fail-open**
+Si la tabla `rate_limit` en D1 falla, los requests se permiten para no afectar a usuarios legitimos.
+
+**Impacto**: BAJO — un atacante podria explotar una falla de D1 para evitar el rate limit temporalmente
+
+---
+
 ## Recomendaciones para Produccion
 
-### 1. **Headers de seguridad en Cloudflare Pages** (IMPLEMENTADO)
-Archivo `public/_headers` configurado con headers de seguridad para produccion:
-```
-/*
-  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
-  Referrer-Policy: strict-origin-when-cross-origin
-```
-
-### 2. **Tests automatizados de seguridad**
+### 1. **Tests automatizados de seguridad**
 ```javascript
-// Tests para la funcion decodeAndValidateJwt()
-// - Token con issuer invalido -> debe retornar null
-// - Token con audience incorrecta -> debe retornar null
-// - Token expirado -> debe retornar null
-// - Token sin email -> debe retornar null
-// - Token valido -> debe retornar objeto con name, email, picture, exp
+// Tests para verifyGoogleJwt()
+// - Token con firma invalida -> debe lanzar error
+// - Token con issuer invalido -> debe lanzar error
+// - Token con audience incorrecta -> debe lanzar error
+// - Token expirado -> debe lanzar error
+// - Token sin email/sub -> debe lanzar error
+// - Token valido -> debe retornar objeto con sub, email, name, picture
+
+// Tests para checkRateLimit()
+// - Superar limite -> debe retornar { ok: false, retryAfter: N }
+// - Dentro del limite -> debe retornar { ok: true }
 ```
 
-### 3. **CI/CD con escaneo de seguridad**
+### 2. **CI/CD con escaneo de seguridad**
 ```yaml
-# GitHub Actions ejemplo
+# GitHub Actions
 - name: Security audit
   run: npm audit --audit-level=moderate
 
@@ -463,24 +475,13 @@ Archivo `public/_headers` configurado con headers de seguridad para produccion:
 # .github/dependabot.yml
 ```
 
-### 4. **Si se agrega backend:**
-```javascript
-// Verificar firma JWT en el servidor
-// Usar las claves publicas de Google (JWKS)
-// https://www.googleapis.com/oauth2/v3/certs
+### 3. **Rotacion de sesiones post-login**
+Considerar invalidar la sesion anterior del usuario al hacer login desde un nuevo dispositivo.
 
-// Implementar rate limiting
-// Validar datos en servidor (nunca confiar solo en cliente)
-// Usar HTTPS/SSL
-```
-
-### 5. **Auditoria periodica de dependencias**
+### 4. **Auditoria periodica de dependencias**
 ```bash
-# Ejecutar periodicamente
 npm audit
 npm audit fix
-
-# O usar herramientas automatizadas
 npx snyk test
 ```
 
@@ -494,32 +495,35 @@ npx snyk test
 - [Content Security Policy](https://developer.mozilla.org/es/docs/Web/HTTP/CSP)
 - [Google OAuth Security](https://developers.google.com/identity/protocols/oauth2)
 - [JWT Security Best Practices (RFC 8725)](https://datatracker.ietf.org/doc/html/rfc8725)
+- [OWASP Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
 
 ---
 
 ## Conclusion
 
-La aplicacion **tiene un nivel de seguridad ACEPTABLE** para una SPA educativa con autenticacion Google OAuth.
+La aplicacion **tiene un nivel de seguridad SOLIDO** para una plataforma educativa con autenticacion Google OAuth y backend serverless.
+
+**Arquitectura de seguridad actual:**
+- Verificacion JWT criptografica server-side (RS256 + JWKS) — sin vulnerabilidades de validacion client-side
+- Sesiones HTTP-only en servidor con doble timeout (absoluto + idle)
+- Rate limiting multi-capa por IP y por usuario
+- Audit log completo de acciones sensibles
+- Cumplimiento GDPR con soft-delete y exportacion de datos
+- Sin datos de autenticacion en localStorage/sessionStorage
 
 **Datos manejados:**
 - Contenido educativo publico (lecciones de programacion)
-- Perfil basico de Google (nombre, email, foto) — almacenado solo en `sessionStorage`
-- Progreso del curso (dias completados) — almacenado en `localStorage`
+- Perfil basico de Google (nombre, email, foto) — almacenado en D1, no en cliente
+- Progreso del curso (dias completados) — persistido en D1
 
 **Fortalezas principales:**
-- Autenticacion robusta con Google OAuth y validacion JWT
-- CSP completa implementada
-- Superficie de ataque minima (3 dependencias, sin backend)
-- Validacion de entrada en todos los puntos criticos
-
-Las vulnerabilidades identificadas son de **riesgo bajo** ya que:
-- No hay procesamiento de datos financieros
-- No hay almacenamiento server-side de datos personales
-- Los datos de sesion se eliminan al cerrar el navegador
-- El contenido educativo es publico
+- Autenticacion criptograficamente verificada en servidor
+- Cookie HTTP-only inaccesible desde JavaScript
+- Rate limiting previene abuso de API
+- Audit trail para trazabilidad de acciones
 
 ---
 
-**Fecha del Analisis:** Marzo 20, 2026
-**Version de la App:** 1.1.0
+**Fecha del Analisis:** Marzo 21, 2026
+**Version de la App:** 2.0.0
 **Nivel de Severidad:** BAJO

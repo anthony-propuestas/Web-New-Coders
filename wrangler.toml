@@ -1,0 +1,11 @@
+name = "new-coders-web"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "dist"
+
+[vars]
+GOOGLE_CLIENT_ID = "196601122644-13jf8f5fubm7kvo0cn1h7dndm3bk8s98.apps.googleusercontent.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "new-coders-db"
+database_id = "df99f811-1623-4860-b6fe-369e0a77b634" # Se llena después de crear la DB con: npx wrangler d1 create new-coders-db
