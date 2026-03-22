@@ -530,7 +530,7 @@ const LESSONS = [
   }
 ];
 
-const START_DATE = new Date('2026-01-01T00:00:00'); // Fecha de inicio del curso
+const START_DATE = new Date('2026-04-01T00:00:00'); // Fecha de inicio del curso
 
 // Metadatos de logros/badges
 const ACHIEVEMENT_META = {
