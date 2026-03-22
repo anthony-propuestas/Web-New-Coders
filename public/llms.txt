@@ -26,7 +26,6 @@ Sitio web: https://newcoders.org/
 
 ## Contact
 - Organización: New Coders (@NewCodersOrg)
-- Email: propuestas@newcoders.org
 
 ## Tech Stack
 React 18.2, Vite 6.2, Tailwind CSS 3.3, Google OAuth 2.0

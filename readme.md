@@ -2,18 +2,22 @@
 
 Plataforma educativa interactiva tipo calendario que guia a programadores principiantes a traves de un curriculo de 30 dias. Cada dia desbloquea una leccion con teoria, ejemplos de codigo, retos practicos y recursos externos.
 
+**URL de produccion**: https://newcoders.org
+
+**Inicio del curso**: 1 de abril de 2026
+
 ---
 
 ## Caracteristicas
 
-- **Calendario interactivo de 30 dias** con desbloqueo progresivo por fecha
+- **Calendario interactivo de 30 dias** con desbloqueo progresivo por fecha (desde `2026-04-01`)
 - **Autenticacion con Google OAuth 2.0** validada criptograficamente en servidor (RS256 + JWKS)
 - **Sesiones server-side** con HTTP-only cookies (72h expiry, 24h idle timeout)
 - **7 vistas**: Calendario, Leccion, Introduccion, Herramientas, Nosotros, Mi Perfil, Admin
-- **Seguimiento de progreso** persistido en Cloudflare D1 (no localStorage)
+- **Seguimiento de progreso** persistido en Cloudflare D1 (con fallback a localStorage si la API no responde)
 - **Rachas de aprendizaje** — racha actual y racha maxima calculadas en servidor
 - **Perfil editable** — nombre guardado en servidor via API con sanitizacion estricta
-- **Logros (achievements)** — badges ganados por el usuario
+- **Logros (achievements)** — 5 badges: Primer Paso, Maestro HTML, Maestro CSS, Maestro JavaScript, Racha 7 dias, Dev Path Completado
 - **Certificado de completado** — generado al completar los 30 dias
 - **Exportacion de datos** — descarga JSON con datos completos (GDPR)
 - **Eliminacion de cuenta** — soft-delete con anonimizacion de datos (GDPR)
@@ -22,11 +26,11 @@ Plataforma educativa interactiva tipo calendario que guia a programadores princi
 - **Panel de administrador** — estadisticas y gestion de usuarios (role-gated)
 - **API REST serverless** con Cloudflare Workers (auth, progreso, usuarios, admin)
 - **Migracion automatica** de progreso de localStorage a servidor al iniciar sesion
-- **Carrusel de aliados** con auto-scroll responsive
+- **Carrusel de aliados** con auto-scroll responsive (actualmente con imagenes placeholder)
 - **Cuenta regresiva** hasta la fecha de inicio del curso
-- **Tema cyberpunk/neon** con fondo oscuro, bordes brillantes y animaciones
+- **Tema cyberpunk/neon** — fuente Orbitron + Source Code Pro, fondo oscuro, bordes brillantes
 - **Responsive** — grid de 2 columnas (movil) a 5 columnas (desktop)
-- **SEO** — robots.txt, sitemap.xml, llms.txt
+- **SEO** — robots.txt, sitemap.xml, llms.txt, Open Graph, Twitter Card, Schema.org (Organization + Course)
 - **Seguridad** — CSP headers, verificacion JWT criptografica server-side, HTTP-only cookies, headers Cloudflare
 
 ---
@@ -38,12 +42,14 @@ Plataforma educativa interactiva tipo calendario que guia a programadores princi
 | React | 18.2 | UI y manejo de estado |
 | Vite | 6.2 | Build tool y dev server |
 | Tailwind CSS | 3.3 | Estilos utilitarios |
-| @react-oauth/google | 0.13 | Google OAuth 2.0 (frontend) |
-| Cloudflare Workers | — | Backend serverless (API REST) |
-| Cloudflare D1 | — | Base de datos SQLite-compatible |
+| @react-oauth/google | 0.13 | Google OAuth 2.0 (frontend — boton de login) |
+| concurrently | 9.0 | Correr Vite + Wrangler en paralelo en dev |
+| Cloudflare Workers | — | Backend serverless (API REST via Cloudflare Pages Functions) |
+| Cloudflare D1 | — | Base de datos SQLite-compatible (binding: `DB`) |
 | Cloudflare Pages | — | Hosting y despliegue |
-| Wrangler | — | CLI para deploy de Workers y Pages |
+| Wrangler | 3.x | CLI para dev server y deploy |
 | PostCSS + Autoprefixer | — | Procesamiento de CSS |
+| sharp | 0.34 | Optimizacion de imagenes en build |
 
 ---
 
@@ -52,55 +58,82 @@ Plataforma educativa interactiva tipo calendario que guia a programadores princi
 ```
 Web New Coders/
 ├── src/
-│   ├── App.jsx              # Componente principal (vistas, lecciones, logica)
-│   ├── main.jsx             # Entry point con AuthProvider
-│   ├── index.css            # Estilos globales (cyberpunk theme)
+│   ├── App.jsx              # Componente principal: vistas, logica, lecciones, estado
+│   ├── main.jsx             # Entry point — monta <AuthProvider><App /></AuthProvider>
+│   ├── index.css            # Estilos globales (cyberpunk theme, animaciones)
 │   ├── hooks/
-│   │   └── useAuth.jsx      # Context y logica de autenticacion (server-side)
+│   │   └── useAuth.jsx      # AuthContext: login, logout, restauracion de sesion
 │   └── views/
-│       └── LoginPage.jsx    # Pantalla de login con Google
-├── functions/               # Cloudflare Workers — API REST
+│       └── LoginPage.jsx    # Pantalla de login con boton Google
+├── functions/               # Cloudflare Pages Functions — API REST
 │   ├── api/
 │   │   ├── auth/
-│   │   │   ├── google.js    # Verificacion JWT Google (RS256/JWKS) + creacion de sesion
-│   │   │   ├── logout.js    # Cierre de sesion (borra cookie + elimina sesion en DB)
-│   │   │   └── me.js        # Obtener usuario de la sesion activa
+│   │   │   ├── google.js    # POST: verifica JWT Google (RS256/JWKS) + crea sesion en D1
+│   │   │   ├── logout.js    # POST: elimina sesion de D1 + limpia cookie
+│   │   │   └── me.js        # GET: devuelve usuario de sesion activa
 │   │   ├── users/
-│   │   │   ├── me.js        # GET perfil + PATCH display_name + DELETE cuenta (GDPR)
+│   │   │   ├── me.js        # GET perfil / PATCH display_name / DELETE cuenta (GDPR)
 │   │   │   ├── achievements.js  # GET logros del usuario
-│   │   │   ├── certificate.js   # GET certificado de completado (30 dias)
-│   │   │   ├── export.js    # GET exportacion de datos personales (GDPR)
+│   │   │   ├── certificate.js   # GET certificado (requiere 30 dias completados)
+│   │   │   ├── export.js    # GET exportacion JSON de datos personales (GDPR)
 │   │   │   └── delete.js    # Soft-delete con anonimizacion de datos
 │   │   ├── progress/
 │   │   │   ├── index.js     # GET progreso, rachas y estadisticas del usuario
-│   │   │   ├── [day].js     # POST marcar leccion completada (valida 1-30)
+│   │   │   ├── [day].js     # POST marcar dia (1-30) como completado
 │   │   │   └── migrate.js   # POST migrar progreso de localStorage a servidor
 │   │   └── admin/
 │   │       ├── stats.js     # GET estadisticas globales (solo admin)
 │   │       └── users.js     # GET/PATCH gestion de usuarios (solo admin)
 │   └── lib/
-│       ├── cors.js          # Helpers CORS
-│       ├── google-jwt.js    # Verificacion criptografica de JWT Google (RS256 + JWKS)
-│       ├── session.js       # Gestion de sesiones server-side con HTTP-only cookies
-│       ├── rate-limit.js    # Rate limiting por IP y por usuario (D1)
+│       ├── cors.js          # Helpers CORS y respuestas JSON
+│       ├── google-jwt.js    # Verificacion criptografica JWT Google (RS256 + JWKS, cache 1h)
+│       ├── session.js       # Gestion de sesiones: generar, validar, limpiar
+│       ├── rate-limit.js    # Rate limiting por ventana deslizante en D1
 │       └── audit.js         # Registro de acciones en audit_log
 ├── public/
-│   ├── _headers             # Headers de seguridad para Cloudflare Pages
-│   ├── _redirects           # Configuracion SPA routing
+│   ├── _headers             # Headers de seguridad Cloudflare Pages (HSTS, X-Frame-Options)
+│   ├── _redirects           # SPA routing: /* -> /index.html 200
 │   ├── robots.txt           # SEO — instrucciones para crawlers
 │   ├── sitemap.xml          # SEO — mapa del sitio
-│   ├── llms.txt             # Configuracion para LLMs
+│   ├── llms.txt             # Contexto para LLMs
 │   └── favicon.svg
-├── schema.sql               # Esquema de base de datos D1 (7 tablas)
-├── wrangler.toml            # Configuracion de Cloudflare Workers/Pages
-├── index.html               # HTML base con CSP headers
+├── schema.sql               # Esquema D1: 8 tablas
+├── wrangler.toml            # Config Cloudflare: name, compatibility_date, binding D1
+├── index.html               # HTML base: CSP, SEO meta, Open Graph, Schema.org, fonts
 ├── tailwind.config.js       # Colores neon y animaciones personalizadas
-├── vite.config.js           # Configuracion de Vite con security headers
-├── postcss.config.js        # Configuracion PostCSS
+├── vite.config.js           # Config Vite: plugin React, security headers en dev
+├── postcss.config.js        # Config PostCSS
 ├── package.json             # Dependencias y scripts
 ├── .env.local               # VITE_GOOGLE_CLIENT_ID (no incluido en repo)
 └── readme.md
 ```
+
+---
+
+## Flujo de la Aplicacion
+
+### Inicio
+1. `main.jsx` monta `<AuthProvider>` que envuelve la app con `<GoogleOAuthProvider>`
+2. `useAuth.jsx` llama `GET /api/auth/me` al cargar — si hay cookie valida, restaura la sesion
+3. Limpia datos legacy de localStorage/sessionStorage de versiones anteriores
+4. Si no hay sesion: muestra `<LoginPage />`; si hay sesion: muestra `<App />`
+
+### Login
+1. Usuario hace clic en "Continuar con Google" — Google OAuth devuelve un JWT credential
+2. El JWT se envia al servidor via `POST /api/auth/google` (nunca se procesa en el cliente)
+3. El servidor verifica la firma RS256 con las claves publicas de Google (JWKS)
+4. Se hace upsert del usuario en la tabla `users` (actualiza email/nombre/foto si ya existe)
+5. Para usuarios nuevos, se inscribe automaticamente en temporada `S1`
+6. Se crea una sesion en la tabla `sessions` con expiracion a 72h
+7. Se devuelve una HTTP-only cookie con el session ID
+8. Al iniciar sesion, si hay progreso en `localStorage.completedLessons`, se migra al servidor
+
+### Progreso
+- Al cargar `<App />`, se consulta `GET /api/progress` para cargar dias completados y rachas
+- Fallback a `localStorage` si la API no responde (solo lectura)
+- `POST /api/progress/:day` marca un dia como completado (valida rango 1-30)
+- Si hay nuevos logros, se recarga la lista de achievements
+- Las rachas se recalculan en servidor en cada request a `/api/progress`
 
 ---
 
@@ -111,15 +144,14 @@ Web New Coders/
 git clone <url-del-repo>
 cd "Web New Coders"
 
-# 2. Instalar dependencias del frontend
+# 2. Instalar dependencias
 npm install
 
 # 3. Instalar Wrangler (CLI de Cloudflare)
 npm install -g wrangler
 wrangler login
 
-# 4. Configurar variables de entorno del frontend
-# Crear archivo .env.local con tu Google OAuth Client ID:
+# 4. Configurar variable de entorno del frontend
 echo "VITE_GOOGLE_CLIENT_ID=tu-client-id-aqui" > .env.local
 
 # 5. Inicializar la base de datos D1
@@ -129,13 +161,14 @@ wrangler d1 create new-coders-db
 # 6. Aplicar el esquema de la base de datos
 wrangler d1 execute new-coders-db --file=schema.sql
 
-# 7. Iniciar servidor de desarrollo (frontend + Workers + D1)
-wrangler pages dev --compatibility-date=2024-01-01
+# 7. Iniciar servidor de desarrollo (Vite + Wrangler Pages en paralelo)
+npm run dev
+# Vite corre en :5173, Wrangler proxea en :8788 — usar http://localhost:8788
 ```
 
 ### Variables de entorno en Cloudflare Dashboard (produccion)
 
-Configurar en el dashboard de Cloudflare Pages > Settings > Environment Variables:
+Configurar en Cloudflare Pages > Settings > Environment Variables:
 
 | Variable | Descripcion |
 |---|---|
@@ -146,10 +179,9 @@ Configurar en el dashboard de Cloudflare Pages > Settings > Environment Variable
 
 | Comando | Descripcion |
 |---|---|
-| `npm run dev` | Servidor de desarrollo Vite (solo frontend) |
+| `npm run dev` | Dev completo: Vite (:5173) + Wrangler Pages (:8788) en paralelo con `concurrently` |
 | `npm run build` | Build de produccion en `/dist` |
 | `npm run preview` | Preview del build de produccion |
-| `wrangler pages dev` | Dev server completo con Workers y D1 |
 | `wrangler pages deploy dist/` | Deploy a Cloudflare Pages |
 
 ---
@@ -168,8 +200,8 @@ Configurar en el dashboard de Cloudflare Pages > Settings > Environment Variable
 
 | Metodo | Endpoint | Descripcion |
 |---|---|---|
-| `GET` | `/api/progress` | Progreso completo: dias completados, rachas, porcentaje |
-| `POST` | `/api/progress/:day` | Marcar dia (1-30) como completado |
+| `GET` | `/api/progress` | Progreso: dias completados, rachas, porcentaje |
+| `POST` | `/api/progress/:day` | Marcar dia (1-30) como completado + evaluar logros |
 | `POST` | `/api/progress/migrate` | Migrar progreso de localStorage a servidor |
 
 ### Usuarios
@@ -188,27 +220,27 @@ Configurar en el dashboard de Cloudflare Pages > Settings > Environment Variable
 | Metodo | Endpoint | Descripcion |
 |---|---|---|
 | `GET` | `/api/admin/stats` | Estadisticas globales, tasa de completado por leccion |
-| `GET` | `/api/admin/users` | Lista de usuarios con paginacion y busqueda |
-| `PATCH` | `/api/admin/users` | Activar/desactivar usuario |
+| `GET` | `/api/admin/users` | Lista de usuarios con paginacion (limit max 50) y busqueda |
+| `PATCH` | `/api/admin/users` | Activar/desactivar usuario (no puede modificarse a si mismo) |
 
 ---
 
 ## Vistas de la Aplicacion
 
 ### 1. Login
-Pantalla de autenticacion con Google OAuth 2.0. El token se envia al servidor (Cloudflare Worker), que lo verifica criptograficamente con las claves publicas de Google (JWKS/RS256), crea una sesion en D1 y devuelve una HTTP-only cookie. El acceso al contenido requiere sesion activa.
+Pantalla de autenticacion con Google OAuth 2.0. El JWT credential se envia al servidor, que lo verifica criptograficamente, crea una sesion en D1 y devuelve una HTTP-only cookie.
 
 ### 2. Calendario (vista principal)
 Grid de 30 casillas con estados visuales:
-- **Bloqueada** — opacidad baja, icono de candado
+- **Bloqueada** — opacidad baja, icono de candado (fecha futura)
 - **Disponible** — borde neon con efecto glow
 - **Dia actual** — badge "HOY" con animacion pulse
 - **Completada** — checkmark verde
 
-Incluye barra de progreso, cuenta regresiva, y botones de acceso a Intro, Herramientas y Nosotros.
+Incluye barra de progreso global, cuenta regresiva al inicio del curso, y acceso a Intro, Herramientas y Nosotros.
 
 ### 3. Leccion
-Contenido detallado de cada dia:
+Para cada dia:
 - Teoria explicativa
 - Instrucciones paso a paso
 - Prompt para aprender con IA
@@ -216,28 +248,34 @@ Contenido detallado de cada dia:
 - Reto practico
 - Recursos externos
 - Navegacion entre lecciones (anterior/siguiente)
-- Boton "Marcar como completada" (guarda en base de datos)
+- Boton "Marcar como completada" (POST a API + actualiza achievements)
 
 ### 4. Introduccion
-Descripcion del programa, como funciona, y carrusel de aliados/partners.
+Descripcion del programa, como funciona, y carrusel de aliados/partners (actualmente con imagenes placeholder).
 
 ### 5. Herramientas
-Guia de instalacion de herramientas necesarias (VS Code, Chrome, Python, Git, GitHub) y opcionales (Node.js, Netlify, Render). Incluye extensiones recomendadas de VS Code.
+Guia de instalacion de herramientas obligatorias (VS Code, Chrome, Python, Git, GitHub) y opcionales (Node.js, Netlify/Render). Incluye extensiones recomendadas de VS Code.
 
 ### 6. Nosotros
 Mision del equipo, valores (Constancia, Comunidad, Practica, Accesibilidad) y enlaces a la comunidad.
 
 ### 7. Mi Perfil
-Perfil del usuario accesible desde el icono de persona en la esquina superior derecha (visible en todas las vistas). Contiene:
+Accesible desde el icono de persona (visible en todas las vistas):
 - Avatar de Google con nombre y badge de miembro
-- Campo de nombre editable con boton "Guardar cambios" (persiste en servidor via `/api/users/me`)
-- Email de Google (solo lectura, vinculado a cuenta)
+- Campo de nombre editable — persiste en servidor via `PATCH /api/users/me`
+- Email de Google (solo lectura)
 - Barra de progreso con lecciones completadas
-- Racha actual y racha maxima de dias consecutivos (calculadas en servidor)
-- Logros ganados
-- Opcion de exportar datos (GDPR)
-- Opcion de eliminar cuenta (GDPR)
+- Racha actual y racha maxima (calculadas en servidor)
+- Logros ganados con iconos y descripciones
+- Boton de certificado (visible al completar 30 dias)
+- Exportar datos (GDPR) — descarga JSON
+- Eliminar cuenta (GDPR) — doble confirmacion
 - Boton de cierre de sesion
+
+### 8. Admin (role: admin)
+Panel con dos secciones:
+- **Usuarios**: tabla paginada con busqueda, toggle activo/inactivo
+- **Estadisticas**: metricas globales y tasa de completado por leccion
 
 ---
 
@@ -257,33 +295,31 @@ Perfil del usuario accesible desde el icono de persona en la esquina superior de
 
 | Tabla | Descripcion |
 |---|---|
-| `users` | Usuarios registrados via Google OAuth (id, email, name, display_name, role, is_active, login_count, etc.) |
-| `sessions` | Tokens de sesion HTTP-only con expiracion (72h) e idle timeout (24h) |
-| `enrollments` | Registro de temporadas/cohortes por usuario |
-| `lesson_completions` | Progreso individual — dia completado + timestamp |
-| `rate_limit` | Estado de rate limiting por clave (IP o usuario) |
-| `audit_log` | Registro de acciones administrativas y sensibles |
-| `achievements` | Logros/badges ganados por el usuario |
+| `users` | Usuarios registrados via Google OAuth (id, google_sub, email, name, display_name, picture_url, role, is_active, login_count, last_login_at, created_at) |
+| `sessions` | Tokens de sesion HTTP-only: id (hex 64), user_id, expires_at (72h), last_used_at |
+| `enrollments` | Inscripcion por temporada/cohorte (temporada S1 creada automaticamente al primer login) |
+| `lesson_completions` | Progreso individual — user_id, day_number (1-30 CHECK), completed_at |
+| `rate_limit` | Estado de rate limiting por clave (ip:...:auth o user:...) |
+| `audit_log` | Registro de acciones: user_id, action, details (JSON), ip_address, created_at |
+| `achievements` | Logros ganados: user_id, achievement_key, earned_at |
 | `user_settings` | Preferencias del usuario (notificaciones, idioma) |
 
 ---
 
 ## Seguridad
 
-- **Verificacion JWT criptografica** — RS256 + JWKS de Google (`functions/lib/google-jwt.js`)
-- **HTTP-only cookies** para sesiones (inaccesibles desde JavaScript)
+- **Verificacion JWT criptografica** — RS256 + JWKS de Google, via Web Crypto API (`functions/lib/google-jwt.js`)
+- **HTTP-only cookies** para sesiones (`HttpOnly; Secure; SameSite=Strict; Path=/api`)
 - **Sesiones server-side** en D1 con expiracion absoluta (72h) e idle timeout (24h)
-- **Rate limiting** en D1: auth (10/min por IP), progreso (30/min), migracion (3/5min), perfil (20/min)
-- **Audit log** — registro de acciones sensibles (login, eliminacion, exportacion, admin)
-- **Sanitizacion de entrada** — display_name: max 100 chars, sin caracteres HTML (`<>&"'`), sin null bytes
-- **GDPR** — soft-delete con anonimizacion de datos, exportacion de datos personal
-- **Content Security Policy (CSP)** configurada en `index.html`
-- **`public/_headers`** con headers de seguridad para Cloudflare Pages (HSTS, X-Frame-Options, etc.)
-- **Headers en Vite config** para desarrollo (X-Content-Type-Options, X-Frame-Options, etc.)
-- **Validacion de entrada** para numeros de dia (rango 1-30, CHECK en DB)
-- **Control de acceso por roles** — endpoints admin requieren `role = 'admin'`
+- **Rate limiting** en D1: auth (10/min por IP), progreso (30/min por user), migracion (3/5min), perfil (20/min)
+- **Audit log** — acciones sensibles registradas (login, eliminacion, exportacion, admin)
+- **Sanitizacion** — display_name: max 100 chars, sin `<>&"'`, sin null bytes ni caracteres de control
+- **GDPR** — soft-delete con anonimizacion de datos (`deleted_USERID@deleted.invalid`), exportacion JSON
+- **CSP** configurada en `index.html` — incluye `unsafe-inline` en script-src (requerido por Google OAuth SDK)
+- **`public/_headers`** con HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy para Cloudflare Pages
+- **Validacion de dia** — rango 1-30 en API y CHECK constraint en schema.sql
+- **RBAC** — endpoints admin requieren `role = 'admin'` en DB; admin no puede modificarse a si mismo
 - **`rel="noopener noreferrer"`** en todos los enlaces externos
-- **Migracion automatica** de progreso de localStorage a servidor al iniciar sesion
 
 ---
 
@@ -299,13 +335,14 @@ wrangler pages deploy dist/
 
 **Notas:**
 - Configurar `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` en el dashboard de Cloudflare Pages
-- El binding D1 (`DB`) debe estar configurado en `wrangler.toml` con el `database_id` correcto
-- El archivo `public/_headers` configura los headers de seguridad automaticamente en Cloudflare Pages
-- El archivo `public/_redirects` maneja el SPA routing
+- El binding D1 (`DB`) con `database_id = "df99f811-1623-4860-b6fe-369e0a77b634"` ya esta configurado en `wrangler.toml`
+- El archivo `public/_headers` configura los headers de seguridad automaticamente
+- El archivo `public/_redirects` maneja el SPA routing (`/* -> /index.html 200`)
 
 ---
 
 ## Comunidad
 
-- **WhatsApp** — Grupo de la comunidad New Coders
-- **X (Twitter)** — @NewCodersOrg
+- **WhatsApp** — https://chat.whatsapp.com/EBB9GtaKths1ND1CrgAobi
+- **X (Twitter)** — @NewCodersOrg / https://x.com/NewCodersOrg
+

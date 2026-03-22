@@ -234,7 +234,7 @@ export default function LoginPage() {
         </section>
 
         <footer className="mt-14 text-center text-border-dark text-xs">
-          <p>New Coders &copy; 2026 — <a href="mailto:propuestas@newcoders.org" className="hover:text-neon-cyan transition-colors">propuestas@newcoders.org</a></p>
+          <p>New Coders &copy; 2026</p>
         </footer>
       </main>
     </div>
