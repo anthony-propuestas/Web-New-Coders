@@ -163,7 +163,9 @@ wrangler d1 execute new-coders-db --file=schema.sql
 
 # 7. Iniciar servidor de desarrollo (Vite + Wrangler Pages en paralelo)
 npm run dev
-# Vite corre en :5173, Wrangler proxea en :8788 — usar http://localhost:8788
+# Vite corre en :5173, Wrangler Pages (API + proxy) en :8788
+# Vite proxea automaticamente /api -> :8788, por lo que ambos puertos funcionan
+# Recomendado: usar http://localhost:5173 (hot reload + proxy configurado)
 ```
 
 ### Variables de entorno en Cloudflare Dashboard (produccion)
@@ -179,7 +181,7 @@ Configurar en Cloudflare Pages > Settings > Environment Variables:
 
 | Comando | Descripcion |
 |---|---|
-| `npm run dev` | Dev completo: Vite (:5173) + Wrangler Pages (:8788) en paralelo con `concurrently` |
+| `npm run dev` | Dev completo: Vite (:5173) + Wrangler Pages (:8788) en paralelo con `concurrently`. Vite proxea `/api` a :8788 automaticamente. |
 | `npm run build` | Build de produccion en `/dist` |
 | `npm run preview` | Preview del build de produccion |
 | `wrangler pages deploy dist/` | Deploy a Cloudflare Pages |
@@ -288,6 +290,43 @@ Panel con dos secciones:
 | 3 | 15–21 | **JavaScript** — Variables, condicionales, bucles, funciones, arrays, objetos, DOM |
 | 4 | 22–26 | **Eventos, Proyectos y Python** — Eventos JS, To-Do List, Python basico, funciones, estructuras de datos |
 | 5 | 27–30 | **Fullstack y Deploy** — Flask, conexion frontend-backend, Git/GitHub, despliegue en produccion |
+
+### Titulos por dia (todos implementados en `src/App.jsx`)
+
+| Dia | Titulo | Semana |
+|---|---|---|
+| 1 | ¿Que es programar? | HTML |
+| 2 | Conociendo las herramientas | HTML |
+| 3 | Tu primera pagina web | HTML |
+| 4 | Encabezados y parrafos | HTML |
+| 5 | Enlaces e imagenes | HTML |
+| 6 | Listas en HTML | HTML |
+| 7 | Formularios basicos | HTML |
+| 8 | Introduccion a CSS | CSS |
+| 9 | Selectores y colores | CSS |
+| 10 | El modelo de caja (Box Model) | CSS |
+| 11 | Flexbox: disenos flexibles | CSS |
+| 12 | CSS Grid: cuadriculas poderosas | CSS |
+| 13 | Diseno responsive | CSS |
+| 14 | Mini proyecto: landing page | CSS |
+| 15 | JavaScript: tu primer script | JavaScript |
+| 16 | Variables y tipos de datos | JavaScript |
+| 17 | Condicionales: tomando decisiones | JavaScript |
+| 18 | Bucles: repitiendo acciones | JavaScript |
+| 19 | Funciones: bloques reutilizables | JavaScript |
+| 20 | Arrays y objetos | JavaScript |
+| 21 | El DOM: manipulando la pagina | JavaScript |
+| 22 | Eventos: interactividad real | Eventos/Proyectos |
+| 23 | Proyecto JS: lista de tareas | Eventos/Proyectos |
+| 24 | Introduccion a Python | Eventos/Proyectos |
+| 25 | Condicionales y bucles en Python | Eventos/Proyectos |
+| 26 | Funciones y estructuras de datos en Python | Eventos/Proyectos |
+| 27 | Tu primer servidor con Python | Fullstack/Deploy |
+| 28 | Conectando frontend y backend | Fullstack/Deploy |
+| 29 | Git y GitHub: guardando tu codigo | Fullstack/Deploy |
+| 30 | Tu primera app en produccion | Fullstack/Deploy |
+
+> **Estado del contenido**: Dias 1–4 tienen instrucciones paso a paso completas. Dias 5–30 tienen teoria, ejemplos de codigo, retos y recursos implementados.
 
 ---
 
