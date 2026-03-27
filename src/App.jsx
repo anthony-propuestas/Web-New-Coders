@@ -2005,6 +2005,31 @@ export default function App() {
             )}
           </div>
 
+          {/* Luma Event CTA */}
+          <div className="mb-6 rounded-lg border border-neon-yellow p-6 text-center" style={{ background: 'linear-gradient(135deg, rgba(255,0,153,0.06) 0%, rgba(191,0,255,0.08) 100%)' }}>
+            <p className="text-neon-yellow text-xs uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+              ✦ Evento de Lanzamiento ✦
+            </p>
+            <p className="text-text-light text-sm mb-4 leading-relaxed">
+              ¿Listo para el reto? Únete a nuestra <span className="text-neon-cyan font-bold">sesión en vivo de lanzamiento</span> donde arrancaremos juntos los 30 días de código.
+              Conoce a tu comunidad, resuelve dudas y empieza con energía.
+            </p>
+            <a
+              href="https://luma.com/event/evt-HhlGLe6rFYuRLmS"
+              className="luma-checkout--button inline-block font-bold uppercase tracking-wider text-sm px-8 py-3 rounded-lg transition-all duration-300 hover:opacity-90"
+              data-luma-action="checkout"
+              data-luma-event-id="evt-HhlGLe6rFYuRLmS"
+              style={{
+                fontFamily: 'Orbitron, monospace',
+                background: 'linear-gradient(135deg, #00d4ff 0%, #bf00ff 100%)',
+                color: '#04040f',
+                boxShadow: '0 0 20px rgba(0,212,255,0.4)',
+              }}
+            >
+              Inscribirse al Evento →
+            </a>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {/* Casilla especial: New Coders Temporada 1 */}
             <button
