@@ -544,7 +544,7 @@ const ACHIEVEMENT_META = {
 
 // Datos del carrusel de Aliados — reemplazar con imagenes y URLs reales
 const CAROUSEL_ITEMS = [
-  { image: 'https://www.dropbox.com/scl/fi/orl83qpg2vks1nv6h2hlv/WhatsApp-Image-2026-03-28-at-16.46.14.jpeg?rlkey=colyaiy397gnlbkiwk3r0dnuz&st=e9r7u6es&dl=0', url: 'https://sensibilidadesff.xo.je/index.php', title: 'sensibilidadesff', alt: 'Aliado 1' },
+  { image: 'https://i.postimg.cc/0jLjMbH1/Whats-App-Image-2026-03-28-at-16-46-14.jpg', url: 'https://sensibilidadesff.xo.je/index.php', title: 'sensibilidadesff', alt: 'Aliado 1' },
   { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+2', url: 'https://example.com', title: 'Aliado 2', alt: 'Aliado 2' },
   { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+3', url: 'https://example.com', title: 'Aliado 3', alt: 'Aliado 3' },
   { image: 'https://placehold.co/600x340/0a0a1e/a855f7?text=Aliado+4', url: 'https://example.com', title: 'Aliado 4', alt: 'Aliado 4' },
