@@ -774,8 +774,11 @@ export default function App() {
   const getDayStatus = (dayNumber) => {
     const lessonDate = new Date(START_DATE);
     lessonDate.setDate(lessonDate.getDate() + (dayNumber - 1));
-    
-    if (lessonDate > today) {
+
+    const dateUnlocked = lessonDate <= today;
+    const previousCompleted = dayNumber === 1 || completedLessons.includes(dayNumber - 1);
+
+    if (!dateUnlocked || !previousCompleted) {
       return 'locked';
     } else if (completedLessons.includes(dayNumber)) {
       return 'completed';
