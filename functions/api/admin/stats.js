@@ -1,10 +1,10 @@
 import { getAuthenticatedUser } from '../../lib/session.js';
 import { handleOptions, jsonResponse, errorResponse } from '../../lib/cors.js';
 import { logAudit } from '../../lib/audit.js';
-import { getClientIP } from '../../lib/rate-limit.js';
+import { checkRateLimit, getClientIP } from '../../lib/rate-limit.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestGet(context) {
@@ -12,10 +12,18 @@ export async function onRequestGet(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
 
   if (user.role !== 'admin') {
-    return errorResponse('Forbidden', 403, request);
+    return errorResponse('Forbidden', 403, request, env);
+  }
+
+  const rateCheck = await checkRateLimit(db, `user:${user.id}:admin`, 'profile');
+  if (!rateCheck.ok) {
+    return new Response(JSON.stringify({ error: 'Too many requests.' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': String(rateCheck.retryAfter) },
+    });
   }
 
   // Registrar acceso al panel de admin
@@ -99,6 +107,7 @@ export async function onRequestGet(context) {
       enrollments_by_season: seasonMap,
     },
     200,
-    request
+    request,
+    env
   );
 }

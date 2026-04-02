@@ -1,10 +1,10 @@
 import { getAuthenticatedUser } from '../../lib/session.js';
 import { handleOptions, errorResponse, corsHeaders } from '../../lib/cors.js';
 import { logAudit } from '../../lib/audit.js';
-import { getClientIP } from '../../lib/rate-limit.js';
+import { checkRateLimit, getClientIP } from '../../lib/rate-limit.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestGet(context) {
@@ -12,7 +12,15 @@ export async function onRequestGet(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
+
+  const rateCheck = await checkRateLimit(db, `user:${user.id}:export`, 'profile');
+  if (!rateCheck.ok) {
+    return new Response(JSON.stringify({ error: 'Too many requests. Try again later.' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': String(rateCheck.retryAfter) },
+    });
+  }
 
   try {
     // Obtener progreso completo
@@ -68,11 +76,11 @@ export async function onRequestGet(context) {
       headers: {
         'Content-Type': 'application/json',
         'Content-Disposition': `attachment; filename="newcoders-datos-${user.id}.json"`,
-        ...corsHeaders(request),
+        ...corsHeaders(request, env),
       },
     });
   } catch (err) {
     console.error('Export error:', err.message);
-    return errorResponse('Failed to export data', 500, request);
+    return errorResponse('Failed to export data', 500, request, env);
   }
 }

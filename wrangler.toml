@@ -6,3 +6,8 @@ pages_build_output_dir = "dist"
 binding = "DB"
 database_name = "new-coders-db"
 database_id = "df99f811-1623-4860-b6fe-369e0a77b634" # Se llena después de crear la DB con: npx wrangler d1 create new-coders-db
+
+# Secreto requerido para el chatbot IA — configurar con:
+#   wrangler secret put OPENAI_API_KEY
+# Para desarrollo local, agregar en .dev.vars:
+#   OPENAI_API_KEY=sk-...

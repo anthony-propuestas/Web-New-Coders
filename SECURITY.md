@@ -213,7 +213,7 @@ export async function getAuthenticatedUser(db, request) {
 
 **Archivo**: `functions/lib/rate-limit.js`
 
-Implementado con ventana deslizante en D1. Si la DB falla, el request se permite (fail-open) para no bloquear usuarios legitimos.
+Implementado con ventana deslizante en D1. Si la DB falla, el request se **bloquea** (fail-safe) para prevenir abuso cuando el rate limit no puede validarse.
 
 | Tipo | Limite | Ventana | Identificador |
 |---|---|---|---|
@@ -221,6 +221,9 @@ Implementado con ventana deslizante en D1. Si la DB falla, el request se permite
 | `progress` | 30 requests | 60 segundos | `user:<user_id>` |
 | `migrate` | 3 requests | 300 segundos | `user:<user_id>` |
 | `profile` | 20 requests | 60 segundos | `user:<user_id>` |
+| `chat` | 10 requests | 60 segundos | `user:<user_id>:chat` o `ip:<ip>:chat` |
+| `chat_mensual` | 100 requests | 2592000 segundos (30 dias) | `user:<user_id>:chat_mensual` o `ip:<ip>:chat_mensual` |
+| `chat_global_mensual` | 1000 requests | 2592000 segundos (30 dias) | `global:chat` |
 
 Respuesta al superar el limite:
 ```json
@@ -239,6 +242,9 @@ Registro en la tabla `audit_log` de acciones sensibles:
 
 | Accion | Cuando |
 |---|---|
+| `login_success` | Login OAuth exitoso (incluye email e IP) |
+| `login_failed` | Fallo de verificacion JWT (incluye razon e IP) |
+| `logout` | Cierre de sesion (incluye user_id e IP) |
 | `profile_update` | Usuario actualiza display_name |
 | `account_deleted` | Usuario elimina su cuenta |
 | `data_export` | Usuario exporta sus datos |
@@ -414,9 +420,26 @@ headers: {
 | `VITE_GOOGLE_CLIENT_ID` | `.env.local` (no en repo) | Client ID visible en bundle (OAuth requiere exposicion en frontend) |
 | `GOOGLE_CLIENT_ID` | Cloudflare Dashboard | Client ID para validacion server-side del JWT |
 | `GOOGLE_CLIENT_SECRET` | Cloudflare Dashboard | Secret nunca expuesto al cliente |
+| `OPENAI_API_KEY` | Cloudflare Dashboard / `.dev.vars` | API key del chatbot — nunca expuesta al cliente ni al bundle |
 
 - `.env.local` incluido en `.gitignore`
 - `GOOGLE_CLIENT_SECRET` solo en el servidor (Cloudflare env vars), nunca en el bundle
+- `OPENAI_API_KEY` solo en el servidor (Cloudflare secret o `.dev.vars`), nunca en el bundle
+
+---
+
+### 14. Seguridad del Chatbot IA
+
+**Archivo**: `functions/api/chat/index.js`
+
+- La `OPENAI_API_KEY` solo existe en el servidor (Cloudflare secret o `.dev.vars`); el cliente nunca la recibe ni la accede
+- El historial de conversacion enviado a OpenAI se limita a los ultimos 10 mensajes (max 500 chars/mensaje)
+- El sistema prompt restringe al bot a responder unicamente sobre el contenido del curso
+- Tres niveles de rate limiting previenen abuso y controlan costos:
+  - **10 msg/minuto** por usuario/IP — anti-spam
+  - **100 msg/mes** por usuario — equidad entre usuarios
+  - **1000 msg/mes** global — techo de costo garantizado (~$0.25/mes maximo)
+- Si la DB falla, el rate limit actua en modo **fail-safe** (bloquea la peticion para prevenir abuso)
 
 ---
 
@@ -429,9 +452,9 @@ headers: {
 | **JWT Verification** | BIEN | RS256 + JWKS via Web Crypto API, 10 validaciones en total |
 | **HTTP-only Cookies** | BIEN | `HttpOnly; Secure; SameSite=Strict; Path=/api` |
 | **Session Expiry** | BIEN | 72h absoluto + 24h idle timeout + eliminacion activa |
-| **Rate Limiting** | BIEN | Por IP (auth) y por user_id (progreso, perfil, migrate) |
-| **Audit Log** | BIEN | 7 acciones sensibles y administrativas registradas |
-| **GDPR** | BIEN | Soft-delete con anonimizacion + exportacion JSON + doble confirmacion |
+| **Rate Limiting** | BIEN | Por IP (auth) y por user_id (progreso, perfil, migrate, export, admin). Fail-safe si DB falla. |
+| **Audit Log** | BIEN | 10 acciones registradas: login, logout, fallos, perfil, eliminacion, export, certificado, admin |
+| **GDPR** | BIEN | Soft-delete con anonimizacion + exportacion JSON + confirmacion requerida en DELETE |
 | **RBAC** | BIEN | role validado en DB, admin no puede modificarse a si mismo |
 | **CSRF** | BIEN | `SameSite=Strict` + Google OAuth SDK |
 | **SQL Injection** | BIEN | Prepared statements con `.bind()` en todos los queries D1 |
@@ -441,6 +464,10 @@ headers: {
 | **Variables de Entorno** | BIEN | `.env.local` en gitignore, secrets solo en servidor |
 | **Dependencias** | BIEN | 3 deps produccion (react, react-dom, @react-oauth/google) |
 | **localStorage Auth** | ELIMINADO | Auth solo via HTTP-only cookie server-side |
+| **API Key OpenAI** | BIEN | Solo en servidor (Cloudflare secret), nunca expuesta al cliente ni al bundle |
+| **Chatbot Rate Limiting** | BIEN | 3 niveles: 10/min anti-spam + 100/mes por usuario + 1000/mes global |
+| **Prompt Injection** | BIEN | Patrones de injection detectados y rechazados antes de enviar a OpenAI |
+| **CORS Dev Origins** | BIEN | Origenes de desarrollo via `DEV_ORIGINS` en `.dev.vars`, no hardcodeados |
 | **Tests de Seguridad** | PENDIENTE | No existen tests automatizados |
 | **CI/CD Security** | PENDIENTE | No hay pipeline de CI/CD |
 
@@ -458,10 +485,10 @@ Necesario para el SDK de Google OAuth. `unsafe-eval` no esta incluido y los scri
 
 **Impacto**: BAJO
 
-### 3. Rate limiting fail-open
-Si la tabla `rate_limit` en D1 falla, los requests se permiten para no afectar usuarios legitimos.
+### 3. Rate limiting — comportamiento ante fallo de DB
+Si la tabla `rate_limit` en D1 falla, los requests se **bloquean** (fail-safe). Se retorna HTTP 429 con `Retry-After` para proteger el sistema incluso durante fallos de base de datos.
 
-**Impacto**: BAJO — un atacante necesitaria que D1 falle para explotar esto temporalmente.
+**Estado**: CORREGIDO (fail-open → fail-safe)
 
 ### 4. Cache de JWKS en memoria del Worker
 Las claves publicas de Google se cachean en memoria del Worker por 1 hora. Si Google rota claves, podria haber un lapso hasta que el cache expire.
@@ -531,6 +558,11 @@ La aplicacion tiene un nivel de seguridad **SOLIDO** para una plataforma educati
 
 ---
 
-**Fecha del Analisis:** Marzo 21, 2026
-**Version de la App:** 2.0.0
+**Nota sobre `unsafe-inline` en script-src (CSP):** Este flag es requerido por el SDK `@react-oauth/google` para el boton de autenticacion de Google. No es posible eliminarlo sin cambiar la libreria de OAuth. El riesgo se mitiga porque `unsafe-eval` nunca se incluye, y todos los origenes de scripts externos estan restringidos a dominios verificados (Google, Cloudflare). Esta excepcion es deliberada y debe mantenerse documentada.
+
+---
+
+**Fecha del Analisis:** Abril 2, 2026
+**Ultima Actualizacion:** Abril 2, 2026 (auditoria de seguridad completa)
+**Version de la App:** 2.1.0
 **Nivel de Severidad:** BAJO

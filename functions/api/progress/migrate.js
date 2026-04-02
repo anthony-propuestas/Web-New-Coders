@@ -2,7 +2,7 @@ import { getAuthenticatedUser } from '../../lib/session.js';
 import { handleOptions, jsonResponse, errorResponse } from '../../lib/cors.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestPost(context) {
@@ -10,14 +10,14 @@ export async function onRequestPost(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
 
   try {
     const body = await request.json();
     const { completedDays } = body;
 
     if (!Array.isArray(completedDays)) {
-      return errorResponse('completedDays must be an array', 400, request);
+      return errorResponse('completedDays must be an array', 400, request, env);
     }
 
     // Filtrar y validar días
@@ -26,7 +26,7 @@ export async function onRequestPost(context) {
     );
 
     if (validDays.length === 0) {
-      return jsonResponse({ ok: true, migrated: 0 }, 200, request);
+      return jsonResponse({ ok: true, migrated: 0 }, 200, request, env);
     }
 
     // Insertar cada día (ignorar duplicados)
@@ -37,9 +37,9 @@ export async function onRequestPost(context) {
     const batch = validDays.map((day) => stmt.bind(user.id, day));
     await db.batch(batch);
 
-    return jsonResponse({ ok: true, migrated: validDays.length }, 200, request);
+    return jsonResponse({ ok: true, migrated: validDays.length }, 200, request, env);
   } catch (err) {
     console.error('Migration error:', err.message);
-    return errorResponse('Migration failed', 500, request);
+    return errorResponse('Migration failed', 500, request, env);
   }
 }

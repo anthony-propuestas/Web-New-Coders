@@ -21,7 +21,8 @@ Plataforma educativa interactiva tipo calendario que guia a programadores princi
 - **Certificado de completado** — generado al completar los 30 dias
 - **Exportacion de datos** — descarga JSON con datos completos (GDPR)
 - **Eliminacion de cuenta** — soft-delete con anonimizacion de datos (GDPR)
-- **Rate limiting** — por IP (auth) y por usuario (progreso, perfil, migracion)
+- **Asistente virtual con IA** — chatbot flotante impulsado por OpenAI gpt-4o-mini, limitado al contenido del curso, con rate limiting de 3 niveles (10/min, 100/mes por usuario, 1000/mes global)
+- **Rate limiting** — por IP (auth) y por usuario (progreso, perfil, migracion, chat)
 - **Audit log** — registro de acciones sensibles y administrativas
 - **Panel de administrador** — estadisticas y gestion de usuarios (role-gated)
 - **API REST serverless** con Cloudflare Workers (auth, progreso, usuarios, admin)
@@ -81,6 +82,8 @@ Web New Coders/
 │   │   │   ├── index.js     # GET progreso, rachas y estadisticas del usuario
 │   │   │   ├── [day].js     # POST marcar dia (1-30) como completado
 │   │   │   └── migrate.js   # POST migrar progreso de localStorage a servidor
+│   │   ├── chat/
+│   │   │   └── index.js     # POST proxy hacia OpenAI gpt-4o-mini (3 niveles de rate limit)
 │   │   └── admin/
 │   │       ├── stats.js     # GET estadisticas globales (solo admin)
 │   │       └── users.js     # GET/PATCH gestion de usuarios (solo admin)
@@ -176,6 +179,7 @@ Configurar en Cloudflare Pages > Settings > Environment Variables:
 |---|---|
 | `GOOGLE_CLIENT_ID` | Client ID de Google OAuth |
 | `GOOGLE_CLIENT_SECRET` | Client Secret de Google OAuth |
+| `OPENAI_API_KEY` | API key de OpenAI para el chatbot (`wrangler secret put OPENAI_API_KEY`) |
 
 ### Scripts disponibles
 
@@ -224,6 +228,12 @@ Configurar en Cloudflare Pages > Settings > Environment Variables:
 | `GET` | `/api/admin/stats` | Estadisticas globales, tasa de completado por leccion |
 | `GET` | `/api/admin/users` | Lista de usuarios con paginacion (limit max 50) y busqueda |
 | `PATCH` | `/api/admin/users` | Activar/desactivar usuario (no puede modificarse a si mismo) |
+
+### Chatbot IA
+
+| Metodo | Endpoint | Descripcion |
+|---|---|---|
+| `POST` | `/api/chat` | Enviar mensaje al asistente virtual (requiere `OPENAI_API_KEY`) |
 
 ---
 
@@ -350,7 +360,7 @@ Panel con dos secciones:
 - **Verificacion JWT criptografica** — RS256 + JWKS de Google, via Web Crypto API (`functions/lib/google-jwt.js`)
 - **HTTP-only cookies** para sesiones (`HttpOnly; Secure; SameSite=Strict; Path=/api`)
 - **Sesiones server-side** en D1 con expiracion absoluta (72h) e idle timeout (24h)
-- **Rate limiting** en D1: auth (10/min por IP), progreso (30/min por user), migracion (3/5min), perfil (20/min)
+- **Rate limiting** en D1: auth (10/min por IP), progreso (30/min por user), migracion (3/5min), perfil (20/min), chat (10/min por user/IP, 100/mes por user, 1000/mes global)
 - **Audit log** — acciones sensibles registradas (login, eliminacion, exportacion, admin)
 - **Sanitizacion** — display_name: max 100 chars, sin `<>&"'`, sin null bytes ni caracteres de control
 - **GDPR** — soft-delete con anonimizacion de datos (`deleted_USERID@deleted.invalid`), exportacion JSON
@@ -377,6 +387,7 @@ wrangler pages deploy dist/
 - El binding D1 (`DB`) con `database_id = "df99f811-1623-4860-b6fe-369e0a77b634"` ya esta configurado en `wrangler.toml`
 - El archivo `public/_headers` configura los headers de seguridad automaticamente
 - El archivo `public/_redirects` maneja el SPA routing (`/* -> /index.html 200`)
+- Para el chatbot: configurar `OPENAI_API_KEY` como secret con `wrangler secret put OPENAI_API_KEY`
 
 ---
 

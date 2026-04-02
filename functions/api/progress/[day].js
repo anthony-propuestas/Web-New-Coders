@@ -109,7 +109,7 @@ async function getStreakData(db, userId) {
 }
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestPost(context) {
@@ -117,7 +117,7 @@ export async function onRequestPost(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
 
   // Rate limiting: máximo 30 peticiones de progreso por minuto
   const rateCheck = await checkRateLimit(db, `user:${user.id}:progress`, 'progress');
@@ -131,7 +131,7 @@ export async function onRequestPost(context) {
   const dayNumber = parseInt(params.day, 10);
 
   if (!Number.isInteger(dayNumber) || dayNumber < 1 || dayNumber > 30) {
-    return errorResponse('Invalid day number. Must be between 1 and 30.', 400, request);
+    return errorResponse('Invalid day number. Must be between 1 and 30.', 400, request, env);
   }
 
   try {
@@ -143,9 +143,9 @@ export async function onRequestPost(context) {
     // Verificar y otorgar logros nuevos
     const newAchievements = await checkAndGrantAchievements(db, user.id);
 
-    return jsonResponse({ ok: true, day: dayNumber, new_achievements: newAchievements }, 200, request);
+    return jsonResponse({ ok: true, day: dayNumber, new_achievements: newAchievements }, 200, request, env);
   } catch (err) {
     console.error('Progress error:', err.message);
-    return errorResponse('Failed to save progress', 500, request);
+    return errorResponse('Failed to save progress', 500, request, env);
   }
 }

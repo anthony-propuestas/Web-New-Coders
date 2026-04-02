@@ -19,6 +19,7 @@ Sitio web: https://newcoders.org/
 - Seguimiento de progreso con barra visual
 - Autenticación segura con Google OAuth
 - Comunidad activa en WhatsApp
+- Asistente virtual de IA integrado (OpenAI gpt-4o-mini), limitado al contenido del curso
 
 ## Community
 - WhatsApp: https://chat.whatsapp.com/EBB9GtaKths1ND1CrgAobi
@@ -28,4 +29,4 @@ Sitio web: https://newcoders.org/
 - Organización: New Coders (@NewCodersOrg)
 
 ## Tech Stack
-React 18.2, Vite 6.2, Tailwind CSS 3.3, Google OAuth 2.0
+React 18.2, Vite 6.2, Tailwind CSS 3.3, Google OAuth 2.0, OpenAI gpt-4o-mini (backend chatbot via Cloudflare Functions)

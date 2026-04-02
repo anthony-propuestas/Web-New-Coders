@@ -67,6 +67,7 @@ npm run build && wrangler pages deploy dist/
 │   │   ├── auth/            # google.js, logout.js, me.js
 │   │   ├── users/           # me.js, achievements.js, certificate.js, export.js, delete.js
 │   │   ├── progress/        # index.js, [day].js, migrate.js
+│   │   ├── chat/            # index.js — proxy OpenAI gpt-4o-mini (3-tier rate limit)
 │   │   └── admin/           # stats.js, users.js
 │   └── lib/                 # cors.js, google-jwt.js, session.js, rate-limit.js, audit.js
 │
@@ -128,6 +129,7 @@ VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
+OPENAI_API_KEY=sk-...        # Required for chatbot — wrangler secret put OPENAI_API_KEY
 ```
 
 Never commit `.env`, `.env.local`, `.env.*.local`, or `.dev.vars`.
@@ -154,6 +156,7 @@ All endpoints are under `/api`. Authentication uses HTTP-only cookies (`session_
 | POST | `/api/progress/migrate` | Yes | Migrate from localStorage |
 | GET | `/api/admin/stats` | Admin | Global statistics |
 | GET/PATCH | `/api/admin/users` | Admin | User management |
+| POST | `/api/chat` | No | Send message to AI assistant (rate-limited) |
 
 ---
 
@@ -164,7 +167,7 @@ These are intentional and must not be changed without careful consideration:
 1. **Sessions are HTTP-only cookies** — Do not expose session tokens to JavaScript.
 2. **JWT verification is RS256 only** — Uses Web Crypto API and Google JWKS. Never accept HS256.
 3. **JWKS cache is 1 hour** — Do not reduce this; it would cause excessive Google API calls.
-4. **Rate limiting is enforced server-side** — Auth: 10/min per IP. Progress: 30/min per user. Profile: 20/min per user.
+4. **Rate limiting is enforced server-side** — Auth: 10/min per IP. Progress: 30/min per user. Profile: 20/min per user. Chat: 10/min per user/IP, 100/month per user, 1000/month global.
 5. **`display_name` sanitization** — Max 100 chars, strip `<>&"'` and null bytes.
 6. **Admin endpoints check `role = 'admin'`** — Never relax this guard.
 7. **GDPR soft-delete** — `DELETE /api/users/me` anonymizes data; do not hard-delete.

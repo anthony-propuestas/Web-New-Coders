@@ -6,6 +6,9 @@ const LIMITS = {
   progress: { max: 30, windowSeconds: 60  }, // 30 peticiones/minuto por usuario
   migrate:  { max: 3,  windowSeconds: 300 }, // 3 migraciones/5min por usuario
   profile:  { max: 20, windowSeconds: 60  }, // 20 actualizaciones/minuto por usuario
+  chat:               { max: 10,   windowSeconds: 60      }, // 10 mensajes/minuto por usuario o IP
+  chat_mensual:       { max: 100,  windowSeconds: 2592000 }, // 100 mensajes/30 días por usuario
+  chat_global_mensual:{ max: 1000, windowSeconds: 2592000 }, // 1000 mensajes/30 días en total
 };
 
 /**
@@ -52,7 +55,7 @@ export async function checkRateLimit(db, key, type) {
     return { ok: true };
   } catch (err) {
     console.error('Rate limit error:', err.message);
-    return { ok: true }; // fail-open: no bloquear usuarios legítimos si la DB falla
+    return { ok: false, retryAfter: limit.windowSeconds, dbError: true }; // fail-safe: bloquear si la DB no está disponible
   }
 }
 

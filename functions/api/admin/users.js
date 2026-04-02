@@ -1,10 +1,10 @@
 import { getAuthenticatedUser } from '../../lib/session.js';
 import { handleOptions, jsonResponse, errorResponse } from '../../lib/cors.js';
 import { logAudit } from '../../lib/audit.js';
-import { getClientIP } from '../../lib/rate-limit.js';
+import { checkRateLimit, getClientIP } from '../../lib/rate-limit.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 // GET /api/admin/users — Lista usuarios con filtros y paginación
@@ -13,14 +13,23 @@ export async function onRequestGet(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
-  if (user.role !== 'admin') return errorResponse('Forbidden', 403, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
+  if (user.role !== 'admin') return errorResponse('Forbidden', 403, request, env);
+
+  const rateCheckGet = await checkRateLimit(db, `user:${user.id}:admin`, 'profile');
+  if (!rateCheckGet.ok) {
+    return new Response(JSON.stringify({ error: 'Too many requests.' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': String(rateCheckGet.retryAfter) },
+    });
+  }
 
   const url = new URL(request.url);
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
   const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10)));
   const offset = (page - 1) * limit;
-  const search = url.searchParams.get('search') || '';
+  const rawSearch = url.searchParams.get('search') || '';
+  const search = rawSearch.trim().slice(0, 100).replace(/^[%\s]+$/, '');
   const activeOnly = url.searchParams.get('active') !== 'false';
 
   try {
@@ -86,11 +95,12 @@ export async function onRequestGet(context) {
         },
       },
       200,
-      request
+      request,
+      env
     );
   } catch (err) {
     console.error('Admin users list error:', err.message);
-    return errorResponse('Failed to list users', 500, request);
+    return errorResponse('Failed to list users', 500, request, env);
   }
 }
 
@@ -100,20 +110,28 @@ export async function onRequestPatch(context) {
   const db = env.DB;
 
   const admin = await getAuthenticatedUser(db, request);
-  if (!admin) return errorResponse('Not authenticated', 401, request);
-  if (admin.role !== 'admin') return errorResponse('Forbidden', 403, request);
+  if (!admin) return errorResponse('Not authenticated', 401, request, env);
+  if (admin.role !== 'admin') return errorResponse('Forbidden', 403, request, env);
+
+  const rateCheckPatch = await checkRateLimit(db, `user:${admin.id}:admin`, 'profile');
+  if (!rateCheckPatch.ok) {
+    return new Response(JSON.stringify({ error: 'Too many requests.' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': String(rateCheckPatch.retryAfter) },
+    });
+  }
 
   try {
     const body = await request.json();
     const { user_id, is_active } = body;
 
     if (!user_id || typeof is_active !== 'boolean') {
-      return errorResponse('user_id and is_active (boolean) are required', 400, request);
+      return errorResponse('user_id and is_active (boolean) are required', 400, request, env);
     }
 
     // No permitir que el admin se desactive a sí mismo
     if (user_id === admin.id) {
-      return errorResponse('Cannot modify your own account status', 400, request);
+      return errorResponse('Cannot modify your own account status', 400, request, env);
     }
 
     await db
@@ -133,9 +151,9 @@ export async function onRequestPatch(context) {
       ip: getClientIP(request),
     });
 
-    return jsonResponse({ ok: true }, 200, request);
+    return jsonResponse({ ok: true }, 200, request, env);
   } catch (err) {
     console.error('Admin user update error:', err.message);
-    return errorResponse('Failed to update user', 500, request);
+    return errorResponse('Failed to update user', 500, request, env);
   }
 }

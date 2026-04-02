@@ -50,7 +50,7 @@ function calculateStreaks(dates) {
 }
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestGet(context) {
@@ -58,7 +58,7 @@ export async function onRequestGet(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
 
   const rows = await db
     .prepare('SELECT day_number, completed_at FROM lesson_completions WHERE user_id = ? ORDER BY day_number')
@@ -80,6 +80,7 @@ export async function onRequestGet(context) {
       last_completed_at: lastCompletion,
     },
     200,
-    request
+    request,
+    env
   );
 }

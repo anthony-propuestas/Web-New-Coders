@@ -2,9 +2,10 @@ import { verifyGoogleJwt } from '../../lib/google-jwt.js';
 import { generateSessionId, sessionCookie } from '../../lib/session.js';
 import { handleOptions, jsonResponse, errorResponse } from '../../lib/cors.js';
 import { checkRateLimit, getClientIP } from '../../lib/rate-limit.js';
+import { logAudit } from '../../lib/audit.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestPost(context) {
@@ -29,12 +30,12 @@ export async function onRequestPost(context) {
     const { credential } = body;
 
     if (!credential) {
-      return errorResponse('Missing credential', 400, request);
+      return errorResponse('Missing credential', 400, request, env);
     }
 
     const clientId = env.GOOGLE_CLIENT_ID;
     if (!clientId) {
-      return errorResponse('Server configuration error', 500, request);
+      return errorResponse('Server configuration error', 500, request, env);
     }
 
     // Verificar JWT con claves públicas de Google
@@ -97,6 +98,8 @@ export async function onRequestPost(context) {
       .bind(userId)
       .first();
 
+    await logAudit(db, { userId, action: 'login_success', details: { email: user.email }, ip });
+
     return new Response(
       JSON.stringify({
         user: {
@@ -124,6 +127,8 @@ export async function onRequestPost(context) {
     );
   } catch (err) {
     console.error('Auth error:', err.message);
-    return errorResponse('Authentication failed', 401, request);
+    const ip = getClientIP(request);
+    await logAudit(db, { userId: null, action: 'login_failed', details: { reason: err.message }, ip });
+    return errorResponse('Authentication failed', 401, request, env);
   }
 }

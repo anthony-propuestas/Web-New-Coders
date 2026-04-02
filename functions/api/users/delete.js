@@ -4,9 +4,9 @@
 import { handleOptions, errorResponse } from '../../lib/cors.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestDelete(context) {
-  return errorResponse('Use DELETE /api/users/me to delete your account', 410, context.request);
+  return errorResponse('Use DELETE /api/users/me to delete your account', 410, context.request, context.env);
 }

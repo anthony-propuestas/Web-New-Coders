@@ -3,7 +3,7 @@ import { handleOptions, jsonResponse, errorResponse } from '../../lib/cors.js';
 import { logAudit } from '../../lib/audit.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestGet(context) {
@@ -11,7 +11,7 @@ export async function onRequestGet(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
 
   try {
     // Verificar que completó los 30 días
@@ -24,7 +24,8 @@ export async function onRequestGet(context) {
       return jsonResponse(
         { eligible: false, completed: progress.count, required: 30 },
         200,
-        request
+        request,
+        env
       );
     }
 
@@ -59,10 +60,11 @@ export async function onRequestGet(context) {
         issued_at: certDate,
       },
       200,
-      request
+      request,
+      env
     );
   } catch (err) {
     console.error('Certificate error:', err.message);
-    return errorResponse('Failed to get certificate', 500, request);
+    return errorResponse('Failed to get certificate', 500, request, env);
   }
 }

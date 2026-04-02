@@ -581,9 +581,6 @@ const SocialLinks = () => (
 export default function App() {
   const { user, loading, logout } = useAuth();
 
-  if (loading) return null;
-  if (!user) return <LoginPage />;
-
   const [currentView, setCurrentView] = useState('calendar');
   const [selectedDay, setSelectedDay] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
@@ -709,6 +706,11 @@ export default function App() {
     if (window.innerWidth >= 768) return 2;
     return 1;
   });
+
+  const [showChat, setShowChat] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
 
   useEffect(() => {
     const calc = () => {
@@ -853,7 +855,119 @@ export default function App() {
     }
   };
 
+  if (loading) return null;
+  if (!user) return <LoginPage />;
+
   const progressPercent = (completedLessons.length / 30) * 100;
+
+  const sendChatMessage = async () => {
+    if (!chatInput.trim() || chatLoading) return;
+    const userMessage = { role: 'user', content: chatInput.trim() };
+    const updatedMessages = [...chatMessages, userMessage];
+    setChatMessages(updatedMessages);
+    setChatInput('');
+    setChatLoading(true);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          message: userMessage.content,
+          history: updatedMessages.slice(-8),
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) {
+        setChatMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+      } else {
+        setChatMessages((prev) => [...prev, { role: 'assistant', content: 'No se pudo obtener respuesta. Intenta de nuevo.' }]);
+      }
+    } catch {
+      setChatMessages((prev) => [...prev, { role: 'assistant', content: 'Error al conectar. Intenta de nuevo.' }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const renderChatWidget = () => (
+    <>
+      <button
+        onClick={() => setShowChat((v) => !v)}
+        className="fixed bottom-10 right-10 z-[100] w-14 h-14 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition-transform duration-200 border-2 border-cyan-400 shadow-lg"
+        style={{ background: 'linear-gradient(135deg, #7c3aed, #0891b2)', boxShadow: '0 0 20px rgba(0,212,255,0.4)' }}
+        title="Asistente NewCoders"
+      >
+        {showChat ? '✕' : '🤖'}
+      </button>
+
+      {showChat && (
+        <div
+          className="fixed bottom-28 right-10 z-[99] w-80 flex flex-col overflow-hidden rounded-xl border border-cyan-500/50"
+          style={{ height: '420px', background: '#04040f', boxShadow: '0 0 40px rgba(0,212,255,0.15)' }}
+        >
+          <div className="px-4 py-3 border-b border-cyan-500/30" style={{ background: 'linear-gradient(90deg, rgba(109,40,217,0.6), rgba(8,145,178,0.6))' }}>
+            <p className="text-cyan-400 font-mono text-sm font-bold">🤖 Asistente NewCoders</p>
+            <p className="text-gray-400 text-xs">Solo respondo sobre el curso</p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {chatMessages.length === 0 && (
+              <p className="text-gray-500 text-xs text-center mt-4 font-mono">
+                ¡Hola! Pregúntame sobre el curso, las lecciones o cómo usar el sitio.
+              </p>
+            )}
+            {chatMessages.map((m, i) => (
+              <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  className={`max-w-[85%] px-3 py-2 rounded-lg text-xs font-mono leading-relaxed ${
+                    m.role === 'user'
+                      ? 'text-cyan-200 border border-cyan-700/50'
+                      : 'text-purple-200 border border-purple-700/50'
+                  }`}
+                  style={{ background: m.role === 'user' ? 'rgba(8,145,178,0.2)' : 'rgba(109,40,217,0.2)' }}
+                >
+                  {m.content}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="flex justify-start">
+                <div
+                  className="px-3 py-2 rounded-lg text-xs text-purple-300 font-mono animate-pulse border border-purple-700/50"
+                  style={{ background: 'rgba(109,40,217,0.2)' }}
+                >
+                  Pensando...
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-cyan-500/30 p-3 flex gap-2">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+              placeholder="Escribe tu pregunta..."
+              className="flex-1 rounded-lg px-3 py-2 text-xs text-cyan-200 font-mono placeholder-gray-600 focus:outline-none"
+              style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(8,145,178,0.3)' }}
+              maxLength={500}
+              disabled={chatLoading}
+            />
+            <button
+              onClick={sendChatMessage}
+              disabled={chatLoading || !chatInput.trim()}
+              className="px-3 py-2 rounded-lg text-xs text-white font-mono transition-colors duration-150 disabled:opacity-40"
+              style={{ background: '#0891b2' }}
+            >
+              ➤
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 
   if (currentView === 'herramientas') {
     return (
@@ -1014,6 +1128,7 @@ export default function App() {
           <p className="text-neon-cyan">✦ Instala todo antes del Día 1 y arranca sin fricciones ✦</p>
           <SocialLinks />
         </footer>
+        {renderChatWidget()}
       </div>
     );
   }
@@ -1136,6 +1251,7 @@ export default function App() {
           <p className="text-neon-cyan">✦ Tu viaje empieza con un solo paso — el Día 1 ✦</p>
           <SocialLinks />
         </footer>
+        {renderChatWidget()}
       </div>
     );
   }
@@ -1292,6 +1408,7 @@ export default function App() {
           <p className="text-neon-orange">✦ Hecho con pasión por el equipo New Coders ✦</p>
           <SocialLinks />
         </footer>
+        {renderChatWidget()}
       </div>
     );
   }
@@ -1451,6 +1568,7 @@ export default function App() {
           </div>
           <SocialLinks />
         </footer>
+        {renderChatWidget()}
       </div>
     );
   }
@@ -1633,6 +1751,7 @@ export default function App() {
             </>
           )}
         </main>
+        {renderChatWidget()}
       </div>
     );
   }
@@ -1855,6 +1974,8 @@ export default function App() {
           <p className="text-neon-cyan">✦ Tu perfil en New Coders ✦</p>
           <SocialLinks />
         </footer>
+
+        {renderChatWidget()}
 
         {/* Modal Certificado */}
         {showCertificate && (
@@ -2174,6 +2295,8 @@ export default function App() {
           <SocialLinks />
         </div>
       </footer>
+
+      {renderChatWidget()}
 
       {/* Easter Egg */}
       {completedLessons.length === 30 && (

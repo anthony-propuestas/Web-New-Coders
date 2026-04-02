@@ -4,7 +4,7 @@ import { checkRateLimit, getClientIP } from '../../lib/rate-limit.js';
 import { logAudit } from '../../lib/audit.js';
 
 export async function onRequestOptions(context) {
-  return handleOptions(context.request);
+  return handleOptions(context.request, context.env);
 }
 
 export async function onRequestGet(context) {
@@ -12,7 +12,7 @@ export async function onRequestGet(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
 
   // Obtener progreso
   const progress = await db
@@ -43,7 +43,8 @@ export async function onRequestGet(context) {
       enrollment: enrollment || null,
     },
     200,
-    request
+    request,
+    env
   );
 }
 
@@ -52,7 +53,7 @@ export async function onRequestPatch(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
 
   // Rate limiting: máximo 20 actualizaciones de perfil por minuto
   const rateCheck = await checkRateLimit(db, `user:${user.id}:profile`, 'profile');
@@ -69,19 +70,19 @@ export async function onRequestPatch(context) {
 
     if (display_name !== undefined) {
       if (typeof display_name !== 'string') {
-        return errorResponse('display_name must be a string', 400, request);
+        return errorResponse('display_name must be a string', 400, request, env);
       }
 
       const trimmed = display_name.trim();
 
       if (trimmed.length > 100) {
-        return errorResponse('display_name must be 100 characters or less', 400, request);
+        return errorResponse('display_name must be 100 characters or less', 400, request, env);
       }
 
       // Sanitización estricta: rechazar caracteres HTML peligrosos
       // Un nombre no necesita <, >, &, ", ' — si los contiene, es un intento de inyección
       if (/[<>&"']/.test(trimmed)) {
-        return errorResponse('display_name contains invalid characters', 400, request);
+        return errorResponse('display_name contains invalid characters', 400, request, env);
       }
       // Eliminar null bytes y caracteres de control (excepto espacios normales)
       const sanitized = trimmed.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
@@ -94,10 +95,10 @@ export async function onRequestPatch(context) {
       await logAudit(db, { userId: user.id, action: 'profile_update', details: { field: 'display_name' } });
     }
 
-    return jsonResponse({ ok: true }, 200, request);
+    return jsonResponse({ ok: true }, 200, request, env);
   } catch (err) {
     console.error('Profile update error:', err.message);
-    return errorResponse('Failed to update profile', 500, request);
+    return errorResponse('Failed to update profile', 500, request, env);
   }
 }
 
@@ -106,7 +107,17 @@ export async function onRequestDelete(context) {
   const db = env.DB;
 
   const user = await getAuthenticatedUser(db, request);
-  if (!user) return errorResponse('Not authenticated', 401, request);
+  if (!user) return errorResponse('Not authenticated', 401, request, env);
+
+  let deleteBody;
+  try {
+    deleteBody = await request.json();
+  } catch {
+    return errorResponse('Cuerpo de la petición inválido', 400, request, env);
+  }
+  if (!deleteBody?.confirm) {
+    return errorResponse('Se requiere confirm: true para eliminar la cuenta', 400, request, env);
+  }
 
   try {
     // Registrar antes de eliminar
@@ -136,11 +147,11 @@ export async function onRequestDelete(context) {
       headers: {
         'Content-Type': 'application/json',
         'Set-Cookie': clearSessionCookie(),
-        ...corsHeaders(request),
+        ...corsHeaders(request, env),
       },
     });
   } catch (err) {
     console.error('Delete account error:', err.message);
-    return errorResponse('Failed to delete account', 500, request);
+    return errorResponse('Failed to delete account', 500, request, env);
   }
 }
