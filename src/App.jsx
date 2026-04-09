@@ -1,3 +1,75 @@
+// Leaderboard: top 10 y top 3
+function useLeaderboard(user) {
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+    fetch('/api/leaderboard', { credentials: 'include' })
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setLeaderboard(Array.isArray(data) ? data : []))
+      .catch(() => setLeaderboard([]))
+      .finally(() => setLoading(false));
+  }, [user]);
+  return { leaderboard, loading };
+}
+
+function LeaderboardModal({ open, onClose, leaderboard, loading }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60" onClick={onClose}>
+      <div className="bg-dark-bg rounded-2xl border-2 border-neon-cyan p-8 w-full max-w-xs mx-auto relative" onClick={e => e.stopPropagation()} style={{ boxShadow: '0 0 40px rgba(0,212,255,0.15)' }}>
+        <button onClick={onClose} className="absolute top-3 right-3 text-neon-cyan text-xl font-bold hover:text-neon-green">✕</button>
+        <h2 className="text-xl font-bold text-neon-cyan mb-4 text-center" style={{ fontFamily: 'Orbitron, monospace' }}>🏆 Leaderboard</h2>
+        {loading ? (
+          <div className="text-center text-neon-green animate-pulse">Cargando...</div>
+        ) : (
+          <ol className="space-y-2">
+            {leaderboard.map((u, i) => (
+              <li key={u.display_name + i} className={`flex items-center gap-2 p-2 rounded ${i < 3 ? 'bg-neon-cyan/10' : ''}`}>
+                <span className={`font-bold text-lg ${i === 0 ? 'text-neon-green' : i === 1 ? 'text-neon-yellow' : i === 2 ? 'text-neon-purple' : 'text-neon-cyan'}`}>{i + 1}.</span>
+                <span className="flex-1 truncate font-mono text-text-light">{u.display_name}</span>
+                <span className="text-neon-green font-bold">{u.completions}</span>
+                <span className="text-border-dark text-xs">/30</span>
+              </li>
+            ))}
+            {leaderboard.length === 0 && <li className="text-center text-border-dark">Sin datos aún</li>}
+          </ol>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FloatingLeaderboardButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="fixed bottom-10 left-10 z-[101] w-14 h-14 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition-transform duration-200 border-2 border-neon-yellow shadow-lg"
+      style={{ background: 'linear-gradient(135deg, #ff0099, #bf00ff)', boxShadow: '0 0 20px rgba(255,0,153,0.4)' }}
+      title="Leaderboard"
+    >
+      🏆
+    </button>
+  );
+}
+
+function Top3LeaderboardBox({ leaderboard }) {
+  if (!leaderboard || leaderboard.length === 0) return null;
+  const top3 = leaderboard.slice(0, 3);
+  return (
+    <div className="col-span-2 md:col-span-5 flex flex-col md:flex-row gap-2 mb-2">
+      {top3.map((u, i) => (
+        <div key={u.display_name + i} className={`flex-1 flex items-center gap-2 p-3 rounded-lg border-2 ${i === 0 ? 'border-neon-green' : i === 1 ? 'border-neon-yellow' : 'border-neon-purple'}`} style={{ background: 'rgba(0,212,255,0.06)' }}>
+          <span className={`font-bold text-xl ${i === 0 ? 'text-neon-green' : i === 1 ? 'text-neon-yellow' : 'text-neon-purple'}`}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+          <span className="flex-1 truncate font-mono text-text-light">{u.display_name}</span>
+          <span className="text-neon-green font-bold">{u.completions}</span>
+          <span className="text-border-dark text-xs">/30</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from './hooks/useAuth.jsx';
 import LoginPage from './views/LoginPage';
@@ -707,6 +779,11 @@ export default function App() {
     return 1;
   });
 
+
+  // Leaderboard state
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const { leaderboard, loading: leaderboardLoading } = useLeaderboard(user);
+
   const [showChat, setShowChat] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
@@ -854,6 +931,7 @@ export default function App() {
       setSavingProfile(false);
     }
   };
+
 
   if (loading) return null;
   if (!user) return <LoginPage />;
@@ -2097,6 +2175,8 @@ export default function App() {
       {/* Calendar Grid */}
       <main className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
+          {/* Leaderboard Top 3 Box (antes de las lecciones) */}
+          <Top3LeaderboardBox leaderboard={leaderboard} />
           {/* Countdown */}
           <div className="mb-4 rounded-lg border border-neon-cyan p-5 text-center" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.06) 0%, rgba(191,0,255,0.06) 100%)' }}>
             {countdown.started ? (
@@ -2295,6 +2375,11 @@ export default function App() {
           <SocialLinks />
         </div>
       </footer>
+
+
+      {/* Floating Leaderboard Button (todas las vistas, solo logueados) */}
+      {user && <FloatingLeaderboardButton onClick={() => setShowLeaderboard(true)} />}
+      <LeaderboardModal open={showLeaderboard} onClose={() => setShowLeaderboard(false)} leaderboard={leaderboard} loading={leaderboardLoading} />
 
       {renderChatWidget()}
 
