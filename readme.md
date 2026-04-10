@@ -188,7 +188,22 @@ Configurar en Cloudflare Pages > Settings > Environment Variables:
 | `npm run dev` | Dev completo: Vite (:5173) + Wrangler Pages (:8788) en paralelo con `concurrently`. Vite proxea `/api` a :8788 automaticamente. |
 | `npm run build` | Build de produccion en `/dist` |
 | `npm run preview` | Preview del build de produccion |
+| `npm test` | Ejecuta la suite de Vitest en modo run |
+| `npm run test:watch` | Ejecuta Vitest en modo watch |
+| `npm run test:auth` | Ejecuta solo los tests de autenticacion backend |
 | `wrangler pages deploy dist/` | Deploy a Cloudflare Pages |
+
+### Testing backend
+
+Los tests backend cubren autenticacion, perfil, progreso, logros, certificado, exportacion de datos, administracion y chat sobre una base SQLite en memoria inicializada desde `schema.sql`.
+
+```bash
+# Suite completa
+npm test
+
+# Solo autenticacion backend
+npm run test:auth
+```
 
 ---
 

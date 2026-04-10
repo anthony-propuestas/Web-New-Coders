@@ -16,7 +16,9 @@ CREATE TABLE IF NOT EXISTS users (
   last_login_at   TEXT    NOT NULL DEFAULT (datetime('now')),
   login_count     INTEGER NOT NULL DEFAULT 1,
   is_active       INTEGER NOT NULL DEFAULT 1,
-  role            TEXT    NOT NULL DEFAULT 'student'
+  role            TEXT    NOT NULL DEFAULT 'student',
+  deleted_at      TEXT    DEFAULT NULL,
+  certificate_generated_at TEXT DEFAULT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub);

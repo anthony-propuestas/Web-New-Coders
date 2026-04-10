@@ -23,7 +23,10 @@ export async function checkRateLimit(db, key, type) {
   if (!limit) return { ok: true };
 
   try {
-    const windowStart = new Date(Date.now() - limit.windowSeconds * 1000).toISOString();
+    const windowStart = new Date(Date.now() - limit.windowSeconds * 1000)
+      .toISOString()
+      .slice(0, 19)
+      .replace('T', ' ');
 
     // INSERT OR REPLACE con lógica de reset de ventana
     await db

@@ -653,7 +653,7 @@ const SocialLinks = () => (
 export default function App() {
   const { user, loading, logout } = useAuth();
 
-  const [currentView, setCurrentView] = useState('calendar');
+  const [currentView, setCurrentView] = useState('selector');
   const [selectedDay, setSelectedDay] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [profileName, setProfileName] = useState('');
@@ -1046,6 +1046,138 @@ export default function App() {
       )}
     </>
   );
+
+  if (currentView === 'selector') {
+    return (
+      <div className="min-h-screen bg-dark-bg text-text-light font-mono flex flex-col">
+        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+          {stars.map(s => (
+            <div
+              key={s.id}
+              className="absolute rounded-full bg-white star-twinkle"
+              style={{
+                top: `${s.top}%`,
+                left: `${s.left}%`,
+                width: `${s.size}px`,
+                height: `${s.size}px`,
+                opacity: s.opacity,
+                animationDelay: `${s.delay}s`,
+                animationDuration: `${s.duration}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <header className="border-b border-border-dark p-8 text-center relative" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.13) 0%, rgba(191,0,255,0.06) 50%, transparent 80%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={() => setCurrentView('perfil')}
+              className="w-10 h-10 rounded-full border-2 border-neon-cyan hover:border-neon-green transition-all duration-300 flex items-center justify-center overflow-hidden"
+              style={{ background: 'rgba(0,212,255,0.08)', boxShadow: '0 0 12px rgba(0,212,255,0.15)' }}
+              title="Mi Perfil"
+              aria-label="Mi Perfil"
+            >
+              {user?.picture ? (
+                <img src={user.picture} alt={user?.name || 'Usuario'} className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-neon-cyan">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+              )}
+            </button>
+          </div>
+          <h1 className="text-5xl font-bold text-neon-green mb-2">
+            ✦ New Coders ✦
+          </h1>
+          <p className="text-neon-cyan text-lg">Elige la experiencia que quieres explorar</p>
+        </header>
+
+        <main className="flex-1 p-8 flex items-center justify-center relative z-10">
+          <div className="w-full max-w-4xl grid grid-cols-1 gap-6">
+            <button
+              onClick={() => setCurrentView('calendar')}
+              className="relative p-8 rounded-lg border-2 border-neon-cyan transition-all duration-300 text-left hover:shadow-lg hover:shadow-neon-cyan/50"
+              style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(191,0,255,0.08) 100%)' }}
+            >
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs font-bold text-neon-cyan uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    Opción principal
+                  </p>
+                  <h2 className="text-3xl font-bold text-neon-green" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    📚 Cursos New Coders
+                  </h2>
+                  <p className="text-neon-yellow text-sm mt-2">Accede al curso de 30 días con todas sus casillas y progreso.</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setCurrentView('hackatones')}
+              className="relative p-8 rounded-lg border-2 border-neon-yellow transition-all duration-300 text-left hover:shadow-lg hover:shadow-neon-yellow/50"
+              style={{ background: 'linear-gradient(135deg, rgba(255,0,153,0.06) 0%, rgba(191,0,255,0.06) 100%)' }}
+            >
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs font-bold text-neon-yellow uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    Próxima sección
+                  </p>
+                  <h2 className="text-3xl font-bold text-neon-yellow" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    🚀 Hackatones
+                  </h2>
+                  <p className="text-text-light text-sm mt-2">Explora la sección de hackatones. Por ahora verás una pantalla de próximamente.</p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </main>
+
+        <footer className="border-t border-border-dark p-6 text-center relative z-10" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
+          <p className="text-neon-cyan mb-2">✦ Elige tu siguiente paso dentro de New Coders ✦</p>
+          <SocialLinks />
+        </footer>
+
+        {renderChatWidget()}
+      </div>
+    );
+  }
+
+  if (currentView === 'hackatones') {
+    return (
+      <div className="min-h-screen bg-dark-bg text-text-light font-mono flex flex-col">
+        <header className="border-b border-border-dark p-6 relative" style={{ background: 'radial-gradient(ellipse 60% 80% at 0% 50%, rgba(191,0,255,0.10) 0%, transparent 70%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+          <button onClick={() => setCurrentView('selector')} className="text-neon-cyan hover:text-neon-green transition mb-4">
+            ← Volver a secciones
+          </button>
+          <h1 className="text-4xl font-bold text-neon-yellow" style={{ fontFamily: 'Orbitron, monospace' }}>
+            🚀 Hackatones
+          </h1>
+          <p className="text-neon-cyan mt-1 text-lg">Próximamente en New Coders</p>
+        </header>
+
+        <main className="flex-1 max-w-4xl mx-auto w-full p-6 flex items-center justify-center">
+          <section className="w-full rounded-lg p-8 border-2 border-neon-yellow text-center" style={{ background: 'linear-gradient(135deg, rgba(255,0,153,0.06) 0%, rgba(191,0,255,0.06) 100%)', boxShadow: '0 0 24px rgba(255,213,0,0.12)' }}>
+            <p className="text-xs font-bold text-neon-yellow uppercase tracking-widest mb-3" style={{ fontFamily: 'Orbitron, monospace' }}>
+              En preparación
+            </p>
+            <h2 className="text-3xl font-bold text-neon-yellow mb-4" style={{ fontFamily: 'Orbitron, monospace' }}>
+              La sección de hackatones todavía no está activa
+            </h2>
+            <p className="text-text-light max-w-2xl mx-auto leading-relaxed">
+              Más adelante aquí vas a encontrar desafíos, eventos y experiencias colaborativas. Por ahora puedes volver a secciones o entrar al curso de 30 días.
+            </p>
+          </section>
+        </main>
+
+        <footer className="border-t border-border-dark p-6 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
+          <p className="text-neon-cyan mb-2">✦ Hackatones llegará en una próxima etapa ✦</p>
+          <SocialLinks />
+        </footer>
+
+        {renderChatWidget()}
+      </div>
+    );
+  }
 
   if (currentView === 'herramientas') {
     return (
@@ -2134,6 +2266,15 @@ export default function App() {
       </div>
       {/* Header */}
       <header className="border-b border-border-dark p-8 text-center relative" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.13) 0%, rgba(191,0,255,0.06) 50%, transparent 80%), linear-gradient(180deg, #04040f 0%, #0a0a1e 100%)' }}>
+        <div className="absolute top-4 left-4">
+          <button
+            onClick={() => setCurrentView('selector')}
+            className="text-neon-cyan hover:text-neon-green transition text-sm"
+            style={{ fontFamily: 'Orbitron, monospace' }}
+          >
+            ← Secciones
+          </button>
+        </div>
         {/* Profile button */}
         <div className="absolute top-4 right-4">
           <button
