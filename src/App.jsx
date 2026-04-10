@@ -651,13 +651,29 @@ const SocialLinks = () => (
 );
 
 export default function App() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, refreshUser } = useAuth();
 
   const [currentView, setCurrentView] = useState('selector');
   const [selectedDay, setSelectedDay] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [profileName, setProfileName] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [hackathonForm, setHackathonForm] = useState({ display_name: '', github_profile: '', category: 'starter' });
+  const [hackathonRegistration, setHackathonRegistration] = useState(null);
+  const [loadingHackathonRegistration, setLoadingHackathonRegistration] = useState(false);
+  const [savingHackathonRegistration, setSavingHackathonRegistration] = useState(false);
+  const [hackathonError, setHackathonError] = useState('');
+  const [hackathonSuccess, setHackathonSuccess] = useState('');
+  const [hackathonRounds, setHackathonRounds] = useState([]);
+  const [loadingHackathonRounds, setLoadingHackathonRounds] = useState(false);
+  const [hackathonRoundsError, setHackathonRoundsError] = useState('');
+  const [hackathonVoteMessage, setHackathonVoteMessage] = useState('');
+  const [hackathonVoteError, setHackathonVoteError] = useState('');
+  const [votingHackathonPairingId, setVotingHackathonPairingId] = useState(null);
+  const [creatingHackathonRoundCategory, setCreatingHackathonRoundCategory] = useState('');
+  const [processingHackathonRoundId, setProcessingHackathonRoundId] = useState(null);
+  const [hackathonAdminMessage, setHackathonAdminMessage] = useState('');
+  const [hackathonAdminError, setHackathonAdminError] = useState('');
   const [progressStats, setProgressStats] = useState({ current_streak: 0, longest_streak: 0 });
   const [achievements, setAchievements] = useState([]);
   const [showCertificate, setShowCertificate] = useState(false);
@@ -708,6 +724,60 @@ export default function App() {
     }
     loadAchievements();
   }, []);
+
+  useEffect(() => {
+    if (!user?.name) return;
+    setHackathonForm((prev) => prev.display_name ? prev : { ...prev, display_name: user.name });
+  }, [user?.name]);
+
+  useEffect(() => {
+    if (currentView !== 'hackatones' && !(currentView === 'admin' && user?.role === 'admin' && adminSection === 'hackathon')) return;
+    loadHackathonRounds();
+  }, [currentView, adminSection, user?.role]);
+
+  useEffect(() => {
+    if (currentView !== 'hackatones') return;
+
+    let cancelled = false;
+
+    async function loadHackathonRegistration() {
+      setLoadingHackathonRegistration(true);
+      setHackathonError('');
+      try {
+        const res = await fetch('/api/hackathon/register', { credentials: 'include' });
+        if (!res.ok) {
+          if (!cancelled) {
+            setHackathonRegistration(null);
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (cancelled) return;
+
+        setHackathonRegistration(data.registration || null);
+        setHackathonForm({
+          display_name: data.registration?.display_name || user?.name || '',
+          github_profile: data.registration?.github_profile || '',
+          category: data.registration?.category || 'starter',
+        });
+      } catch {
+        if (!cancelled) {
+          setHackathonError('No pudimos cargar tu inscripción actual. Puedes intentar nuevamente.');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingHackathonRegistration(false);
+        }
+      }
+    }
+
+    loadHackathonRegistration();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentView, user?.name]);
 
   const handleDeleteAccount = async () => {
     if (!window.confirm('¿Estás seguro? Esta acción eliminará tu cuenta permanentemente. Esta operación no puede deshacerse.')) return;
@@ -788,6 +858,33 @@ export default function App() {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+
+  async function loadHackathonRounds({ silent = false } = {}) {
+    if (!silent) {
+      setLoadingHackathonRounds(true);
+    }
+    setHackathonRoundsError('');
+
+    try {
+      const res = await fetch('/api/hackathon/rounds', { credentials: 'include' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setHackathonRounds([]);
+        setHackathonRoundsError(data.error || 'No pudimos cargar las rondas de hackathon.');
+        return;
+      }
+
+      const data = await res.json();
+      setHackathonRounds(data.rounds || []);
+    } catch {
+      setHackathonRounds([]);
+      setHackathonRoundsError('No pudimos cargar las rondas de hackathon.');
+    } finally {
+      if (!silent) {
+        setLoadingHackathonRounds(false);
+      }
+    }
+  }
 
   useEffect(() => {
     const calc = () => {
@@ -932,11 +1029,178 @@ export default function App() {
     }
   };
 
+  const handleHackathonFieldChange = (field, value) => {
+    setHackathonForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleHackathonSubmit = async (event) => {
+    event.preventDefault();
+    if (savingHackathonRegistration) return;
+
+    setSavingHackathonRegistration(true);
+    setHackathonError('');
+    setHackathonSuccess('');
+
+    try {
+      const res = await fetch('/api/hackathon/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(hackathonForm),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setHackathonError(data.error || 'No pudimos guardar tu inscripción.');
+        return;
+      }
+
+      setHackathonRegistration(data.registration || null);
+      setHackathonForm({
+        display_name: data.registration?.display_name || hackathonForm.display_name,
+        github_profile: data.registration?.github_profile || hackathonForm.github_profile,
+        category: data.registration?.category || hackathonForm.category,
+      });
+      await refreshUser();
+      setHackathonSuccess(data.registration
+        ? 'Tu inscripción quedó guardada. Ya formas parte de New hackers.'
+        : 'Tu inscripción fue enviada correctamente.');
+    } catch {
+      setHackathonError('Error de conexión. Intenta nuevamente en unos segundos.');
+    } finally {
+      setSavingHackathonRegistration(false);
+    }
+  };
+
+  const handleHackathonVote = async (pairingId, votedForUserId) => {
+    if (votingHackathonPairingId) return;
+
+    setVotingHackathonPairingId(pairingId);
+    setHackathonVoteError('');
+    setHackathonVoteMessage('');
+
+    try {
+      const res = await fetch(`/api/hackathon/pairings/${pairingId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ voted_for_user_id: votedForUserId }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setHackathonVoteError(data.error || 'No pudimos registrar tu voto.');
+        return;
+      }
+
+      setHackathonVoteMessage('Tu voto quedó registrado para este emparejamiento.');
+      await loadHackathonRounds({ silent: true });
+    } catch {
+      setHackathonVoteError('Error de conexión al registrar tu voto.');
+    } finally {
+      setVotingHackathonPairingId(null);
+    }
+  };
+
+  const handleLoadAdminHackathon = async () => {
+    setAdminSection('hackathon');
+    setHackathonAdminError('');
+    setHackathonAdminMessage('');
+    await loadHackathonRounds();
+  };
+
+  const handleCreateHackathonRound = async (category) => {
+    if (creatingHackathonRoundCategory) return;
+
+    setCreatingHackathonRoundCategory(category);
+    setHackathonAdminError('');
+    setHackathonAdminMessage('');
+
+    try {
+      const res = await fetch('/api/hackathon/rounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ category }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setHackathonAdminError(data.error || 'No pudimos crear la ronda.');
+        return;
+      }
+
+      setHackathonAdminMessage(`Ronda ${data.round?.round_number || ''} creada para ${category}.`);
+      await loadHackathonRounds({ silent: true });
+    } catch {
+      setHackathonAdminError('Error de conexión al crear la ronda.');
+    } finally {
+      setCreatingHackathonRoundCategory('');
+    }
+  };
+
+  const handleTriggerHackathonRound = async (roundId) => {
+    if (processingHackathonRoundId) return;
+
+    setProcessingHackathonRoundId(roundId);
+    setHackathonAdminError('');
+    setHackathonAdminMessage('');
+
+    try {
+      const res = await fetch(`/api/hackathon/rounds/${roundId}/trigger`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setHackathonAdminError(data.error || 'No pudimos emparejar esta ronda.');
+        return;
+      }
+
+      setHackathonAdminMessage(`Emparejamientos creados: ${data.pairings?.length || 0}.`);
+      await loadHackathonRounds({ silent: true });
+    } catch {
+      setHackathonAdminError('Error de conexión al emparejar la ronda.');
+    } finally {
+      setProcessingHackathonRoundId(null);
+    }
+  };
+
+  const handleCloseHackathonRound = async (roundId) => {
+    if (processingHackathonRoundId) return;
+
+    setProcessingHackathonRoundId(roundId);
+    setHackathonAdminError('');
+    setHackathonAdminMessage('');
+
+    try {
+      const res = await fetch(`/api/hackathon/rounds/${roundId}/close`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setHackathonAdminError(data.error || 'No pudimos cerrar la ronda.');
+        return;
+      }
+
+      setHackathonAdminMessage(`Ronda cerrada. Ganadores calculados: ${data.winners?.length || 0}.`);
+      await loadHackathonRounds({ silent: true });
+    } catch {
+      setHackathonAdminError('Error de conexión al cerrar la ronda.');
+    } finally {
+      setProcessingHackathonRoundId(null);
+    }
+  };
+
 
   if (loading) return null;
   if (!user) return <LoginPage />;
 
   const progressPercent = (completedLessons.length / 30) * 100;
+  const visibleHackathonRounds = hackathonRounds.filter((round) => round.status !== 'draft');
 
   const sendChatMessage = async () => {
     if (!chatInput.trim() || chatLoading) return;
@@ -1155,22 +1419,300 @@ export default function App() {
           <p className="text-neon-cyan mt-1 text-lg">Próximamente en New Coders</p>
         </header>
 
-        <main className="flex-1 max-w-4xl mx-auto w-full p-6 flex items-center justify-center">
+        <main className="flex-1 max-w-4xl mx-auto w-full p-6 flex flex-col gap-8">
           <section className="w-full rounded-lg p-8 border-2 border-neon-yellow text-center" style={{ background: 'linear-gradient(135deg, rgba(255,0,153,0.06) 0%, rgba(191,0,255,0.06) 100%)', boxShadow: '0 0 24px rgba(255,213,0,0.12)' }}>
             <p className="text-xs font-bold text-neon-yellow uppercase tracking-widest mb-3" style={{ fontFamily: 'Orbitron, monospace' }}>
               En preparación
             </p>
             <h2 className="text-3xl font-bold text-neon-yellow mb-4" style={{ fontFamily: 'Orbitron, monospace' }}>
-              La sección de hackatones todavía no está activa
+                🏆 Hackathon New Coders — Primera Ronda
             </h2>
-            <p className="text-text-light max-w-2xl mx-auto leading-relaxed">
-              Más adelante aquí vas a encontrar desafíos, eventos y experiencias colaborativas. Por ahora puedes volver a secciones o entrar al curso de 30 días.
-            </p>
+              <div className="text-text-light max-w-3xl mx-auto leading-relaxed text-left space-y-6">
+                <p>
+                  ¡Llegó el momento, <strong>New Coders</strong>! 🚀 Prepárense para la primera ronda de nuestra hackathon.
+                </p>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    📅 Fecha y hora
+                  </h3>
+                  <p><strong>Martes 14 de abril</strong></p>
+                  <ul className="mt-2 space-y-1 list-none">
+                    <li>🇦🇷 Argentina: <strong>14:00 hs</strong></li>
+                    <li>🇵🇪 Perú: <strong>12:00 hs</strong></li>
+                    <li>🇲🇽 México (CDMX): <strong>11:00 hs</strong></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    ⚔️ Formato
+                  </h3>
+                  <p>Competencia <strong>por parejas</strong> (1 vs 1). Varias parejas en paralelo.</p>
+                </div>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    👥 Categorías
+                  </h3>
+                  <ul className="space-y-2 list-none">
+                    <li><strong>Starters</strong>: desarrollan en local y envían <strong>video</strong> de su proyecto.</li>
+                    <li><strong>Deployers</strong>: despliegan su web y envían <strong>link en producción</strong>.</li>
+                  </ul>
+                  <p className="mt-2">Starters compiten contra Starters. Deployers contra Deployers. <strong>Cada categoría tiene su propio reto.</strong></p>
+                </div>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    🛠️ Herramientas recomendadas
+                  </h3>
+                  <ul className="space-y-2 list-none">
+                    <li>Editor como <strong>VS Code</strong> con IA para vibe coding.</li>
+                    <li>Deployers: cualquier servicio de hosting/deploy.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    📤 Entregas
+                  </h3>
+                  <p>Se envían al grupo de WhatsApp <strong>"Chat Global"</strong>.</p>
+                  <ul className="mt-2 space-y-2 list-none">
+                    <li>⏱️ <strong>Plazo</strong>: 90 minutos tras iniciar el reto.</li>
+                    <li>🎥 <strong>Starters</strong>: video de <strong>2 a 5 minutos</strong> mostrando las funcionalidades pedidas.</li>
+                    <li>🔗 <strong>Deployers</strong>: link funcional de la web en producción.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    🗳️ Votación
+                  </h3>
+                  <ul className="space-y-2 list-none">
+                    <li>Se realiza en la <strong>web oficial de New Coders</strong>.</li>
+                    <li>Cualquier usuario <strong>logueado</strong> puede votar.</li>
+                    <li>⏳ <strong>Duración</strong>: 1 hora desde que abren las listas.</li>
+                    <li>Votación por pareja: <strong>un ganador por pareja</strong>.</li>
+                    <li><strong>No se permiten empates.</strong></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    ❌ Descalificación
+                  </h3>
+                  <p>Revisión en los 10 minutos tras iniciar la votación:</p>
+                  <ul className="mt-2 space-y-2 list-none">
+                    <li><strong>Deployers</strong>: si el link no funciona.</li>
+                    <li><strong>Starters</strong>: si el video no cumple la duración (2-5 min) o no muestra lo pedido por el reto.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-neon-cyan font-bold text-lg mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                    🏅 Avance
+                  </h3>
+                  <p>Un ganador por pareja. El número de clasificados a la siguiente ronda se anunciará pronto.</p>
+                </div>
+
+                <p className="pt-2 border-t border-border-dark">
+                  ¡Prepárense, afilen sus editores y nos vemos el martes! 💻🔥<br />
+                  <strong>— Equipo New Coders</strong>
+                </p>
+              </div>
+          </section>
+
+          <section className="w-full rounded-lg p-8 border-2 border-neon-cyan" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(4,4,15,0.92) 100%)', boxShadow: '0 0 24px rgba(0,212,255,0.12)' }}>
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-bold text-neon-cyan uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Inscripción oficial
+                </p>
+                <h2 className="text-2xl font-bold text-neon-cyan" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Casilla de inscripción Hackathon
+                </h2>
+                <p className="text-text-light mt-2 max-w-2xl">
+                  Completa tus datos para entrar a la hackathon. Al enviar este formulario tu rol se actualizará a <strong>New hackers</strong>.
+                </p>
+              </div>
+              {hackathonRegistration ? (
+                <span className="inline-flex items-center justify-center rounded-full border border-neon-green px-4 py-2 text-sm text-neon-green" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Inscripción guardada
+                </span>
+              ) : null}
+            </div>
+
+            <form className="mt-6 grid gap-5" onSubmit={handleHackathonSubmit}>
+              <label className="block">
+                <span className="block text-sm font-bold text-neon-yellow mb-2">Nombre</span>
+                <input
+                  type="text"
+                  value={hackathonForm.display_name}
+                  onChange={(e) => handleHackathonFieldChange('display_name', e.target.value)}
+                  placeholder="Tu nombre para competir"
+                  className="w-full rounded-lg border border-neon-yellow/40 bg-dark-bg px-4 py-3 text-text-light focus:outline-none focus:border-neon-yellow"
+                />
+              </label>
+
+              <label className="block">
+                <span className="block text-sm font-bold text-neon-yellow mb-2">Perfil de GitHub</span>
+                <input
+                  type="text"
+                  value={hackathonForm.github_profile}
+                  onChange={(e) => handleHackathonFieldChange('github_profile', e.target.value)}
+                  placeholder="https://github.com/tuusuario o @tuusuario"
+                  className="w-full rounded-lg border border-neon-yellow/40 bg-dark-bg px-4 py-3 text-text-light focus:outline-none focus:border-neon-yellow"
+                />
+              </label>
+
+              <label className="block">
+                <span className="block text-sm font-bold text-neon-yellow mb-2">Competencia</span>
+                <select
+                  value={hackathonForm.category}
+                  onChange={(e) => handleHackathonFieldChange('category', e.target.value)}
+                  className="w-full rounded-lg border border-neon-yellow/40 bg-dark-bg px-4 py-3 text-text-light focus:outline-none focus:border-neon-yellow"
+                >
+                  <option value="starter">Starter</option>
+                  <option value="deployer">Deployer</option>
+                </select>
+              </label>
+
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="min-h-[24px] text-sm">
+                  {loadingHackathonRegistration ? <p className="text-neon-cyan">Cargando inscripción actual...</p> : null}
+                  {!loadingHackathonRegistration && hackathonError ? <p className="text-red-400">{hackathonError}</p> : null}
+                  {!loadingHackathonRegistration && !hackathonError && hackathonSuccess ? <p className="text-neon-green">{hackathonSuccess}</p> : null}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={savingHackathonRegistration || loadingHackathonRegistration}
+                  className="rounded-lg border-2 border-neon-cyan px-6 py-3 font-bold text-neon-cyan transition hover:bg-neon-cyan hover:text-dark-bg disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ fontFamily: 'Orbitron, monospace' }}
+                >
+                  {savingHackathonRegistration ? 'Guardando...' : hackathonRegistration ? 'Actualizar inscripción' : 'Inscribirme ahora'}
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section className="w-full rounded-lg p-8 border-2 border-neon-green" style={{ background: 'linear-gradient(135deg, rgba(0,255,135,0.06) 0%, rgba(4,4,15,0.94) 100%)', boxShadow: '0 0 24px rgba(0,255,135,0.10)' }}>
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-bold text-neon-green uppercase tracking-widest mb-2" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Rondas y votación
+                </p>
+                <h2 className="text-2xl font-bold text-neon-green" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  Emparejamientos activos de la comunidad
+                </h2>
+                <p className="text-text-light mt-2 max-w-2xl">
+                  Aquí verás las parejas creadas para cada ronda. Puedes votar una sola vez por cada emparejamiento activo.
+                </p>
+              </div>
+            </div>
+
+            <div className="min-h-[24px] mt-5 text-sm">
+              {hackathonRoundsError ? <p className="text-red-400">{hackathonRoundsError}</p> : null}
+              {!hackathonRoundsError && hackathonVoteError ? <p className="text-red-400">{hackathonVoteError}</p> : null}
+              {!hackathonRoundsError && !hackathonVoteError && hackathonVoteMessage ? <p className="text-neon-green">{hackathonVoteMessage}</p> : null}
+            </div>
+
+            {loadingHackathonRounds ? (
+              <div className="py-12 text-center text-neon-cyan">Cargando emparejamientos...</div>
+            ) : null}
+
+            {!loadingHackathonRounds && visibleHackathonRounds.length === 0 ? (
+              <div className="py-12 text-center text-text-light/50">
+                <p>Todavía no hay rondas activas o cerradas para mostrar.</p>
+              </div>
+            ) : null}
+
+            {!loadingHackathonRounds && visibleHackathonRounds.length > 0 ? (
+              <div className="mt-6 space-y-5">
+                {visibleHackathonRounds.map((round) => (
+                  <article key={`${round.category}-${round.id}`} className="rounded-lg border border-border-dark overflow-hidden" style={{ background: 'rgba(0,0,0,0.28)' }}>
+                    <div className="p-4 border-b border-border-dark flex flex-col gap-2 md:flex-row md:items-center md:justify-between" style={{ background: 'rgba(0,255,135,0.06)' }}>
+                      <div>
+                        <h3 className="text-neon-green font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>
+                          Ronda {round.round_number} · {round.category === 'starter' ? 'Starter' : 'Deployer'}
+                        </h3>
+                        <p className="text-text-light/60 text-xs mt-1">
+                          {round.status === 'active' ? 'Votación abierta' : 'Resultados cerrados'}
+                        </p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${round.status === 'active' ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-neon-green/20 text-neon-green'}`}>
+                        {round.status === 'active' ? 'Activa' : 'Cerrada'}
+                      </span>
+                    </div>
+
+                    <div className="p-4 grid gap-4">
+                      {round.pairings.map((pairing) => {
+                        const voteLocked = pairing.viewer_voted_for_user_id !== null || round.status !== 'active' || pairing.bye;
+
+                        return (
+                          <div key={pairing.id} className="rounded-lg border border-border-dark p-4" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                            <div className="flex items-center justify-between gap-3 mb-4">
+                              <p className="text-neon-yellow text-sm font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>Pareja {pairing.pair_number}</p>
+                              {pairing.bye ? (
+                                <span className="text-xs font-bold text-neon-yellow">Pase automático</span>
+                              ) : pairing.viewer_voted_for_user_id ? (
+                                <span className="text-xs font-bold text-neon-cyan">Ya votaste</span>
+                              ) : null}
+                            </div>
+
+                            {pairing.bye ? (
+                              <div className="rounded-lg border border-neon-yellow/40 p-4">
+                                <p className="font-bold text-text-light">{pairing.participant_a.display_name}</p>
+                                <p className="text-xs text-neon-cyan mt-1">{pairing.participant_a.github_profile}</p>
+                                <p className="text-sm text-neon-yellow mt-3">Clasifica automáticamente por cantidad impar de inscritos.</p>
+                              </div>
+                            ) : (
+                              <div className="grid gap-4 md:grid-cols-2">
+                                {[pairing.participant_a, pairing.participant_b].map((participant) => {
+                                  const isWinner = pairing.winner_user_id === participant.user_id;
+                                  const isSelected = pairing.viewer_voted_for_user_id === participant.user_id;
+
+                                  return (
+                                    <div key={participant.user_id} className={`rounded-lg border p-4 ${isWinner ? 'border-neon-green' : isSelected ? 'border-neon-cyan' : 'border-border-dark'}`}>
+                                      <p className="font-bold text-text-light text-lg">{participant.display_name}</p>
+                                      <p className="text-xs text-neon-cyan mt-1 break-all">{participant.github_profile}</p>
+                                      {round.status === 'closed' ? (
+                                        <p className="text-xs text-neon-yellow mt-3">
+                                          Votos: {participant.user_id === pairing.participant_a.user_id ? pairing.votes_for_a : pairing.votes_for_b}
+                                        </p>
+                                      ) : null}
+                                      <button
+                                        onClick={() => handleHackathonVote(pairing.id, participant.user_id)}
+                                        disabled={voteLocked || votingHackathonPairingId === pairing.id}
+                                        className={`mt-4 w-full rounded-lg border px-4 py-2 text-sm font-bold transition ${isSelected ? 'border-neon-cyan text-neon-cyan' : 'border-neon-green text-neon-green hover:bg-neon-green hover:text-dark-bg'} disabled:cursor-not-allowed disabled:opacity-50`}
+                                        style={{ fontFamily: 'Orbitron, monospace' }}
+                                      >
+                                        {round.status === 'closed'
+                                          ? isWinner ? 'Ganador' : 'Resultado cerrado'
+                                          : isSelected
+                                            ? 'Tu voto'
+                                            : votingHackathonPairingId === pairing.id
+                                              ? 'Enviando...'
+                                              : `Votar por ${participant.display_name}`}
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : null}
           </section>
         </main>
 
         <footer className="border-t border-border-dark p-6 text-center" style={{ background: 'linear-gradient(180deg, #0a0a1e 0%, #04040f 100%)' }}>
-          <p className="text-neon-cyan mb-2">✦ Hackatones llegará en una próxima etapa ✦</p>
+            <p className="text-neon-cyan mb-2">✦ Primera ronda de hackathon activa para la comunidad ✦</p>
           <SocialLinks />
         </footer>
 
@@ -1810,6 +2352,13 @@ export default function App() {
             >
               {loadingAdminStats ? 'Cargando...' : 'Stats'}
             </button>
+            <button
+              onClick={handleLoadAdminHackathon}
+              className={`px-5 py-2 rounded-lg border-2 transition-all text-sm font-bold ${adminSection === 'hackathon' ? 'bg-neon-yellow text-dark-bg border-neon-yellow' : 'border-neon-yellow text-neon-yellow hover:bg-neon-yellow hover:text-dark-bg'}`}
+              style={{ fontFamily: 'Orbitron, monospace' }}
+            >
+              {loadingHackathonRounds && adminSection === 'hackathon' ? 'Cargando...' : 'Hackathon'}
+            </button>
           </div>
 
           {/* Sección Usuarios */}
@@ -1959,6 +2508,122 @@ export default function App() {
                 </div>
               )}
             </>
+          )}
+
+          {adminSection === 'hackathon' && (
+            <div className="space-y-6">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between rounded-lg border border-border-dark p-5" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                <div>
+                  <h2 className="text-neon-yellow font-bold text-lg" style={{ fontFamily: 'Orbitron, monospace' }}>Gestión de rondas Hackathon</h2>
+                  <p className="text-text-light/70 text-sm mt-1">Crea una ronda por categoría, genera las parejas y cierra la votación cuando corresponda.</p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => handleCreateHackathonRound('starter')}
+                    disabled={Boolean(creatingHackathonRoundCategory)}
+                    className="px-4 py-2 rounded-lg border-2 border-neon-cyan text-neon-cyan font-bold transition hover:bg-neon-cyan hover:text-dark-bg disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ fontFamily: 'Orbitron, monospace' }}
+                  >
+                    {creatingHackathonRoundCategory === 'starter' ? 'Creando...' : 'Crear ronda Starter'}
+                  </button>
+                  <button
+                    onClick={() => handleCreateHackathonRound('deployer')}
+                    disabled={Boolean(creatingHackathonRoundCategory)}
+                    className="px-4 py-2 rounded-lg border-2 border-neon-green text-neon-green font-bold transition hover:bg-neon-green hover:text-dark-bg disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ fontFamily: 'Orbitron, monospace' }}
+                  >
+                    {creatingHackathonRoundCategory === 'deployer' ? 'Creando...' : 'Crear ronda Deployer'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="min-h-[24px] text-sm">
+                {hackathonAdminError ? <p className="text-red-400">{hackathonAdminError}</p> : null}
+                {!hackathonAdminError && hackathonAdminMessage ? <p className="text-neon-green">{hackathonAdminMessage}</p> : null}
+              </div>
+
+              {loadingHackathonRounds ? (
+                <div className="text-center py-12 text-neon-cyan">Cargando rondas...</div>
+              ) : null}
+
+              {!loadingHackathonRounds && hackathonRounds.length === 0 ? (
+                <div className="text-center py-16 text-text-light/40">
+                  <p className="text-lg">Todavía no hay rondas creadas para la hackathon.</p>
+                </div>
+              ) : null}
+
+              {!loadingHackathonRounds && hackathonRounds.length > 0 ? (
+                <div className="space-y-4">
+                  {hackathonRounds.map((round) => (
+                    <section key={`${round.category}-${round.id}`} className="rounded-lg border border-border-dark overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                      <div className="p-4 border-b border-border-dark flex flex-col gap-3 md:flex-row md:items-center md:justify-between" style={{ background: 'rgba(0,212,255,0.06)' }}>
+                        <div>
+                          <h3 className="text-neon-cyan font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>
+                            Ronda {round.round_number} · {round.category === 'starter' ? 'Starter' : 'Deployer'}
+                          </h3>
+                          <p className="text-text-light/60 text-xs mt-1">Estado: {round.status}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {round.status === 'draft' ? (
+                            <button
+                              onClick={() => handleTriggerHackathonRound(round.id)}
+                              disabled={processingHackathonRoundId === round.id}
+                              className="px-4 py-2 rounded-lg border border-neon-yellow text-neon-yellow text-sm font-bold transition hover:bg-neon-yellow hover:text-dark-bg disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{ fontFamily: 'Orbitron, monospace' }}
+                            >
+                              {processingHackathonRoundId === round.id ? 'Emparejando...' : 'Emparejar ronda'}
+                            </button>
+                          ) : null}
+                          {round.status === 'active' ? (
+                            <button
+                              onClick={() => handleCloseHackathonRound(round.id)}
+                              disabled={processingHackathonRoundId === round.id}
+                              className="px-4 py-2 rounded-lg border border-neon-green text-neon-green text-sm font-bold transition hover:bg-neon-green hover:text-dark-bg disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{ fontFamily: 'Orbitron, monospace' }}
+                            >
+                              {processingHackathonRoundId === round.id ? 'Cerrando...' : 'Cerrar ronda'}
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="p-4 space-y-3">
+                        {round.pairings.length === 0 ? (
+                          <p className="text-text-light/60 text-sm">Esta ronda todavía no tiene emparejamientos.</p>
+                        ) : round.pairings.map((pairing) => (
+                          <div key={pairing.id} className="rounded-lg border border-border-dark p-4" style={{ background: 'rgba(0,0,0,0.25)' }}>
+                            <div className="flex items-center justify-between gap-3 mb-3">
+                              <p className="text-neon-yellow text-sm font-bold" style={{ fontFamily: 'Orbitron, monospace' }}>Pareja {pairing.pair_number}</p>
+                              <span className={`px-2 py-1 rounded text-xs font-bold ${pairing.status === 'closed' ? 'bg-neon-green/20 text-neon-green' : 'bg-neon-cyan/20 text-neon-cyan'}`}>
+                                {pairing.status === 'closed' ? 'Cerrada' : 'Activa'}
+                              </span>
+                            </div>
+                            {pairing.bye ? (
+                              <p className="text-text-light text-sm">
+                                <strong>{pairing.participant_a.display_name}</strong> avanza automáticamente por cantidad impar de inscritos.
+                              </p>
+                            ) : (
+                              <div className="grid gap-3 md:grid-cols-2">
+                                <div className={`rounded-lg border p-3 ${pairing.winner_user_id === pairing.participant_a.user_id ? 'border-neon-green' : 'border-border-dark'}`}>
+                                  <p className="font-bold text-text-light">{pairing.participant_a.display_name}</p>
+                                  <p className="text-xs text-neon-cyan mt-1">{pairing.participant_a.github_profile}</p>
+                                  {pairing.votes_for_a !== null ? <p className="text-xs text-neon-yellow mt-2">Votos: {pairing.votes_for_a}</p> : null}
+                                </div>
+                                <div className={`rounded-lg border p-3 ${pairing.winner_user_id === pairing.participant_b?.user_id ? 'border-neon-green' : 'border-border-dark'}`}>
+                                  <p className="font-bold text-text-light">{pairing.participant_b?.display_name}</p>
+                                  <p className="text-xs text-neon-cyan mt-1">{pairing.participant_b?.github_profile}</p>
+                                  {pairing.votes_for_b !== null ? <p className="text-xs text-neon-yellow mt-2">Votos: {pairing.votes_for_b}</p> : null}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           )}
         </main>
         {renderChatWidget()}

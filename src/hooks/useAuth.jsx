@@ -9,15 +9,26 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        return data.user;
+      }
+      setUser(null);
+      return null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   // Restaurar sesión desde cookie al cargar
   useEffect(() => {
     async function restoreSession() {
       try {
-        const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        }
+        await refreshUser();
       } catch {
         // Sin sesión válida
       } finally {
@@ -28,7 +39,7 @@ export function AuthProvider({ children }) {
       }
     }
     restoreSession();
-  }, []);
+  }, [refreshUser]);
 
   const login = useCallback(async (credentialResponse) => {
     try {
@@ -93,7 +104,7 @@ export function AuthProvider({ children }) {
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <AuthContext.Provider value={{ user, loading, login, logout }}>
+      <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
         {children}
       </AuthContext.Provider>
     </GoogleOAuthProvider>

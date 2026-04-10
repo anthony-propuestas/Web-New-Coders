@@ -55,6 +55,79 @@ CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_season ON enrollments(season);
 
 -- ============================================
+-- Tabla: hackathon_registrations
+-- Inscripciones a hackathones por usuario
+-- ============================================
+CREATE TABLE IF NOT EXISTS hackathon_registrations (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  display_name    TEXT    NOT NULL,
+  github_profile  TEXT    NOT NULL,
+  category        TEXT    NOT NULL CHECK (category IN ('starter', 'deployer')),
+  registered_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+  updated_at      TEXT    NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_hackathon_registrations_user ON hackathon_registrations(user_id);
+CREATE INDEX IF NOT EXISTS idx_hackathon_registrations_category ON hackathon_registrations(category);
+
+-- ============================================
+-- Tabla: hackathon_rounds
+-- Rondas por categoría para la hackathon
+-- ============================================
+CREATE TABLE IF NOT EXISTS hackathon_rounds (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  round_number  INTEGER NOT NULL CHECK (round_number >= 1),
+  category      TEXT    NOT NULL CHECK (category IN ('starter', 'deployer')),
+  status        TEXT    NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'closed')),
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+  started_at    TEXT    DEFAULT NULL,
+  closed_at     TEXT    DEFAULT NULL,
+  UNIQUE(round_number, category)
+);
+
+CREATE INDEX IF NOT EXISTS idx_hackathon_rounds_category_status ON hackathon_rounds(category, status);
+
+-- ============================================
+-- Tabla: hackathon_pairings
+-- Emparejamientos dentro de una ronda
+-- ============================================
+CREATE TABLE IF NOT EXISTS hackathon_pairings (
+  id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+  round_id              INTEGER NOT NULL REFERENCES hackathon_rounds(id) ON DELETE CASCADE,
+  pair_number           INTEGER NOT NULL CHECK (pair_number >= 1),
+  participant_a_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  participant_b_user_id INTEGER DEFAULT NULL REFERENCES users(id) ON DELETE CASCADE,
+  winner_user_id        INTEGER DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL,
+  votes_for_a           INTEGER NOT NULL DEFAULT 0,
+  votes_for_b           INTEGER NOT NULL DEFAULT 0,
+  status                TEXT    NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'closed')),
+  created_at            TEXT    NOT NULL DEFAULT (datetime('now')),
+  closed_at             TEXT    DEFAULT NULL,
+  UNIQUE(round_id, pair_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_hackathon_pairings_round ON hackathon_pairings(round_id);
+CREATE INDEX IF NOT EXISTS idx_hackathon_pairings_status ON hackathon_pairings(status);
+
+-- ============================================
+-- Tabla: hackathon_votes
+-- Votos por emparejamiento
+-- ============================================
+CREATE TABLE IF NOT EXISTS hackathon_votes (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  pairing_id        INTEGER NOT NULL REFERENCES hackathon_pairings(id) ON DELETE CASCADE,
+  voter_user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  voted_for_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at        TEXT    NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(pairing_id, voter_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_hackathon_votes_pairing ON hackathon_votes(pairing_id);
+CREATE INDEX IF NOT EXISTS idx_hackathon_votes_voter ON hackathon_votes(voter_user_id);
+
+-- ============================================
 -- Tabla: lesson_completions
 -- Registro de lecciones completadas por usuario
 -- ============================================

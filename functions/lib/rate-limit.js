@@ -6,6 +6,8 @@ const LIMITS = {
   progress: { max: 30, windowSeconds: 60  }, // 30 peticiones/minuto por usuario
   migrate:  { max: 3,  windowSeconds: 300 }, // 3 migraciones/5min por usuario
   profile:  { max: 20, windowSeconds: 60  }, // 20 actualizaciones/minuto por usuario
+  hackathon:{ max: 10, windowSeconds: 60  }, // 10 inscripciones/actualizaciones por minuto por usuario
+  hackathon_vote:{ max: 30, windowSeconds: 60 }, // 30 votos/minuto por usuario
   chat:               { max: 10,   windowSeconds: 60      }, // 10 mensajes/minuto por usuario o IP
   chat_mensual:       { max: 100,  windowSeconds: 2592000 }, // 100 mensajes/30 días por usuario
   chat_global_mensual:{ max: 1000, windowSeconds: 2592000 }, // 1000 mensajes/30 días en total
