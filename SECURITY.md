@@ -374,7 +374,7 @@ Roles disponibles: `user` (defecto), `admin`. Asignados en DB, no modificables d
 
 **Nota sobre `unsafe-inline` en script-src**: requerido por el SDK de Google OAuth (`@react-oauth/google`). El riesgo se mitiga porque `unsafe-eval` no esta incluido y el CSP bloquea scripts de origenes no autorizados.
 
-**Nota sobre `frame-ancestors`**: no se puede aplicar via meta tag — esta directiva solo funciona como header HTTP. Se aplica en `public/_headers` con `X-Frame-Options: DENY`.
+**Nota sobre `frame-ancestors`**: no se puede aplicar via meta tag — esta directiva solo funciona como header HTTP. En produccion se aplica en `public/_headers` como `frame-ancestors 'self'`, y ademas se refuerza con `X-Frame-Options: SAMEORIGIN`.
 
 ---
 
@@ -385,17 +385,23 @@ Roles disponibles: `user` (defecto), `admin`. Asignados en DB, no modificables d
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
+  X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()
+  Content-Security-Policy: ...; frame-ancestors 'self'; ...
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: cross-origin
 ```
 
 #### Desarrollo — `vite.config.js`
 ```javascript
 headers: {
   'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
+  'X-Frame-Options': 'SAMEORIGIN',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
+  'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+  'Cross-Origin-Resource-Policy': 'cross-origin',
 }
 ```
 
@@ -443,6 +449,22 @@ headers: {
 
 ---
 
+### 15. Verificacion Automatizada
+
+La seguridad implementada no depende solo de inspeccion manual: el repositorio ya cuenta con pruebas automatizadas activas en `Vitest` y ejecucion continua en GitHub Actions.
+
+Cobertura actualmente verificada:
+
+- `tests/auth/google-jwt.test.js` valida JWT valido, audiencia invalida, expiracion, claims faltantes, algoritmo no soportado y cache JWKS
+- `tests/auth/session-rate-limit.test.js` valida sesiones, cookies, extraccion de IP y rate limiting con timestamps compatibles con SQLite
+- `tests/auth/login.integration.test.js` y `tests/auth/session.integration.test.js` cubren login, logout, sesiones, auditoria y rate limit de autenticacion
+- `tests/profile-progress/*.test.js` cubren perfil, sanitizacion de `display_name`, soft-delete GDPR, certificado, exportacion y progreso
+- `tests/admin-chat/*.test.js` cubren RBAC admin, agregados administrativos, sanitizacion del chat, deteccion de prompt injection y rate limit anonimo
+- La suite actual corre en memoria con `better-sqlite3` sobre el `schema.sql` real y hoy pasa con **9 archivos / 41 tests**
+- `.github/workflows/ci.yml` ejecuta `npm ci` y `npm test` en `push` y `pull_request` hacia `main`
+
+---
+
 ## Checklist de Seguridad
 
 | Aspecto | Estado | Notas |
@@ -460,7 +482,7 @@ headers: {
 | **SQL Injection** | BIEN | Prepared statements con `.bind()` en todos los queries D1 |
 | **Tabnabbing** | BIEN | `rel="noopener noreferrer"` en todos los enlaces externos |
 | **CSP** | IMPLEMENTADA | Meta tag completa; `unsafe-inline` en script-src por Google OAuth |
-| **Security Headers** | BIEN | Dev (vite.config.js) + Prod (public/_headers con HSTS) |
+| **Security Headers** | BIEN | Dev y prod alineados con HSTS, CSP, Permissions-Policy, COOP y CORP |
 | **Variables de Entorno** | BIEN | `.env.local` en gitignore, secrets solo en servidor |
 | **Dependencias** | BIEN | 3 deps produccion (react, react-dom, @react-oauth/google) |
 | **localStorage Auth** | ELIMINADO | Auth solo via HTTP-only cookie server-side |
@@ -468,8 +490,8 @@ headers: {
 | **Chatbot Rate Limiting** | BIEN | 3 niveles: 10/min anti-spam + 100/mes por usuario + 1000/mes global |
 | **Prompt Injection** | BIEN | Patrones de injection detectados y rechazados antes de enviar a OpenAI |
 | **CORS Dev Origins** | BIEN | Origenes de desarrollo via `DEV_ORIGINS` en `.dev.vars`, no hardcodeados |
-| **Tests de Seguridad** | PENDIENTE | No existen tests automatizados |
-| **CI/CD Security** | PENDIENTE | No hay pipeline de CI/CD |
+| **Tests de Seguridad** | BIEN | Suite Vitest activa: 9 archivos, 41 tests sobre auth, sesiones, rate limit, chat, admin y GDPR |
+| **CI/CD Security** | PARCIAL | GitHub Actions ejecuta `npm ci` + `npm test`; aun no incluye `npm audit`, SCA ni Dependabot |
 
 ---
 
@@ -499,24 +521,21 @@ Las claves publicas de Google se cachean en memoria del Worker por 1 hora. Si Go
 
 ## Recomendaciones para Produccion
 
-### 1. Tests automatizados
-```javascript
-// Tests criticos para verifyGoogleJwt()
-// - Firma invalida -> debe lanzar error
-// - Issuer invalido -> debe lanzar error
-// - Audience incorrecta -> debe lanzar error
-// - Token expirado -> debe lanzar error
-// - Claims faltantes -> debe lanzar error
-// - Token valido -> retorna { sub, email, name, picture }
-```
-
-### 2. CI/CD con escaneo de dependencias
+### 1. CI/CD con escaneo de dependencias
 ```yaml
 # GitHub Actions
 - name: Security audit
   run: npm audit --audit-level=moderate
 # Habilitar Dependabot para actualizaciones automaticas
 ```
+
+### 2. Endurecer la pipeline existente
+
+La pipeline actual ya ejecuta tests, pero todavia puede ampliarse con:
+
+- `npm audit --audit-level=moderate`
+- actualizaciones automaticas via Dependabot
+- chequeo de cambios en headers/CSP para evitar drift entre `index.html` y `public/_headers`
 
 ### 3. Rotacion de sesiones
 Considerar invalidar sesiones anteriores al hacer login desde un nuevo dispositivo.
@@ -563,6 +582,6 @@ La aplicacion tiene un nivel de seguridad **SOLIDO** para una plataforma educati
 ---
 
 **Fecha del Analisis:** Abril 2, 2026
-**Ultima Actualizacion:** Abril 2, 2026 (auditoria de seguridad completa)
-**Version de la App:** 2.1.0
+**Ultima Actualizacion:** Abril 10, 2026 (documentacion alineada con tests, CI y headers reales)
+**Version de la App:** 1.0.0
 **Nivel de Severidad:** BAJO

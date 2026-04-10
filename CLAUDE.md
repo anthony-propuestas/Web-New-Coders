@@ -40,12 +40,21 @@ npm run build
 # Preview production build locally
 npm run preview
 
+# Run full test suite
+npm test
+
+# Watch mode for tests
+npm run test:watch
+
+# Run only auth-related tests
+npm run test:auth
+
 # Deploy to Cloudflare Pages
 npm run build && wrangler pages deploy dist/
 ```
 
 > The Vite dev server proxies `/api/*` requests to `http://localhost:8788` (Wrangler).
-> There are no test or lint scripts configured at this time.
+> Test scripts are configured with Vitest. There is still no lint script configured at this time.
 
 ---
 
@@ -80,7 +89,19 @@ npm run build && wrangler pages deploy dist/
 ├── scripts/
 │   └── generate-og-image.mjs
 │
+├── tests/                   # Vitest suite for auth, profile, progress, admin, chat
+│   ├── setup.js
+│   ├── helpers/             # D1 mock + HTTP/context fixtures
+│   ├── auth/
+│   ├── profile-progress/
+│   └── admin-chat/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # Runs npm ci + npm test on push/PR
+│
 ├── schema.sql               # D1 database schema (8 tables)
+├── vitest.config.js         # Vitest configuration
 ├── wrangler.toml            # Cloudflare Workers/Pages config
 ├── vite.config.js
 ├── tailwind.config.js
@@ -138,7 +159,7 @@ Never commit `.env`, `.env.local`, `.env.*.local`, or `.dev.vars`.
 
 ## API Reference
 
-All endpoints are under `/api`. Authentication uses HTTP-only cookies (`session_id`).
+All endpoints are under `/api`. Authentication uses HTTP-only cookies (`session`).
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
@@ -196,9 +217,16 @@ Fonts: **Orbitron** (display headings), **Source Code Pro** (monospace/code).
 - **ES6 modules are required** — All files must use `import`/`export`. CommonJS (`require`) is not supported.
 - **Cloudflare Workers runtime** — The `functions/` backend runs in the Workers runtime, not Node.js. Do not use Node built-ins (`fs`, `path`, `crypto` module — use Web Crypto API instead).
 - **D1 is SQLite-compatible** — Use standard SQLite syntax. Prepared statements are required for all queries (no string interpolation with user data).
-- **No testing framework is configured** — When adding tests, prefer Vitest (compatible with Vite).
+- **Vitest is already configured** — Prefer extending the existing test harness under `tests/` instead of introducing a second framework.
 - **No linter is configured** — When adding a linter, prefer ESLint with the React and recommended presets.
 - **Content is in Spanish** — All UI text, error messages, and lesson content must remain in Spanish unless explicitly asked to change.
+
+### Testing Notes
+
+- `npm test` runs the full Vitest suite.
+- Tests execute handlers directly in Node without Wrangler or a live HTTP server.
+- `tests/helpers/d1.js` provides an in-memory SQLite-backed D1 shim using the real `schema.sql`.
+- Prefer integration-style tests around observable behavior: status, JSON body, headers, and DB effects.
 
 ---
 
