@@ -667,6 +667,9 @@ export default function App() {
   const [hackathonRounds, setHackathonRounds] = useState([]);
   const [loadingHackathonRounds, setLoadingHackathonRounds] = useState(false);
   const [hackathonRoundsError, setHackathonRoundsError] = useState('');
+  const [hackathonRegistrants, setHackathonRegistrants] = useState([]);
+  const [loadingHackathonRegistrants, setLoadingHackathonRegistrants] = useState(false);
+  const [hackathonRegistrantsError, setHackathonRegistrantsError] = useState('');
   const [hackathonVoteMessage, setHackathonVoteMessage] = useState('');
   const [hackathonVoteError, setHackathonVoteError] = useState('');
   const [votingHackathonPairingId, setVotingHackathonPairingId] = useState(null);
@@ -733,6 +736,10 @@ export default function App() {
   useEffect(() => {
     if (currentView !== 'hackatones' && !(currentView === 'admin' && user?.role === 'admin' && adminSection === 'hackathon')) return;
     loadHackathonRounds();
+
+    if (currentView === 'admin' && user?.role === 'admin' && adminSection === 'hackathon') {
+      loadAdminHackathonRegistrants();
+    }
   }, [currentView, adminSection, user?.role]);
 
   useEffect(() => {
@@ -883,6 +890,29 @@ export default function App() {
       if (!silent) {
         setLoadingHackathonRounds(false);
       }
+    }
+  }
+
+  async function loadAdminHackathonRegistrants() {
+    setLoadingHackathonRegistrants(true);
+    setHackathonRegistrantsError('');
+
+    try {
+      const res = await fetch('/api/admin/hackathon-registrations', { credentials: 'include' });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setHackathonRegistrants([]);
+        setHackathonRegistrantsError(data.error || 'No pudimos cargar la lista de participantes.');
+        return;
+      }
+
+      setHackathonRegistrants(data.registrants || []);
+    } catch {
+      setHackathonRegistrants([]);
+      setHackathonRegistrantsError('No pudimos cargar la lista de participantes.');
+    } finally {
+      setLoadingHackathonRegistrants(false);
     }
   }
 
@@ -1106,7 +1136,6 @@ export default function App() {
     setAdminSection('hackathon');
     setHackathonAdminError('');
     setHackathonAdminMessage('');
-    await loadHackathonRounds();
   };
 
   const handleCreateHackathonRound = async (category) => {
@@ -1166,6 +1195,13 @@ export default function App() {
       setProcessingHackathonRoundId(null);
     }
   };
+
+  const registrantsByCategory = hackathonRegistrants.reduce((accumulator, registrant) => {
+    const key = registrant.category || 'starter';
+    accumulator[key] = accumulator[key] || [];
+    accumulator[key].push(registrant);
+    return accumulator;
+  }, {});
 
   const handleCloseHackathonRound = async (roundId) => {
     if (processingHackathonRoundId) return;
@@ -2512,6 +2548,104 @@ export default function App() {
 
           {adminSection === 'hackathon' && (
             <div className="space-y-6">
+              <section className="rounded-lg border border-border-dark overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <div className="p-4 border-b border-border-dark" style={{ background: 'rgba(255,213,0,0.06)' }}>
+                  <h2 className="text-neon-yellow font-bold text-lg" style={{ fontFamily: 'Orbitron, monospace' }}>Participantes registrados</h2>
+                  <p className="text-text-light/70 text-sm mt-1">Esta lista usa únicamente los datos enviados en el formulario de hackathon: nombre visible, GitHub y categoría.</p>
+                </div>
+
+                <div className="p-4 space-y-6">
+                  {loadingHackathonRegistrants ? <p className="text-neon-cyan text-sm">Cargando participantes...</p> : null}
+                  {!loadingHackathonRegistrants && hackathonRegistrantsError ? <p className="text-red-400 text-sm">{hackathonRegistrantsError}</p> : null}
+
+                  {!loadingHackathonRegistrants && !hackathonRegistrantsError && hackathonRegistrants.length === 0 ? (
+                    <p className="text-text-light/50 text-sm">Todavía no hay formularios enviados para la hackathon.</p>
+                  ) : null}
+
+                  {!loadingHackathonRegistrants && !hackathonRegistrantsError && hackathonRegistrants.length > 0 ? (
+                    <>
+                      <div className="rounded-lg border border-border-dark overflow-hidden">
+                        <div className="p-3 border-b border-border-dark" style={{ background: 'rgba(0,212,255,0.06)' }}>
+                          <h3 className="text-neon-cyan font-bold text-sm" style={{ fontFamily: 'Orbitron, monospace' }}>Orden global de participantes</h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-border-dark">
+                                <th className="text-left p-3 text-neon-cyan">#</th>
+                                <th className="text-left p-3 text-neon-cyan">Participante</th>
+                                <th className="text-left p-3 text-neon-cyan">GitHub</th>
+                                <th className="text-left p-3 text-neon-cyan">Categoría</th>
+                                <th className="text-left p-3 text-neon-cyan hidden md:table-cell">Registro</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {hackathonRegistrants.map((registrant, index) => (
+                                <tr key={`${registrant.user_id}-${registrant.category}`} className="border-b border-border-dark hover:bg-white/5 transition-colors">
+                                  <td className="p-3 text-neon-yellow font-bold">{index + 1}</td>
+                                  <td className="p-3">
+                                    <div className="text-text-light font-semibold">{registrant.display_name}</div>
+                                    <div className="text-border-dark text-xs">{registrant.email}</div>
+                                  </td>
+                                  <td className="p-3 text-xs">
+                                    <a href={registrant.github_profile} target="_blank" rel="noopener noreferrer" className="text-neon-cyan hover:text-neon-green transition break-all">
+                                      {registrant.github_profile}
+                                    </a>
+                                  </td>
+                                  <td className="p-3">
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${registrant.category === 'starter' ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-neon-green/20 text-neon-green'}`}>
+                                      {registrant.category === 'starter' ? 'Starter' : 'Deployer'}
+                                    </span>
+                                  </td>
+                                  <td className="p-3 text-text-light/60 text-xs hidden md:table-cell">
+                                    {new Date(registrant.registered_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 xl:grid-cols-2">
+                        {['starter', 'deployer'].map((categoryKey) => {
+                          const categoryRegistrants = registrantsByCategory[categoryKey] || [];
+                          return (
+                            <div key={categoryKey} className="rounded-lg border border-border-dark overflow-hidden">
+                              <div className="p-3 border-b border-border-dark flex items-center justify-between" style={{ background: categoryKey === 'starter' ? 'rgba(0,212,255,0.06)' : 'rgba(0,255,135,0.06)' }}>
+                                <h3 className={categoryKey === 'starter' ? 'text-neon-cyan font-bold text-sm' : 'text-neon-green font-bold text-sm'} style={{ fontFamily: 'Orbitron, monospace' }}>
+                                  {categoryKey === 'starter' ? 'Starter' : 'Deployer'}
+                                </h3>
+                                <span className="text-text-light/60 text-xs">{categoryRegistrants.length} participantes</span>
+                              </div>
+                              <div className="p-4 space-y-3">
+                                {categoryRegistrants.length === 0 ? (
+                                  <p className="text-text-light/50 text-sm">Sin participantes registrados en esta categoría.</p>
+                                ) : categoryRegistrants.map((registrant, index) => (
+                                  <div key={`${categoryKey}-${registrant.user_id}`} className="rounded-lg border border-border-dark p-3" style={{ background: 'rgba(0,0,0,0.25)' }}>
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div>
+                                        <p className="text-text-light font-semibold">{index + 1}. {registrant.display_name}</p>
+                                        <a href={registrant.github_profile} target="_blank" rel="noopener noreferrer" className="text-neon-cyan text-xs hover:text-neon-green transition break-all">
+                                          {registrant.github_profile}
+                                        </a>
+                                      </div>
+                                      <span className="text-border-dark text-xs shrink-0">
+                                        {new Date(registrant.registered_at).toLocaleDateString('es-ES')}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </section>
+
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between rounded-lg border border-border-dark p-5" style={{ background: 'rgba(0,0,0,0.3)' }}>
                 <div>
                   <h2 className="text-neon-yellow font-bold text-lg" style={{ fontFamily: 'Orbitron, monospace' }}>Gestión de rondas Hackathon</h2>

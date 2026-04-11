@@ -229,6 +229,7 @@ Prueba:
 
 - `GET /api/admin/stats`
 - `GET /api/admin/users`
+- `GET /api/admin/hackathon-registrations`
 - `PATCH /api/admin/users`
 
 Casos cubiertos:
@@ -239,6 +240,12 @@ Casos cubiertos:
 - inscripciones por temporada
 - listado paginado con búsqueda
 - filtro por usuarios activos
+- rechazo sin sesión para listar registrados de hackathon
+- lista vacía de hackathon cuando no hay formularios enviados
+- listado de registrados desde `hackathon_registrations` y no desde `users.role`
+- exclusión de usuarios con rol `new_hacker` si no enviaron el formulario
+- orden por `registered_at ASC, user_id ASC` en la lista de hackathon
+- reflejo real de envíos al formulario `POST /api/hackathon/register`
 - desactivación de usuarios
 - limpieza de sesiones al desactivar
 - protección contra auto-desactivación del admin
@@ -292,8 +299,12 @@ Recomendaciones para extender la suite:
 
 Cobertura actual registrada:
 
-- 9 archivos de tests
-- 41 tests pasando
+- 11 archivos de tests
+- 53 tests pasando
 - cobertura sobre auth, perfil, progreso, extras de usuario, admin y chat
+
+Nota:
+
+- la cobertura de admin ahora incluye el flujo de participantes del hackathon visibles en el panel Admin > Hackathon a través del endpoint `GET /api/admin/hackathon-registrations`
 
 La suite está pensada como integración liviana + unit tests selectivos, no como E2E de navegador.

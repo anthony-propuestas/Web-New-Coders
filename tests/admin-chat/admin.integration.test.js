@@ -8,11 +8,15 @@ describe('admin endpoints', () => {
   let statsHandler;
   let usersGetHandler;
   let usersPatchHandler;
+  let hackathonRegistrationsHandler;
+  let hackathonRegisterPostHandler;
 
   beforeEach(async () => {
     db = createTestDb();
     ({ onRequestGet: statsHandler } = await import('../../functions/api/admin/stats.js'));
     ({ onRequestGet: usersGetHandler, onRequestPatch: usersPatchHandler } = await import('../../functions/api/admin/users.js'));
+    ({ onRequestGet: hackathonRegistrationsHandler } = await import('../../functions/api/admin/hackathon-registrations.js'));
+    ({ onRequestPost: hackathonRegisterPostHandler } = await import('../../functions/api/hackathon/register.js'));
   });
 
   afterEach(() => {
@@ -201,5 +205,233 @@ describe('admin endpoints', () => {
 
     expect(selfResponse.status).toBe(400);
     await expect(selfResponse.json()).resolves.toEqual({ error: 'Cannot modify your own account status' });
+  });
+
+  it('lists hackathon registrants from form submissions for admins only', async () => {
+    const { sessionId: adminSessionId, userId: adminId } = await createAuthenticatedSession(db, {
+      email: 'admin-hackathon@example.com',
+      role: 'admin',
+    });
+    const { sessionId: studentSessionId } = await createAuthenticatedSession(db, {
+      email: 'student-hackathon@example.com',
+      role: 'student',
+    });
+    const { userId: starterId } = await createAuthenticatedSession(db, {
+      email: 'starter-registrant@example.com',
+      role: 'student',
+    });
+    const { userId: deployerId } = await createAuthenticatedSession(db, {
+      email: 'deployer-registrant@example.com',
+      role: 'student',
+    });
+    await createAuthenticatedSession(db, {
+      email: 'new-hacker-without-form@example.com',
+      role: 'new_hacker',
+    });
+
+    await db
+      .prepare(
+        `INSERT INTO hackathon_registrations (user_id, display_name, github_profile, category, registered_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?)`
+      )
+      .bind(
+        starterId,
+        'Equipo Starter',
+        'https://github.com/equipo-starter',
+        'starter',
+        '2026-04-10 10:00:00',
+        '2026-04-10 10:00:00',
+        deployerId,
+        'Equipo Deployer',
+        'https://github.com/equipo-deployer',
+        'deployer',
+        '2026-04-10 10:05:00',
+        '2026-04-10 10:05:00'
+      )
+      .run();
+
+    const forbidden = await hackathonRegistrationsHandler(
+      createContext({
+        db,
+        request: createJsonRequest('https://newcoders.org/api/admin/hackathon-registrations', {
+          cookie: `session=${studentSessionId}`,
+        }),
+      })
+    );
+    expect(forbidden.status).toBe(403);
+
+    const response = await hackathonRegistrationsHandler(
+      createContext({
+        db,
+        request: createJsonRequest('https://newcoders.org/api/admin/hackathon-registrations', {
+          cookie: `session=${adminSessionId}`,
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      registrants: [
+        {
+          user_id: starterId,
+          display_name: 'Equipo Starter',
+          github_profile: 'https://github.com/equipo-starter',
+          category: 'starter',
+          registered_at: '2026-04-10 10:00:00',
+          updated_at: '2026-04-10 10:00:00',
+          email: 'starter-registrant@example.com',
+        },
+        {
+          user_id: deployerId,
+          display_name: 'Equipo Deployer',
+          github_profile: 'https://github.com/equipo-deployer',
+          category: 'deployer',
+          registered_at: '2026-04-10 10:05:00',
+          updated_at: '2026-04-10 10:05:00',
+          email: 'deployer-registrant@example.com',
+        },
+      ],
+    });
+
+    const audit = await db
+      .prepare("SELECT user_id, action, details FROM audit_log WHERE action = 'admin_hackathon_registrations_list' AND user_id = ?")
+      .bind(adminId)
+      .first();
+    expect(audit).toEqual({
+      user_id: adminId,
+      action: 'admin_hackathon_registrations_list',
+      details: JSON.stringify({ total: 2 }),
+    });
+  });
+
+  it('requires authentication and returns an empty list when no hackathon forms were submitted', async () => {
+    const unauthenticated = await hackathonRegistrationsHandler(
+      createContext({
+        db,
+        request: createJsonRequest('https://newcoders.org/api/admin/hackathon-registrations'),
+      })
+    );
+
+    expect(unauthenticated.status).toBe(401);
+    await expect(unauthenticated.json()).resolves.toEqual({ error: 'Not authenticated' });
+
+    const { sessionId: adminSessionId, userId: adminId } = await createAuthenticatedSession(db, {
+      email: 'admin-empty-hackathon@example.com',
+      role: 'admin',
+    });
+
+    const response = await hackathonRegistrationsHandler(
+      createContext({
+        db,
+        request: createJsonRequest('https://newcoders.org/api/admin/hackathon-registrations', {
+          cookie: `session=${adminSessionId}`,
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ registrants: [] });
+
+    const audit = await db
+      .prepare("SELECT user_id, action, details FROM audit_log WHERE action = 'admin_hackathon_registrations_list' AND user_id = ?")
+      .bind(adminId)
+      .first();
+    expect(audit).toEqual({
+      user_id: adminId,
+      action: 'admin_hackathon_registrations_list',
+      details: JSON.stringify({ total: 0 }),
+    });
+  });
+
+  it('reflects real hackathon form submissions in registration order', async () => {
+    const { sessionId: adminSessionId } = await createAuthenticatedSession(db, {
+      email: 'admin-form-order@example.com',
+      role: 'admin',
+    });
+    const starter = await createAuthenticatedSession(db, {
+      email: 'starter-form@example.com',
+      name: 'Starter Form',
+      role: 'student',
+    });
+    const deployer = await createAuthenticatedSession(db, {
+      email: 'deployer-form@example.com',
+      name: 'Deployer Form',
+      role: 'student',
+    });
+
+    const starterSubmission = await hackathonRegisterPostHandler(
+      createContext({
+        db,
+        request: createJsonRequest('https://newcoders.org/api/hackathon/register', {
+          method: 'POST',
+          cookie: `session=${starter.sessionId}`,
+          body: {
+            display_name: 'Equipo Primero',
+            github_profile: '@equipo-primero',
+            category: 'starter',
+          },
+        }),
+      })
+    );
+
+    const deployerSubmission = await hackathonRegisterPostHandler(
+      createContext({
+        db,
+        request: createJsonRequest('https://newcoders.org/api/hackathon/register', {
+          method: 'POST',
+          cookie: `session=${deployer.sessionId}`,
+          body: {
+            display_name: 'Equipo Segundo',
+            github_profile: '@equipo-segundo',
+            category: 'deployer',
+          },
+        }),
+      })
+    );
+
+    expect(starterSubmission.status).toBe(201);
+    expect(deployerSubmission.status).toBe(201);
+
+    await db
+      .prepare('UPDATE hackathon_registrations SET registered_at = ?, updated_at = ? WHERE user_id = ?')
+      .bind('2026-04-10 09:00:00', '2026-04-10 09:00:00', starter.userId)
+      .run();
+    await db
+      .prepare('UPDATE hackathon_registrations SET registered_at = ?, updated_at = ? WHERE user_id = ?')
+      .bind('2026-04-10 09:05:00', '2026-04-10 09:05:00', deployer.userId)
+      .run();
+
+    const response = await hackathonRegistrationsHandler(
+      createContext({
+        db,
+        request: createJsonRequest('https://newcoders.org/api/admin/hackathon-registrations', {
+          cookie: `session=${adminSessionId}`,
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      registrants: [
+        {
+          user_id: starter.userId,
+          display_name: 'Equipo Primero',
+          github_profile: 'https://github.com/equipo-primero',
+          category: 'starter',
+          registered_at: '2026-04-10 09:00:00',
+          updated_at: '2026-04-10 09:00:00',
+          email: 'starter-form@example.com',
+        },
+        {
+          user_id: deployer.userId,
+          display_name: 'Equipo Segundo',
+          github_profile: 'https://github.com/equipo-segundo',
+          category: 'deployer',
+          registered_at: '2026-04-10 09:05:00',
+          updated_at: '2026-04-10 09:05:00',
+          email: 'deployer-form@example.com',
+        },
+      ],
+    });
   });
 });
